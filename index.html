@@ -1,22 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<link rel="stylesheet" type="text/css" href="stylesheets/styles.css">
     <title>Treestuff</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-	
-	<script language=JavaScript src="javascripts/scripts.js"></script>
+	<!--<script language=JavaScript src="javascripts/scripts.js"></script>-->
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   </head>
   <body>
-    
-	<button type="button" onclick="alertFunc()">Show alert</button>
+  <div>
+    <script>
+	"use strict";
+	var data = [4, 8, 15, 16, 23, 42];
+	
+	var chart = d3.select("body").append("svg")
+    .attr("class", "chart")
+    .attr("width", 440)
+    .attr("height", 140)
+  .append("g")
+    .attr("transform", "translate(10,15)");
+	
+	var x = d3.scale.linear()
+    .domain([0, d3.max(data)])
+    .range([0, 420]);
+	
+	var y = d3.scale.ordinal()
+    .domain(data)
+    .rangeBands([0, 120]);
+	
+		chart.selectAll("line")
+    .data(x.ticks(10))
+  .enter().append("line")
+    .attr("x1", x)
+    .attr("x2", x)
+    .attr("y1", 0)
+    .attr("y2", 120)
+    .style("stroke", "#ccc");
+	
+	chart.selectAll("rect")
+    .data(data)
+  .enter().append("rect")
+    .attr("y", y)
+    .attr("width", x)
+    .attr("height", y.rangeBand());
+	
+	chart.selectAll("text")
+    .data(data)
+  .enter().append("text")
+    .attr("x", x)
+    .attr("y", function(d) { return y(d) + y.rangeBand() / 2; })
+    .attr("dx", -3) // padding-right
+    .attr("dy", ".35em") // vertical-align: middle
+    .attr("text-anchor", "end") // text-align: right
+    .text(String);
+	
+
+	
+	chart.selectAll(".rule")
+    .data(x.ticks(10))
+  .enter().append("text")
+    .attr("class", "rule")
+    .attr("x", x)
+    .attr("y", 0)
+    .attr("dy", -3)
+    .attr("text-anchor", "middle")
+    .text(String);
+	
+	chart.append("line")
+    .attr("y1", 0)
+    .attr("y2", 120)
+    .style("stroke", "#000");
+	
+
+	
+	</script>
+	
+	</div>
+	
+	
       
         
     

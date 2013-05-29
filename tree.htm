@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!-- saved (stolen) from url=(0040)http://bl.ocks.org/mbostock/raw/2429963/ -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<title>A tree</title>
 <style>
 
 .node circle {
@@ -15,7 +16,7 @@
 
 .link {
   fill: none;
-  stroke: #ccc;
+  stroke: #000;
   stroke-width: 1.5px;
 }
 
@@ -25,8 +26,8 @@
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script>
 
-var width = 960,
-    height = 2200;
+var width = 700,
+    height = 400;
 
 var cluster = d3.layout.cluster()
     .size([height, width - 160]);
@@ -52,8 +53,8 @@ d3.json("data/testTree.json", function(json) {
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
 
-  node.append("circle")
-      .attr("r", 4.5);
+  //node.append("circle")
+   //   .attr("r", 4.5);
 
   node.append("text")
       .attr("dx", function(d) { return d.children ? -8 : 8; })

@@ -30,7 +30,8 @@ var width = 700,
     height = 400;
 
 var cluster = d3.layout.cluster()
-    .size([height, width - 160]);
+    .size([height, width - 160])
+	.separation( function(a, b) { return 1; } );
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -38,14 +39,20 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(40,0)");
 
-d3.json("data/testTree.json", function(json) {
-  var nodes = cluster.nodes(json);
-
+d3.json("data/testTree2.json", function(root) {
+  var nodes = cluster.nodes(root);
+	
   var link = svg.selectAll("path.link")
       .data(cluster.links(nodes))
     .enter().append("path")
       .attr("class", "link")
       .attr("d", elbow);
+	
+	//should this be bound to some data? just a lone line at the moment...
+   svg.append("path")
+	.attr("class", "link")
+	.attr("d", "M" + root.y + "," + root.x + "h" + -20);
+
 
   var node = svg.selectAll("g.node")
       .data(nodes)
@@ -60,7 +67,9 @@ d3.json("data/testTree.json", function(json) {
       .attr("dx", function(d) { return d.children ? -8 : 8; })
       .attr("dy", 3)
       .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
-      .text(function(d) { return d.name; });
+      .text(function(d) { return d.children ? "" : d.name; }); //only writes leaf names
+	  
+
 });
 
 function elbow(d, i) {

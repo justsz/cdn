@@ -1,61 +1,59 @@
 <!DOCTYPE html>
 <!-- saved (stolen) from url=(0040)http://bl.ocks.org/mbostock/raw/2429963/ -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
-<title>A tree</title>
-<style>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+		<title>A tree</title>
+		<link rel="stylesheet" type="text/css" href="stylesheets/treeStyles.css">
+		<script src="javascript/d3.v3.min.js"></script>
+	</head>
+<body>
+<!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
 
-.node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-.node {
-  font: 10px sans-serif;
-}
-
-.link {
-  fill: none;
-  stroke: #000;
-  stroke-width: 1.5px;
-}
-
-</style>
-</head><body>
-<!--<script src="./tree_files/d3.v2.js"></script><script src="./tree_files/d3.v2(1).js"></script>-->
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<p> Click here to sort leaves alphabetically. </p>
 <script>
 
 var width = 700,
     height = 400;
+	
+var root;
+var sortedAscending = false;
 
 var cluster = d3.layout.cluster()
     .size([height, width - 160])
 	.separation( function(a, b) { return 1; } );
+	
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g")
     .attr("transform", "translate(40,0)");
+	
+d3.select("p")
+	.on("click", sortLeaves);
+	
 
-d3.json("data/testTree2.json", function(root) {
+	
+
+d3.json("data/testTree2.json", function(json) {
+	root = json;
   var nodes = cluster.nodes(root);
 	
   var link = svg.selectAll("path.link")
-      .data(cluster.links(nodes))
+      .data(cluster.links(nodes), getLinkKey)
     .enter().append("path")
       .attr("class", "link")
       .attr("d", elbow);
 	
-	//should this be bound to some data? just a lone line at the moment...
+	//draw root node line
    svg.append("path")
-	.attr("class", "link")
+	.attr("id", "root")
 	.attr("d", "M" + root.y + "," + root.x + "h" + -20);
 
 
   var node = svg.selectAll("g.node")
-      .data(nodes)
+      .data(nodes, getNodeKey)
     .enter().append("g")
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
@@ -75,6 +73,47 @@ d3.json("data/testTree2.json", function(root) {
 function elbow(d, i) {
   return "M" + d.source.y + "," + d.source.x
       + "V" + d.target.x + "H" + d.target.y;
+}
+
+
+function sortLeaves() {
+	if (sortedAscending) {
+		cluster.sort(function(a,b) { return d3.descending(a.name, b.name)} );
+		sortedAscending = false;
+	} else {
+		cluster.sort(function(a,b) { return d3.ascending(a.name, b.name)} );
+		sortedAscending = true;
+	}
+	
+	var nodes = cluster.nodes(root);
+	
+	var link = svg.selectAll("path.link")
+		.data(cluster.links(nodes), getLinkKey)
+		.transition()
+		.duration(1000)
+		.attr("d", elbow);
+	
+	svg.select("#root")
+		.transition()
+		.duration(1000)
+		.attr("d", "M" + root.y + "," + root.x + "h" + -20);
+
+
+	var node = svg.selectAll("g.node")
+		.data(nodes, getNodeKey)
+		.transition()
+		.duration(1000)
+		.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+	
+	
+}
+
+var getNodeKey = function(d) {
+	return d.name;
+}
+
+var getLinkKey = function(d) {
+	return d.target.name;
 }
 
 </script>

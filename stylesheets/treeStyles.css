@@ -1,0 +1,27 @@
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+#root {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+/*
+path.link:hover {
+	stroke: orange;
+}
+*/

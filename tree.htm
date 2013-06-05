@@ -14,7 +14,7 @@
 <script>
 
 var width = 700,
-    height = 400;
+    height = 1000;
 	
 var root;
 var sortedAscending = false;
@@ -36,7 +36,7 @@ d3.select("p")
 
 	
 
-d3.json("data/testTree2.json", function(json) {
+d3.json("data/randomTree.json", function(json) {
 	root = json;
   var nodes = cluster.nodes(root);
 	
@@ -86,7 +86,8 @@ function sortLeaves() {
 	}
 	
 	var nodes = cluster.nodes(root);
-	
+
+		
 	var link = svg.selectAll("path.link")
 		.data(cluster.links(nodes), getLinkKey)
 		.transition()
@@ -108,12 +109,12 @@ function sortLeaves() {
 	
 }
 
-var getNodeKey = function(d) {
-	return d.name;
+var getNodeKey = function(d, i) {
+	return (d.name ? d.name : i);
 }
 
-var getLinkKey = function(d) {
-	return d.target.name;
+var getLinkKey = function(d, i) {
+	return (d.target.name ? d.target.name : i);
 }
 
 </script>

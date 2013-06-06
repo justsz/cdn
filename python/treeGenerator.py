@@ -4,8 +4,14 @@ import json
 import random
 
 
+print("input node count")
+nodeCount = raw_input()
+nodeCount = int(nodeCount)
 
-nodeCount = 200
+print("input filename")
+fileName = raw_input()
+
+
 
 k = "children"
 n = "name"
@@ -41,7 +47,7 @@ for x in range(0, nodeCount):
     
 
 
-json.dump(tree, open("../data/randomTree.json", "w+"))
+json.dump(tree, open("../data/" + fileName + ".json", "w+"))
     
 
 

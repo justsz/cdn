@@ -14,10 +14,20 @@
 <script>
 
 var width = 700,
-    height = 1000;
+    height = 500;
 	
 var root;
+var links;
+var nodes
 var sortedAscending = false;
+
+var y = d3.scale.linear()
+		.domain([0, height])
+		.range([0, height]);
+
+var zoom = d3.behavior.zoom()
+			.y(y)
+			.on("zoom", zoomed);
 
 var cluster = d3.layout.cluster()
     .size([height, width - 160])
@@ -27,24 +37,43 @@ var cluster = d3.layout.cluster()
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
+	.call(zoom)
   .append("g")
-    .attr("transform", "translate(40,0)");
+    .attr("transform", "translate(70,0)");
+
+	
+svg.append("svg:rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("class", "plot");
 	
 d3.select("p")
 	.on("click", sortLeaves);
 	
+	
+
 
 	
 
-d3.json("data/randomTree.json", function(json) {
+d3.json("data/tree1.json", function(json) {
 	root = json;
-  var nodes = cluster.nodes(root);
+  nodes = cluster.nodes(root);
 	
-  var link = svg.selectAll("path.link")
+  links = svg.selectAll("path.link")
       .data(cluster.links(nodes), getLinkKey)
     .enter().append("path")
       .attr("class", "link")
-      .attr("d", elbow);
+      .attr("d", elbow)
+	  //.on("mouseover", highlight)
+	  //.on("mouseout", unHighlight);
+	
+	
+	//links.each(function(d, i) {
+	//	svg.append("path")
+	//		.attr("class", "linkBox")
+	//		.attr("d", elbow(d,i))
+	//		
+	//});
 	
 	//draw root node line
    svg.append("path")
@@ -71,8 +100,22 @@ d3.json("data/randomTree.json", function(json) {
 });
 
 function elbow(d, i) {
-  return "M" + d.source.y + "," + d.source.x
-      + "V" + d.target.x + "H" + d.target.y;
+  return "M" + d.source.y + "," + y(d.source.x)
+      + "V" + y(d.target.x) + "H" + d.target.y;
+}
+
+function zoomed() {
+	var link = svg.selectAll("path.link")
+		.attr("d", elbow);
+		
+	svg.select("#root")
+		.attr("d", "M" + root.y + "," + y(root.x) + "h" + -20);
+
+
+	var node = svg.selectAll("g.node")
+		.attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; })
+		
+
 }
 
 
@@ -107,6 +150,26 @@ function sortLeaves() {
 		.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
 	
 	
+}
+
+var highlight = function() {
+	var selectedNodes = cluster.nodes(this.__data__.target);
+	//console.log(selectedNodes)
+	
+  svg.selectAll("path.link")
+    .data(cluster.links(selectedNodes), getLinkKey)
+	.style("stroke", "orange")
+	.style("stroke-width", "2.5px");
+}
+
+var unHighlight = function() {
+	var selectedNodes = cluster.nodes(this.__data__.target);
+	//console.log(selectedNodes)
+	
+  svg.selectAll("path.link")
+    .data(cluster.links(selectedNodes), getLinkKey)
+	.style("stroke", "#000")
+	.style("stroke-width", "1px");
 }
 
 var getNodeKey = function(d, i) {

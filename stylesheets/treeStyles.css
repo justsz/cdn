@@ -11,7 +11,18 @@
 .link {
   fill: none;
   stroke: #000;
-  stroke-width: 1.5 px;
+  stroke-width: 2 px;
+}
+
+.linkBox {
+	fill: none;
+	stroke: "white";
+	stroke-width : 5px;
+}
+
+.plot {
+	fill-opacity: 0;
+	stroke-opacity: 0;
 }
 
 #root {

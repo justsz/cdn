@@ -16,104 +16,91 @@
 var width = 700,
     height = 500;
 	
-var allRoots = [];
-var allLinks = [];
-var allNodes = [];
+var root;
+var links;
+var nodes
 var sortedAscending = false;
-
-//var root;
 
 var y = d3.scale.linear()
 		.domain([0, height])
 		.range([0, height]);
 
+var zoom = d3.behavior.zoom()
+			.y(y)
+			.on("zoom", zoomed);
 
+var cluster = d3.layout.cluster()
+    .size([height, width - 160])
+	.separation( function(a, b) { return 1; } );
+	
+var div1 = d3.select("body").append("div")
+	.attr("class", "div1");
+	
+var svg = div1.append("svg")
+    .attr("width", width)
+    .attr("height", height)
+	.call(zoom)
+  .append("g")
+    .attr("transform", "translate(40,0)");
 
+	
+svg.append("svg:rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("class", "plot");
 	
 d3.select("p")
 	.on("click", sortLeaves);
 	
 	
 
-var counter = 0;
-	
-var inputFiles = ["data/tree1.json", "data/tree2.json"];
-
-//read each input file and draw the tree in its own div
-for (var i = 0; i < inputFiles.length; i++) {
-	console.log("reading " + inputFiles[i]);
-	initializeTree(inputFiles[i]);
-}
-	
-function initializeTree(filename) {
-	var cluster = d3.layout.cluster()
-    .size([height, width - 160])
-	.separation( function(a, b) { return 1; } );
-	
-	var zoom = d3.behavior.zoom()
-			.y(y)
-			.on("zoom", zoomed);
 
 	
-	var div = d3.select("body").append("div")
-		.attr("class", "svgBox");
+
+d3.json("data/tree1.json", function(json) {
+
+	root = json;
+  nodes = cluster.nodes(root);
+  
+
 	
-		
-	var svg = div.append("svg")
-		.attr("width", width)
-		.attr("height", height)
-		.call(zoom)
-	  .append("g")
-		.attr("transform", "translate(40,0)");
-
-		
-	svg.append("svg:rect")
-		.attr("width", width)
-		.attr("height", height)
-		.attr("class", "plot");
+  links = svg.selectAll("path.link")
+      .data(cluster.links(nodes), getLinkKey)
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", elbow)
+	  //.on("mouseover", highlight)
+	  //.on("mouseout", unHighlight);
 	
-	d3.json(filename, function(json) {
-		var root = json;
-		allRoots.push(root);
-		var nodes = cluster.nodes(root);
-		
-		
-		var links = svg.selectAll("path.link")
-			.data(cluster.links(nodes), getLinkKey)
-		.enter().append("path")
-		    .attr("class", "link")
-			.attr("d", elbow)
-		  //.on("mouseover", highlight)
-		  //.on("mouseout", unHighlight);
-		
-		//draw root node line
-		console.log(root);
-		
-	    svg.select("path.root")
-			.data(root)
-		.enter().append("path")
-			.attr("class", "root")
-			.attr("d", "M" + root.y + "," + y(root.x) + "h" + -20);
+	
+	//links.each(function(d, i) {
+	//	svg.append("path")
+	//		.attr("class", "linkBox")
+	//		.attr("d", elbow(d,i))
+	//		
+	//});
+	
+	//draw root node line
+   svg.append("path")
+	.attr("id", "root")
+	.attr("d", "M" + root.y + "," + y(root.x) + "h" + -20);
 
 
-		var node = svg.selectAll("g.node")
-			.data(nodes, getNodeKey)
-		.enter().append("g")
-			.attr("class", "node")
-			.attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; })
+  var node = svg.selectAll("g.node")
+      .data(nodes, getNodeKey)
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; })
 
 
-		node.append("text")
-			.attr("dx", function(d) { return d.children ? -8 : 8; })
-			.attr("dy", 3)
-			.attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
-			.text(function(d) { return d.children ? "" : d.name; }); //only writes leaf names
-		  
+  node.append("text")
+      .attr("dx", function(d) { return d.children ? -8 : 8; })
+      .attr("dy", 3)
+      .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
+      .text(function(d) { return d.children ? "" : d.name; }); //only writes leaf names
+	  
 
-	});
-
-	counter++;
-}
+});
 
 function elbow(d, i) {
   return "M" + d.source.y + "," + y(d.source.x)
@@ -121,14 +108,11 @@ function elbow(d, i) {
 }
 
 function zoomed() {
-	
-	var svg = d3.select(this);
-	
 	var link = svg.selectAll("path.link")
 		.attr("d", elbow);
 		
-	svg.select("root")
-		.attr("d", function(d) { return "M" + d.y + "," + y(d.x) + "h" + -20 });
+	svg.select("#root")
+		.attr("d", "M" + root.y + "," + y(root.x) + "h" + -20);
 
 
 	var node = svg.selectAll("g.node")
@@ -137,20 +121,6 @@ function zoomed() {
 
 }
 
-var getNodeKey = function(d, i) {
-	return (d.name ? d.name : i);
-}
-
-var getLinkKey = function(d, i) {
-	return (d.target.name ? d.target.name : i);
-}
-
-
-
-
-
-
-//these functions were made just for testing..
 
 function sortLeaves() {
 	if (sortedAscending) {
@@ -205,7 +175,13 @@ var unHighlight = function() {
 	.style("stroke-width", "1px");
 }
 
+var getNodeKey = function(d, i) {
+	return (d.name ? d.name : i);
+}
 
+var getLinkKey = function(d, i) {
+	return (d.target.name ? d.target.name : i);
+}
 
 </script>
 </body></html>

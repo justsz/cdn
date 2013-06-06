@@ -25,7 +25,11 @@
 	stroke-opacity: 0;
 }
 
-#root {
+.svgBox {
+	display: inline-block;
+}
+
+.root {
   fill: none;
   stroke: #000;
   stroke-width: 1.5px;

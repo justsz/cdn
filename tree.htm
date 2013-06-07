@@ -68,9 +68,8 @@ function initializeTree(filename) {
 		.attr("height", height)
 		.attr("class", "plot");
 	
-	d3.json(filename, function(json) {
-		var root = json;
-		allRoots.push(root);
+	d3.json(filename, function(root) {
+
 		var nodes = cluster.nodes(root);
 		
 		
@@ -81,7 +80,6 @@ function initializeTree(filename) {
 			.attr("d", elbow)
 		  //.on("mouseover", highlight)
 		  //.on("mouseout", unHighlight);
-		
 
 
 

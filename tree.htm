@@ -23,6 +23,17 @@ var sortedAscending = false;
 var y = d3.scale.linear()
 		.domain([0, height])
 		.range([0, height]);
+
+var x = d3.scale.linear()
+		.domain([0, width])
+		.range([0, width]);
+		
+var brush = d3.svg.brush()
+	.x(x)
+	.y(y)
+    .on("brushstart", brushstart)
+    .on("brush", brushmove)
+    .on("brushend", brushend);
 	
 d3.select("p")
 	.on("click", sortLeaves);
@@ -30,6 +41,7 @@ d3.select("p")
 var counter = 0;
 	
 var inputFiles = ["data/tree1.json", "data/tree2.json", "data/testTree2.json"];
+//var inputFiles = ["data/testTree2.json", "data/testTree2.json"];
 
 
 
@@ -49,6 +61,9 @@ function initializeTree(filename) {
 	var zoom = d3.behavior.zoom()
 			.y(y)
 			.on("zoom", zoomed);
+			
+			
+
 
 	
 	var div = d3.select("body").append("div")
@@ -58,15 +73,10 @@ function initializeTree(filename) {
 	var svg = div.append("svg")
 		.attr("width", width)
 		.attr("height", height)
-		.call(zoom)
-	  .append("g")
-		.attr("transform", "translate(40,0)");
+		.call(brush)
+	    .append("g")
+			.attr("transform", "translate(40,0)")
 
-		
-	svg.append("svg:rect")
-		.attr("width", width)
-		.attr("height", height)
-		.attr("class", "plot");
 	
 	d3.json(filename, function(root) {
 
@@ -102,7 +112,7 @@ function initializeTree(filename) {
 		//draw root node line. It is placed inside the root nodes g so it transforms along with it.
 	    svg.select(".root") 
 			.append("path")
-	    	.attr("class", "path")
+	    	.attr("class", "rootLink")
 			.attr("d", function(d) {return "M" + 0 + "," + 0 + "h" + -20; });		
 
 
@@ -111,8 +121,14 @@ function initializeTree(filename) {
 			.attr("dy", 3)
 			.attr("text-anchor", "start" )
 			.text(function(d) { return d.name; });
-		  
-
+			
+		svg.append("rect")
+			.attr("class", "scrollArea")
+			.attr("x", width - 100)
+			.attr("y", 0)
+			.attr("width", 100)
+			.attr("height", height)	
+			.call(zoom)
 	});
 
 	counter++;
@@ -126,26 +142,85 @@ function elbow(d, i) {
 
 
 function zoomed() {
-	
-	var svg = d3.select(this);
+	var svg = d3.select(this.parentNode);
+	//if (!brush.empty())
+	//	svg.call(brush.clear());
 	
 	var link = svg.selectAll("path.link")
 		.attr("d", elbow);
 
 	var node = svg.selectAll("g.node")
 		.attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; })
-		
-
 }
+
+var prevCell;
+
+// Clear the previously-active brush, if any.
+function brushstart(p) {
+ var cell = d3.select(this);
+ 
+ 	if (prevCell && prevCell !== cell) {
+ 		prevCell.selectAll(".highlighted").classed("highlighted", false);
+     	prevCell.call(brush.clear());
+     }
+     prevCell = cell;
+    //cell.call(brush.clear());
+	
+	//d3.select(this).call(brush.clear());
+  }
+
+  // Highlight the selected circles.
+  function brushmove() {
+  	//console.log(this);
+    var e = brush.extent();
+    var selectedLeaves = [];
+    d3.select(this)
+    	.selectAll("path.link").classed("highlighted", function(d) {
+    	if (y(e[0][1]) < y(d.target.x) && y(d.target.x) < y(e[1][1])
+          && x(e[0][0]) < x(d.target.y) && x(d.target.y) < x(e[1][0])) {
+          	selectedLeaves.push(d.target.name);
+          	return true;
+          } else {
+          	return false;
+          }
+    });
+    
+    d3.selectAll("svg")
+    	.selectAll(".leaf")
+    	.style("fill", function(d) {
+    		if (contains(selectedLeaves, d.name)) {
+    			return "orange";
+    		} else {
+    			return "#000";
+    		}
+    	});
+    		
+  }
+
+  // If the brush is empty, select all circles.
+  function brushend() {
+    if (brush.empty()) d3.select(this)
+    					.selectAll(".highlighted").classed("highlighted", false);
+}
+  
 
 var getNodeKey = function(d, i) {
 	return (d.name ? d.name : i);
 }
 
+
 var getLinkKey = function(d, i) {
 	return (d.target.name ? d.target.name : i);
 }
 
+function contains(a, obj) {
+	for (var i = 0; i < a.length; i++) {
+		if (a[i] == obj) {
+			return true;
+		}
+	}
+	return false;
+}
 
 
 

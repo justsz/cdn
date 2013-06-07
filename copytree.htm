@@ -55,7 +55,7 @@ d3.select("p")
 
 	
 
-d3.json("data/tree1.json", function(json) {
+d3.json("data/testTree2.json", function(json) {
 	root = json;
   nodes = cluster.nodes(root);
 	
@@ -100,7 +100,7 @@ d3.json("data/tree1.json", function(json) {
 });
 
 function elbow(d, i) {
-  return "M" + d.source.x + "," + y(d.source.y)
+  return "M" + d.source.y + "," + y(d.source.x)
       + "V" + y(d.target.y) + "H" + d.target.x;
 }
 

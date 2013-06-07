@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!-- basic drawing capability taken from url=(0040)http://bl.ocks.org/mbostock/raw/2429963/ -->
+<!-- some tree stuff inspired by https://gist.github.com/kueda/1036776 -->
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
@@ -13,37 +14,32 @@
 <p> Click here to sort leaves alphabetically. </p>
 <script>
 
-var width = 700,
+var width = 400,
     height = 500;
 	
-var allRoots = [];
-var allLinks = [];
-var allNodes = [];
 var sortedAscending = false;
 
-//var root;
 
 var y = d3.scale.linear()
 		.domain([0, height])
 		.range([0, height]);
-
-
-
 	
 d3.select("p")
 	.on("click", sortLeaves);
-	
-	
 
 var counter = 0;
 	
-var inputFiles = ["data/tree1.json", "data/tree2.json"];
+var inputFiles = ["data/tree1.json", "data/tree2.json", "data/testTree2.json"];
+
+
 
 //read each input file and draw the tree in its own div
 for (var i = 0; i < inputFiles.length; i++) {
 	console.log("reading " + inputFiles[i]);
 	initializeTree(inputFiles[i]);
 }
+
+
 	
 function initializeTree(filename) {
 	var cluster = d3.layout.cluster()
@@ -86,28 +82,37 @@ function initializeTree(filename) {
 		  //.on("mouseover", highlight)
 		  //.on("mouseout", unHighlight);
 		
-		//draw root node line
-		console.log(root);
-		
-	    svg.select("path.root")
-			.data(root)
-		.enter().append("path")
-			.attr("class", "root")
-			.attr("d", "M" + root.y + "," + y(root.x) + "h" + -20);
+
 
 
 		var node = svg.selectAll("g.node")
 			.data(nodes, getNodeKey)
 		.enter().append("g")
-			.attr("class", "node")
-			.attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; })
+			.attr("class", function(d) {
+				if (d.children) {
+					if (d.depth == 0) {
+						return "root node";
+					} else {
+						return "inner node";
+					}
+				} else {
+					return "leaf node";
+				}
+			} )
+			.attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; });
+			
+		//draw root node line. It is placed inside the root nodes g so it transforms along with it.
+	    svg.select(".root") 
+			.append("path")
+	    	.attr("class", "path")
+			.attr("d", function(d) {return "M" + 0 + "," + 0 + "h" + -20; });		
 
 
-		node.append("text")
-			.attr("dx", function(d) { return d.children ? -8 : 8; })
+		svg.selectAll(".leaf").append("text")
+			.attr("dx", 8)
 			.attr("dy", 3)
-			.attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
-			.text(function(d) { return d.children ? "" : d.name; }); //only writes leaf names
+			.attr("text-anchor", "start" )
+			.text(function(d) { return d.name; });
 		  
 
 	});
@@ -115,10 +120,12 @@ function initializeTree(filename) {
 	counter++;
 }
 
+
 function elbow(d, i) {
   return "M" + d.source.y + "," + y(d.source.x)
       + "V" + y(d.target.x) + "H" + d.target.y;
 }
+
 
 function zoomed() {
 	
@@ -126,10 +133,6 @@ function zoomed() {
 	
 	var link = svg.selectAll("path.link")
 		.attr("d", elbow);
-		
-	svg.select("root")
-		.attr("d", function(d) { return "M" + d.y + "," + y(d.x) + "h" + -20 });
-
 
 	var node = svg.selectAll("g.node")
 		.attr("transform", function(d) { return "translate(" + d.y + "," + y(d.x) + ")"; })
@@ -151,6 +154,7 @@ var getLinkKey = function(d, i) {
 
 
 //these functions were made just for testing..
+//probably not useful for the final version
 
 function sortLeaves() {
 	if (sortedAscending) {

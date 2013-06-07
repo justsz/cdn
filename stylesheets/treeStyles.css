@@ -1,0 +1,42 @@
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2 px;
+}
+
+.linkBox {
+	fill: none;
+	stroke: "white";
+	stroke-width : 5px;
+}
+
+.plot {
+	fill-opacity: 0;
+	stroke-opacity: 0;
+}
+
+.svgBox {
+	display: inline-block;
+}
+
+.root {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+/*
+path.link:hover {
+	stroke: orange;
+}
+*/

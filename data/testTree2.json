@@ -1,0 +1,51 @@
+{
+   "name" : "Metazoa",
+   "children" : [
+      {
+         "name" : "Deuterostomia",
+         "children" : [
+            {
+               "name" : "Caenorabditis",
+               "children" : [
+                  {
+                     "name" : "CaenA"
+                  },
+                  {
+                     "name" : "CaenB"
+                  }
+               ]
+            },
+            {
+               "name" : "Drosophila",
+               "children" : [
+                  {
+                     "name" : "DrosA"
+                  },
+                  {
+                     "name" : "DrosB"
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "name" : "Protostomia",
+         "children" : [
+            {
+               "name" : "Mus_musculus"
+            },
+            {
+               "name" : "Homininae",
+               "children" : [
+                  {
+                     "name" : "Homo_sapiens"
+                  },
+                  {
+                     "name" : "Pan_troglodytes"
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}

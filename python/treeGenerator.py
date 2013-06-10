@@ -8,12 +8,13 @@ print("input node count")
 nodeCount = raw_input()
 nodeCount = int(nodeCount)
 
-print("input filename")
+print("output filename")
 fileName = raw_input()
 
 
 
 k = "children"
+l = "length"
 n = "name"
 
 
@@ -32,16 +33,16 @@ for x in range(0, nodeCount):
     node = tree
     children = getChildren(node)
     while (cont):
-        if (len(children) == 2):
+        if (len(children) == 2): #full branch, climb down
             choice = random.randint(0,1)
             node = children[choice]
             children = getChildren(node)
-            if (children == None):
+            if (children == None): #create the children's array
                 node[k] = []
                 children = getChildren(node)
             #print("traversing")
-        else:
-            children.append({n : str(x)})
+        else: #branch has space, add child
+            children.append({n : str(x), l : random.random()})
             #print("appending")
             cont = False
     

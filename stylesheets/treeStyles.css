@@ -22,14 +22,19 @@
 }
 
 .extent {
-  fill-opacity: 0;
+  fill-opacity: 0.125;
   cursor: auto;
 }
 
 .svgBox {
 	display: inline-block;
 	border: 2px solid;
-	
+}
+
+.scrollArea {
+	fill: red;
+	stroke: black;
+	stroke-width: 3;
 }
 
 /*

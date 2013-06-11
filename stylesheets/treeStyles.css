@@ -9,6 +9,13 @@
   stroke-width: 1.5px;
 }
 
+.dashedLink {
+	fill: none;
+	stroke: gray;
+	stroke-width: 1px;
+	stroke-dasharray: 1, 3;
+}
+
 .link.highlighted {
 	fill: none;
 	stroke: orange;
@@ -27,13 +34,19 @@
 }
 
 .svgBox {
-	display: inline-block;
+	/*display: inline-block;*/
+	line-height: 0;
+	float: left;
 	border: 2px solid;
+	border-color: gray;
+	/*overflow: scroll;*/
 }
 
 .scrollArea {
-	fill: red;
-	stroke: black;
+	cursor: ns-resize;
+	fill: green;
+	fill-opacity: 0.5;
+	stroke: gray;
 	stroke-width: 3;
 }
 

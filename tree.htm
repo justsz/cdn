@@ -49,7 +49,7 @@ function initializeTree(filename) {
 	//root is the root node of the input tree
 		//initialize d3 cluster layout
 		var cluster = d3.layout.cluster()
-		    .size([height, width - 160])
+		    .size([height, width - 100])
 			.separation( function(a, b) { return 1; } );
 
 		//get an array of all nodes and where they should be placed 
@@ -78,12 +78,13 @@ function initializeTree(filename) {
 			.attr("height", height)
 			.call(brush)
 		    .append("g")
-				.attr("transform", "translate(40,0)")
+				.attr("transform", "translate(35, 0)")
 
 		var zoom = d3.behavior.zoom()
 			//.x(xScale)
 			.y(yScale)
-			.on("zoom", zoomed);		
+			.on("zoom", zoomed)		
+			.scaleExtent([1, 10]);
 			
 		frameData.push({x:xScale, y:yScale, brush:brush, zoom:zoom});
 		
@@ -110,7 +111,7 @@ function initializeTree(filename) {
 					return "leaf node";
 				}
 			} )
-		 	.attr("transform", function(d) { return "translate(" + xScale(d.rootDist) + "," + yScale(d.x) + ")"; });
+		 	.attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
 			
 		//draw root node line. It is placed inside the root nodes g so it transforms along with it.
 	    svg.select(".root") 
@@ -123,6 +124,10 @@ function initializeTree(filename) {
 			.attr("dy", 3)
 			.attr("text-anchor", "start" )
 			.text(function(d) { return d.name; });
+		
+		svg.selectAll(".leaf").append("path")
+			.attr("class", "dashedLink")
+			.attr("d", dashedElbow);	
 			
 		svg.append("rect")
 			.attr("class", "scrollArea")
@@ -143,6 +148,11 @@ function initializeTree(filename) {
 var elbow = function(d, i) {
   return "M" + frameData[focusedFrame].x(d.source.rootDist) + "," + frameData[focusedFrame].y(d.source.x)
       + "V" + frameData[focusedFrame].y(d.target.x) + "H" + frameData[focusedFrame].x(d.target.rootDist);
+}
+
+var dashedElbow = function(d, i) {
+	return "M" + 0 + "," + 0
+    	+ "h" + (frameData[focusedFrame].x(d.rootDist) - d.y);
 }
 
 function scaleBranchLengths(nodes, w) {
@@ -183,7 +193,7 @@ function zoomed() {
 		.attr("d", elbow);
 
 	var node = svg.selectAll("g.node")
-		.attr("transform", function(d) { return "translate(" + frameData[focusedFrame].x(d.rootDist) + "," + frameData[focusedFrame].y(d.x) + ")"; })
+		.attr("transform", function(d) { return "translate(" + (d.y) + "," + frameData[focusedFrame].y(d.x) + ")"; })
 }
 
 var prevCell;

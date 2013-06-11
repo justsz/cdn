@@ -63,7 +63,7 @@ function initializeTree(filename) {
 			.range([0, height]);
 		
 		var brush = d3.svg.brush()
-			.x(xScale)
+			.x(d3.scale.linear().domain([0, width]).range([0, width]))
 			.y(yScale)
 	    	.on("brushstart", brushstart)
 		    .on("brush", brushmove)
@@ -93,8 +93,6 @@ function initializeTree(filename) {
 		.enter().append("path")
 		    .attr("class", "link")
 			.attr("d", elbow)
-		  //.on("mouseover", highlight)
-		  //.on("mouseout", unHighlight);
 
 		//assign node classification and position it
 		var node = svg.selectAll("g.node")
@@ -220,10 +218,9 @@ function brushstart(p) {
     var selectedLeaves = [];
     d3.select(this)
     	.selectAll("path.link").classed("highlighted", function(d) {
-    	if (frameData[focusedFrame].y(e[0][1]) < frameData[focusedFrame].y(d.target.x) && frameData[focusedFrame].y(d.target.x) < frameData[focusedFrame].y(e[1][1])
+    	if (!d.target.children && frameData[focusedFrame].y(e[0][1]) < frameData[focusedFrame].y(d.target.x) && frameData[focusedFrame].y(d.target.x) < frameData[focusedFrame].y(e[1][1])
           && (e[0][0]) < frameData[focusedFrame].x(d.target.rootDist) && frameData[focusedFrame].x(d.target.rootDist) < (e[1][0])) {
           	selectedLeaves.push(d.target.name);
-          	console.log("Selecting");
           	return true;
           } else {
           	return false;

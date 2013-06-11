@@ -58,6 +58,9 @@ function initializeTree(filename) {
 		//get an array of all nodes and where they should be placed 
 		//(ignoring branch lengths)
 		var nodes = cluster.nodes(root);
+		var linkData = cluster.links(nodes);
+		
+		attachLinkReferences(nodes, linkData);
 
 		var xScale = scaleBranchLengths(nodes, width - marginForLabels);
 		
@@ -93,7 +96,7 @@ function initializeTree(filename) {
 		frameData.push({x:xScale, y:yScale, brush:brush, zoom:zoom});
 		
 		var links = svg.selectAll("path.link")
-			.data(cluster.links(nodes), getLinkKey)
+			.data(linkData, getLinkKey)
 		.enter().append("path")
 		    .attr("class", "link")
 			.attr("d", elbow)
@@ -151,6 +154,25 @@ function initializeTree(filename) {
 	});
 }
 
+function attachLinkReferences(nodes, linkData) {
+	for (var i = 1; i < nodes.length; i++) {
+		for (var j = 0; j < linkData.length; j++) { //can this be done a bit faster?
+			if (nodes[i] === linkData[j].target) {
+				nodes[i].uplink = linkData[j];
+				break;
+			}
+		}
+	}
+}
+
+function getNodeLinks(nodes) {
+	var links = []
+	for (var i = 0; i < nodes.length; i++) {
+		links.push(nodes[i].uplink);				
+	}
+	return links;		
+}
+
 
 var elbow = function(d, i) {
   return "M" + frameData[focusedFrame].x(d.source.rootDist) + "," + frameData[focusedFrame].y(d.source.x)
@@ -191,8 +213,6 @@ function scaleBranchLengths(nodes, w) {
 
 
 function zoomed() {
-
-
 	var svg = d3.select(this.parentNode);
 	focusedFrame = this.parentNode.parentNode.id;
 	//if (!brush.empty())
@@ -231,27 +251,52 @@ function brushstart(p) {
 function brushmove() {
   	//console.log(this);
     var e = frameData[focusedFrame].brush.extent();
-    var selectedLeaves = [];
-    d3.select(this.parentNode)
-    	.selectAll("path.link").classed("highlighted", function(d) {
-    	if (!d.target.children && frameData[focusedFrame].y(e[0]) < frameData[focusedFrame].y(d.target.x) && frameData[focusedFrame].y(d.target.x) < frameData[focusedFrame].y(e[1])) {
-          //&& (e[0][0]) < frameData[focusedFrame].x(d.target.rootDist) && frameData[focusedFrame].x(d.target.rootDist) < (e[1][0])) {
-          	selectedLeaves.push(d.target.name);
-          	return true;
-          } else {
-          	return false;
-          }
-    });
+    var selectedNodes = [];
     
-    d3.selectAll("svg")
+    d3.select(this.parentNode)
     	.selectAll(".leaf")
-    	.style("fill", function(d) {
-    		if (contains(selectedLeaves, d.name)) {
-    			return "orange";
-    		} else {
-    			return "#000";
+    	.each(function(d) {
+    		if (frameData[focusedFrame].y(e[0]) < frameData[focusedFrame].y(d.x) && frameData[focusedFrame].y(d.x) < frameData[focusedFrame].y(e[1])) {
+    			selectedNodes.push(d);
     		}
     	});
+    	
+    	
+    d3.selectAll("svg")
+    	.selectAll(".leaf")
+      	.style("fill", function(d) {
+      		if (containsLeaf(selectedNodes, d)) {
+      			return "orange";
+      		} else {
+     			return "#000";
+      		}
+      	});
+    
+    addContainingNodes(selectedNodes);
+    
+    //could make this a bit faster by saving previous selection
+   	d3.select(this.parentNode).selectAll("path.link").classed("highlighted", false);
+   	
+   	d3.select(this.parentNode).selectAll("path.link")
+    	.data(getNodeLinks(selectedNodes), getLinkKey)
+    	.classed("highlighted", true);
+    	
+   
+    
+    // d3.select(this.parentNode)
+//     	.selectAll("path.link").classed("highlighted", function(d) {
+//     	if (!d.target.children && frameData[focusedFrame].y(e[0]) < frameData[focusedFrame].y(d.target.x) && frameData[focusedFrame].y(d.target.x) < frameData[focusedFrame].y(e[1])) {
+//           //&& (e[0][0]) < frameData[focusedFrame].x(d.target.rootDist) && frameData[focusedFrame].x(d.target.rootDist) < (e[1][0])) {
+//           	selectedNodes.push(d);
+//           	return true;
+//           } else {
+//           	return false;
+//           }
+//     });
+    
+    
+    
+
     		
 }
 
@@ -259,6 +304,28 @@ function brushmove() {
 function brushend() {
     if (frameData[focusedFrame].brush.empty()) d3.select(this.parentNode)
     					.selectAll(".highlighted").classed("highlighted", false);
+}
+
+function addContainingNodes(nodes) {
+	var cont = true;
+	while(cont) {
+		var newElements = []
+		cont = false;
+		for (var i = 0; i < nodes.length; i++) {
+			if (nodes[i].parent.children[0] == nodes[i]) {
+				if (contains(nodes, nodes[i].parent.children[1]) && !contains(nodes, nodes[i].parent)) {
+					nodes.push(nodes[i].parent);	//editing array while iterating over it...
+					cont = true;
+				}
+			} else {
+				if (contains(nodes, nodes[i].parent.children[0]) && !contains(nodes, nodes[i].parent)) {
+					nodes.push(nodes[i].parent);
+					cont = true;
+				}
+			}
+		}
+		nodes = nodes.concat(newElements);
+	}
 }
   
 
@@ -273,7 +340,16 @@ var getLinkKey = function(d, i) {
 
 function contains(a, obj) {
 	for (var i = 0; i < a.length; i++) {
-		if (a[i] == obj) {
+		if (a[i] === obj) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function containsLeaf(a, obj) {
+	for (var i = 0; i < a.length; i++) {
+		if (a[i].name === obj.name) {
 			return true;
 		}
 	}

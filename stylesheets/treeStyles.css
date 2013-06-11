@@ -30,7 +30,6 @@
 
 .extent {
   fill-opacity: 0.125;
-  cursor: auto;
 }
 
 .svgBox {
@@ -42,6 +41,11 @@
 	/*overflow: scroll;*/
 }
 
+.brushBox {
+	fill-opacity: 0;
+	cursor: crosshair;
+}
+
 .scrollArea {
 	cursor: ns-resize;
 	fill: green;
@@ -50,8 +54,3 @@
 	stroke-width: 3;
 }
 
-/*
-path.link:hover {
-	stroke: orange;
-}
-*/

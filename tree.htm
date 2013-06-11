@@ -15,7 +15,8 @@
 <script>
 
 var width = 400,
-    height = 500;
+    height = 500,
+    marginForLabels = 100;
     
 var frameData = [];
 	
@@ -47,23 +48,25 @@ for (var i = 0; i < inputFiles.length; i++) {
 function initializeTree(filename) {
 	d3.json(filename, function(root) {
 	//root is the root node of the input tree
+	
+		focusedFrame = counter;
 		//initialize d3 cluster layout
 		var cluster = d3.layout.cluster()
-		    .size([height, width - 100])
+		    .size([height, width - marginForLabels])
 			.separation( function(a, b) { return 1; } );
 
 		//get an array of all nodes and where they should be placed 
 		//(ignoring branch lengths)
 		var nodes = cluster.nodes(root);
 
-		var xScale = scaleBranchLengths(nodes, width-100);
+		var xScale = scaleBranchLengths(nodes, width - marginForLabels);
 		
 		var yScale = d3.scale.linear()
 			.domain([0, height])
 			.range([0, height]);
 		
 		var brush = d3.svg.brush()
-			.x(d3.scale.linear().domain([0, width]).range([0, width]))
+			//.x(d3.scale.linear().domain([0, width]).range([0, width]))
 			.y(yScale)
 	    	.on("brushstart", brushstart)
 		    .on("brush", brushmove)
@@ -75,10 +78,11 @@ function initializeTree(filename) {
 		var svg = div.append("svg")
 			.attr("id", counter)	//append a number to later identify this svg
 			.attr("width", width)
-			.attr("height", height)
-			.call(brush)
-		    .append("g")
-				.attr("transform", "translate(35, 0)")
+			.attr("height", height)		
+			.append("g")
+				.attr("transform", "translate(35, 0)");
+			
+
 
 		var zoom = d3.behavior.zoom()
 			//.x(xScale)
@@ -137,8 +141,13 @@ function initializeTree(filename) {
 			.attr("height", height)	
 			.call(zoom)
 			
+		svg.append("rect")
+			.attr("width", width - marginForLabels)
+			.attr("height", height)
+			.attr("class", "brushBox")
+			.call(brush);
+			
 		counter++;
-		focusedFrame = counter;
 	});
 }
 
@@ -182,10 +191,13 @@ function scaleBranchLengths(nodes, w) {
 
 
 function zoomed() {
+
+
 	var svg = d3.select(this.parentNode);
 	focusedFrame = this.parentNode.parentNode.id;
 	//if (!brush.empty())
 	//	svg.call(brush.clear());
+	
 	
 	var link = svg.selectAll("path.link")
 		.attr("d", elbow);
@@ -194,32 +206,36 @@ function zoomed() {
 		.attr("transform", function(d) { return "translate(" + (d.y) + "," + frameData[focusedFrame].y(d.x) + ")"; })
 }
 
-var prevCell;
+//var prevCell;
 
 // Clear the previously-active brush, if any.
 function brushstart(p) {
- 	var cell = d3.select(this);
-	focusedFrame = this.id;
+ 	//var cell = d3.select(this);
+	var newFocusedFrame = this.parentNode.parentNode.id;
  
- 	if (prevCell && prevCell !== cell) {
- 		prevCell.selectAll(".highlighted").classed("highlighted", false);
-     	prevCell.call(frameData[focusedFrame].brush.clear());
+ 	if (newFocusedFrame !== focusedFrame) {
+ 		d3.selectAll(".highlighted").classed("highlighted", false);
+     	frameData[focusedFrame].brush.clear();
      }
-     prevCell = cell;
+//     	console.log("old " + frameData[focusedFrame].brush.empty());
+//	console.log("new " + frameData[newFocusedFrame].brush.empty());
+     focusedFrame = newFocusedFrame;
+     //prevCell = cell;
     //cell.call(brush.clear());
 	
 	//d3.select(this).call(brush.clear());
-  }
+	
+}
 
-  // Highlight the selected circles.
-  function brushmove() {
+  // Highlight the selected leaf links.
+function brushmove() {
   	//console.log(this);
     var e = frameData[focusedFrame].brush.extent();
     var selectedLeaves = [];
-    d3.select(this)
+    d3.select(this.parentNode)
     	.selectAll("path.link").classed("highlighted", function(d) {
-    	if (!d.target.children && frameData[focusedFrame].y(e[0][1]) < frameData[focusedFrame].y(d.target.x) && frameData[focusedFrame].y(d.target.x) < frameData[focusedFrame].y(e[1][1])
-          && (e[0][0]) < frameData[focusedFrame].x(d.target.rootDist) && frameData[focusedFrame].x(d.target.rootDist) < (e[1][0])) {
+    	if (!d.target.children && frameData[focusedFrame].y(e[0]) < frameData[focusedFrame].y(d.target.x) && frameData[focusedFrame].y(d.target.x) < frameData[focusedFrame].y(e[1])) {
+          //&& (e[0][0]) < frameData[focusedFrame].x(d.target.rootDist) && frameData[focusedFrame].x(d.target.rootDist) < (e[1][0])) {
           	selectedLeaves.push(d.target.name);
           	return true;
           } else {
@@ -237,11 +253,11 @@ function brushstart(p) {
     		}
     	});
     		
-  }
+}
 
-  // If the brush is empty, select all circles.
-  function brushend() {
-    if (frameData[focusedFrame].brush.empty()) d3.select(this)
+  // If the brush is empty, un-highlight all links.
+function brushend() {
+    if (frameData[focusedFrame].brush.empty()) d3.select(this.parentNode)
     					.selectAll(".highlighted").classed("highlighted", false);
 }
   

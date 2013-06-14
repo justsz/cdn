@@ -23,6 +23,26 @@ treestuff.updateBehaviour.tree = {
                   });
             }
     };
+    
+treestuff.updateBehaviour.circles = {
+    target: "svg.circleFrame",    
+    action: function(domSelection, selectedNodes) {
+                var nodes = selectedNodes || treestuff.focusedLeaves;
+                var circles = domSelection.selectAll("circle")
+                            .data(nodes);
+
+                circles.enter()
+                       .append("circle")
+                       .attr("class", "pointlessCircle")
+                       .attr("r", 12)
+                       .attr("cx", function(d) {return treestuff.circScale(parseInt(d.name, 10)); })
+                       .attr("cy", 15);
+
+                circles.exit().remove();
+                            
+            }
+    };
+
 
 treestuff.initializeTree = function(filename) {
     d3.json(filename, function(root) { //root is the root node of the input tree
@@ -127,6 +147,23 @@ treestuff.initializeTree = function(filename) {
 
         treestuff.counter += 1;
     });
+};
+
+
+treestuff.addPointlessCircles = function() {
+    var div = d3.select("body").append("div")
+                .attr("class", "circBox");
+
+    var svg = div.append("svg")
+                 .attr("class", "circleFrame")
+                 //.attr("id", treestuff.counter)    //append a number to later identify this svg
+                 .attr("width", 2 * treestuff.width)
+                 .attr("height", 30);
+                 
+    treestuff.circScale = d3.scale.linear()
+                                  .domain([0, 300])
+                                  .range([15, 2 * treestuff.width - 15]);
+    //treestuff.counter += 1;           
 };
 
 

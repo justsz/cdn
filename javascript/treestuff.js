@@ -8,15 +8,29 @@ treestuff.marginForLabels = 100;
 treestuff.frameData = [];
 treestuff.counter = 0;
 treestuff.focusedFrame = 0;
+treestuff.focusedLeaves = [];
 
+treestuff.updateBehaviour = {}; //TODO hide this in a closure?
+treestuff.updateBehaviour.tree = {
+    target: "svg.treeFrame",    
+    action: function(domSelection, selectedNodes) {
+                var nodes = selectedNodes || treestuff.focusedLeaves;
+                domSelection.selectAll(".leaf").style("fill", function(d) {
+                      if (treestuff.containsLeaf(nodes, d)) {
+                          return "orange";
+                      }
+                      return "#000";
+                  });
+            }
+    };
 
 treestuff.initializeTree = function(filename) {
     d3.json(filename, function(root) { //root is the root node of the input tree
         treestuff.focusedFrame = treestuff.counter;
         //initialize d3 cluster layout
         var cluster = d3.layout.cluster()
-            .size([treestuff.height, treestuff.width - treestuff.marginForLabels])
-            .separation(function() {return 1; });
+                        .size([treestuff.height, treestuff.width - treestuff.marginForLabels])
+                        .separation(function() {return 1; });
 
         //get an array of all nodes and where they should be placed 
         //(ignoring branch lengths)
@@ -28,55 +42,56 @@ treestuff.initializeTree = function(filename) {
         var xScale = treestuff.scaleBranchLengths(nodes, treestuff.width - treestuff.marginForLabels);
 
         var yScale = d3.scale.linear()
-            .domain([0, treestuff.height])
-            .range([0, treestuff.height]);
+                       .domain([0, treestuff.height])
+                       .range([0, treestuff.height]);
 
         var brush = d3.svg.brush()
-            //.x(d3.scale.linear().domain([0, width]).range([0, width]))
-            .y(yScale)
-            .on("brushstart", treestuff.brushstart)
-            .on("brush", treestuff.brushmove)
-            .on("brushend", treestuff.brushend);
+                    //.x(d3.scale.linear().domain([0, width]).range([0, width]))
+                      .y(yScale)
+                      .on("brushstart", treestuff.brushstart)
+                      .on("brush", treestuff.brushmove)
+                      .on("brushend", treestuff.brushend);
 
         var div = d3.select("body").append("div")
-            .attr("class", "svgBox");
+                    .attr("class", "svgBox");
 
         var svg = div.append("svg")
-            .attr("id", treestuff.counter)    //append a number to later identify this svg
-            .attr("width", treestuff.width)
-            .attr("height", treestuff.height)
-            .append("g")
-            .attr("transform", "translate(35, 0)");
+                     .attr("class", "treeFrame")
+                     .attr("id", treestuff.counter)    //append a number to later identify this svg
+                     .attr("width", treestuff.width)
+                     .attr("height", treestuff.height)
+                     .append("g")
+                     .attr("transform", "translate(35, 0)");
 
 
         var zoom = d3.behavior.zoom()
-            //.x(xScale)
-            .y(yScale)
-            .on("zoom", treestuff.zoomed)
-            .scaleExtent([1, 10]);
+                   //.x(xScale)
+                     .y(yScale)
+                     .on("zoom", treestuff.zoomed)
+                     .scaleExtent([1, 10]);
 
         treestuff.frameData.push({x: xScale, y: yScale, brush: brush, zoom: zoom});
 
         svg.selectAll("path.link")
-            .data(linkData, treestuff.getLinkKey)
-            .enter().append("path")
-            .attr("class", "link")
-            .attr("d", treestuff.elbow);
+           .data(linkData, treestuff.getLinkKey)
+           .enter().append("path")
+           .attr("class", "link")
+           .attr("d", treestuff.elbow);
 
         //assign node classification and position it
         svg.selectAll("g.node")
-            .data(nodes, treestuff.getNodeKey)
-            .enter().append("g")
-            .attr("class", function(d) {
-                if (d.children) {
-                    if (d.depth === 0) {
-                        return "root node";
-                    }
-                    return "inner node";
-                }
-                return "leaf node";
-            })
-             .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
+           .data(nodes, treestuff.getNodeKey)
+           .enter().append("g")
+           .attr("class", function(d) {
+               if (d.children) {
+                   if (d.depth === 0) {
+                       return "root node";
+                   }
+                   return "inner node";
+               }
+               return "leaf node";
+           })
+           .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
 
         //draw root node line. It is placed inside the root nodes g so it transforms along with it.
         svg.select(".root")
@@ -139,8 +154,9 @@ treestuff.getNodeLinks = function(nodes) {
 
 
 treestuff.elbow = function(d) {
-    return "M" + treestuff.frameData[treestuff.focusedFrame].x(d.source.rootDist) + "," + treestuff.frameData[treestuff.focusedFrame].y(d.source.x)
-        + "V" + treestuff.frameData[treestuff.focusedFrame].y(d.target.x) + "H" + treestuff.frameData[treestuff.focusedFrame].x(d.target.rootDist);
+    var currentFrame = treestuff.frameData[treestuff.focusedFrame];
+    return "M" + currentFrame.x(d.source.rootDist) + "," + currentFrame.y(d.source.x)
+        + "V" + currentFrame.y(d.target.x) + "H" + currentFrame.x(d.target.rootDist);
 };
 
 treestuff.dashedElbow = function(d) {
@@ -210,27 +226,25 @@ treestuff.brushmove = function() {
             }
         });
 
+    treestuff.focusedLeaves = selectedNodes;
+    
+    //highlight all matching leaf nodes
+    treestuff.updateFrames();
 
-    d3.selectAll("svg")
-        .selectAll(".leaf")
-        .style("fill", function(d) {
-            if (treestuff.containsLeaf(selectedNodes, d)) {
-                return "orange";
-            }
-            return "#000";
-        });
-
-    treestuff.addContainingNodes(selectedNodes);
+    treestuff.addConnectingNodes(selectedNodes);
 
     //could make this a bit faster by saving previous selection
     d3.select(this.parentNode).selectAll("path.link").classed("highlighted", false);
 
-    d3.select(this.parentNode).selectAll("path.link")
+    //highlight full paths
+    d3.select(this.parentNode)
+      .selectAll("path.link")
       .data(treestuff.getNodeLinks(selectedNodes), treestuff.getLinkKey)
       .classed("highlighted", true);
 };
 
-  // If the brush is empty, un-highlight all links.
+
+// If the brush is empty, un-highlight all links.
 treestuff.brushend = function() {
     if (treestuff.frameData[treestuff.focusedFrame].brush.empty()) {
         d3.select(this.parentNode)
@@ -238,7 +252,8 @@ treestuff.brushend = function() {
     }
 };
 
-treestuff.addContainingNodes = function(nodes) {
+
+treestuff.addConnectingNodes = function(nodes) {
     var cont = true,
         i;
     while (cont) {
@@ -246,7 +261,7 @@ treestuff.addContainingNodes = function(nodes) {
         for (i = 0; i < nodes.length; i += 1) {
             if (nodes[i].parent.children[0] === nodes[i]) {
                 if (treestuff.contains(nodes, nodes[i].parent.children[1]) && !treestuff.contains(nodes, nodes[i].parent)) {
-                    nodes.push(nodes[i].parent);    //editing array while iterating over it...
+                    nodes.push(nodes[i].parent);
                     cont = true;
                 }
             } else {
@@ -287,4 +302,36 @@ treestuff.containsLeaf = function(a, obj) {
         }
     }
     return false;
+};
+
+
+treestuff.addUpdateBehaviour = function(name, targ, behaviour) {
+    if (typeof behaviour === "function" && typeof name === "string" && typeof targ === "string") {
+        treestuff.updateBehaviour.name = {
+            target: targ,
+            action: behaviour
+        };
+    }
+};
+
+
+treestuff.updateFrames = function(targetNames) {//TODO add support for single string
+    var targ, 
+        i,
+        callUpdate = function(t) {
+                        treestuff.updateBehaviour[t].action(
+                        d3.selectAll(treestuff.updateBehaviour[t].target));
+                     };
+
+    if(!targetNames || targetNames.length === 0) {
+        for (targ in treestuff.updateBehaviour) {
+            if (treestuff.updateBehaviour.hasOwnProperty(targ)) {
+                callUpdate(targ);
+            }
+        }
+    } else {
+        for (i = 0; i < targetNames.length; i += 1) {
+            callUpdate(targetNames[i]);            
+        }
+    }
 };

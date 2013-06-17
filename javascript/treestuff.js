@@ -155,16 +155,48 @@ treestuff.addPointlessCircles = function() {
     var div = d3.select("body").append("div")
                 .attr("class", "circBox");
 
-    var svg = div.append("svg")
-                 .attr("class", "circleFrame")
-                 //.attr("id", treestuff.counter)    //append a number to later identify this svg
-                 .attr("width", 2 * treestuff.width)
-                 .attr("height", 30);
+    div.append("svg")
+       .attr("class", "circleFrame")
+     //.attr("id", treestuff.counter)    //append a number to later identify this svg
+       .attr("width", 2 * treestuff.width)
+       .attr("height", 30);
                  
     treestuff.circScale = d3.scale.linear()
                                   .domain([0, 300])
                                   .range([15, 2 * treestuff.width - 15]);
     //treestuff.counter += 1;           
+};
+
+
+treestuff.addSearchBox = function() {
+    var div = d3.select("body").append("div")
+                .attr("class", "searchBox");
+
+    div.append("input")
+       .attr("type", "text")
+       .attr("id", "search")
+       .attr("name", "search")
+       .on("keyup", treestuff.search);       
+};
+
+
+treestuff.search = function(searchTerm) {
+    var searchTerm = searchTerm || document.getElementById("search").value;
+    var searchRegex = new RegExp(searchTerm);
+    var selectedNodes = [];
+    
+    if (searchTerm) { //do no selection if search field is empty
+        d3.selectAll("svg.treeFrame")
+          .selectAll(".leaf")
+          .each(function(d) {
+              if (searchRegex.test(d.name)) {
+                  selectedNodes.push(d); 
+              }
+          });
+    }
+    
+    treestuff.focusedLeaves = selectedNodes;
+    treestuff.updateFrames();
 };
 
 

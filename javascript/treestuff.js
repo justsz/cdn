@@ -29,7 +29,7 @@ treestuff.updateBehaviour.circles = {
     action: function(domSelection, selectedNodes) {
                 var nodes = selectedNodes || treestuff.focusedLeaves;
                 var circles = domSelection.selectAll("circle")
-                            .data(nodes);
+                            .data(nodes, treestuff.getNodeKey);
 
                 circles.enter()
                        .append("circle")
@@ -42,6 +42,7 @@ treestuff.updateBehaviour.circles = {
                             
             }
     };
+
 
 
 treestuff.initializeTree = function(filename) {

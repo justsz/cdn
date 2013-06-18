@@ -41,11 +41,13 @@
 
 .svgBox {
 	/*display: inline-block;*/
+	height: 520px;
+	width: 420px;
 	line-height: 0;
 	float: left;
 	border: 2px solid;
 	border-color: gray;
-	/*overflow: scroll;*/
+	overflow: auto;
 }
 
 .brushBox {

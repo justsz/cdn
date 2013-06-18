@@ -18,7 +18,6 @@ treestuff.updateBehaviour.tree = {
                 domSelection.selectAll(".leaf").classed("highlighted", function(d) {
                        if (treestuff.containsLeaf(nodes, d)) {
                            var bll = $(d3.select(this.childNodes[0])).select();
-                           console.log(bll);  //doesn't seem too safe..
                            return true;
                        }
                        return false;
@@ -132,21 +131,24 @@ treestuff.initializeTree = function(filename) {
            .attr("class", "dashedLink")
            .attr("d", treestuff.dashedElbow);
 
-        svg.append("rect")
-           .attr("class", "scrollArea")
-           .attr("x", treestuff.width - 60)
-           .attr("y", 0)
-           .attr("rx", 10)
-           .attr("ry", 10)
-           .attr("width", 20)
-           .attr("height", treestuff.height);
-           //.call(zoom);
+        // svg.append("rect")
+//            .attr("class", "scrollArea")
+//            .attr("x", treestuff.width - 60)
+//            .attr("y", 0)
+//            .attr("rx", 10)
+//            .attr("ry", 10)
+//            .attr("width", 20)
+//            .attr("height", treestuff.height);
+//            //.call(zoom);
 
-        svg.append("rect")
-           .attr("width", treestuff.width - treestuff.marginForLabels)
-           .attr("height", treestuff.height)
-           .attr("class", "brushBox")
-           .call(brush);
+        var brushBox = svg.append("rect")
+                          .attr("identifier", treestuff.counter)
+                          .attr("width", treestuff.width - treestuff.marginForLabels)
+                          .attr("height", treestuff.height)
+                          .attr("class", "brushBox")
+                          .call(brush);
+
+        treestuff.frameData[treestuff.focusedFrame].brushBox = brushBox;
            
         var zoomButtons = svg.append("g")
                              .attr("transform", "translate(-25, 10)");
@@ -156,7 +158,7 @@ treestuff.initializeTree = function(filename) {
                    .attr("width", 30)
                    .attr("height", 30)
                    .style("fill", "green")
-                   .on("click", function() {console.log(this);return treestuff.incrementZoom(1, this); });
+                   .on("click", function() {return treestuff.incrementZoom(1, this); });
                    
         zoomButtons.append("rect")
                    .attr("identifier", treestuff.counter)
@@ -164,7 +166,7 @@ treestuff.initializeTree = function(filename) {
                    .attr("width", 30)
                    .attr("height", 30)
                    .style("fill", "red")
-                   .on("click", function() {console.log(this);return treestuff.incrementZoom(-1, this); });
+                   .on("click", function() {return treestuff.incrementZoom(-1, this); });
                    
 
         treestuff.counter += 1;
@@ -302,10 +304,10 @@ treestuff.incrementZoom = function incrementZoom(dir, context) {
     //console.log(d3.select(target));
     treestuff.focusedFrame = context.attributes.identifier.nodeValue;
 
-    var change = 50 * dir;
+    var change = 100 * dir;
     var currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
     treestuff.frameData[treestuff.focusedFrame]
-             .y.range([currRange[0] - change, currRange[1] + change]);
+             .y.range([0, currRange[1] + change]);
     treestuff.zoomed(context); 
 };
          
@@ -317,7 +319,11 @@ treestuff.zoomed = function(context) {
     //console.log(treestuff.focusedFrame);
 
     var svg = d3.select("#frame" + treestuff.focusedFrame);
-
+    
+    svg.attr("height", treestuff.frameData[treestuff.focusedFrame].y(treestuff.height))
+    treestuff.frameData[treestuff.focusedFrame]
+             .brushBox.attr("height", treestuff.frameData[treestuff.focusedFrame].y(treestuff.height));
+    
     svg.selectAll("path.link")
         .attr("d", treestuff.elbow);
 
@@ -328,7 +334,7 @@ treestuff.zoomed = function(context) {
 
 // Clear the previously-active brush, if any.
 treestuff.brushstart = function() {
-    var newFocusedFrame = this.parentNode.parentNode.id;
+    var newFocusedFrame = this.attributes.identifier.nodeValue;
 
     if (newFocusedFrame !== treestuff.focusedFrame) {
         d3.selectAll(".highlighted").classed("highlighted", false);

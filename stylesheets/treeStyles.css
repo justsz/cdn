@@ -1,5 +1,12 @@
 .node {
   font: 10px sans-serif;
+  fill: black;
+}
+
+.node.highlighted {
+    font: 10px sans-serif;
+    fill: orange;
+    selected: true;
 }
 
 

@@ -15,12 +15,14 @@ treestuff.updateBehaviour.tree = {
     target: "svg.treeFrame",    
     action: function(domSelection, selectedNodes) {
                 var nodes = selectedNodes || treestuff.focusedLeaves;
-                domSelection.selectAll(".leaf").style("fill", function(d) {
-                      if (treestuff.containsLeaf(nodes, d)) {
-                          return "orange";
-                      }
-                      return "#000";
-                  });
+                domSelection.selectAll(".leaf").classed("highlighted", function(d) {
+                       if (treestuff.containsLeaf(nodes, d)) {
+                           var bll = $(d3.select(this.childNodes[0])).select();
+                           console.log(bll);  //doesn't seem too safe..
+                           return true;
+                       }
+                       return false;
+                   });
             }
     };
     
@@ -78,7 +80,7 @@ treestuff.initializeTree = function(filename) {
 
         var svg = div.append("svg")
                      .attr("class", "treeFrame")
-                     .attr("id", treestuff.counter)    //append a number to later identify this svg
+                     .attr("id", "frame" + treestuff.counter)    //append a number to later identify this svg
                      .attr("width", treestuff.width)
                      .attr("height", treestuff.height)
                      .append("g")
@@ -137,19 +139,37 @@ treestuff.initializeTree = function(filename) {
            .attr("rx", 10)
            .attr("ry", 10)
            .attr("width", 20)
-           .attr("height", treestuff.height)
-           .call(zoom);
+           .attr("height", treestuff.height);
+           //.call(zoom);
 
         svg.append("rect")
            .attr("width", treestuff.width - treestuff.marginForLabels)
            .attr("height", treestuff.height)
            .attr("class", "brushBox")
            .call(brush);
+           
+        var zoomButtons = svg.append("g")
+                             .attr("transform", "translate(-25, 10)");
+
+        zoomButtons.append("rect")
+                   .attr("identifier", treestuff.counter)
+                   .attr("width", 30)
+                   .attr("height", 30)
+                   .style("fill", "green")
+                   .on("click", function() {console.log(this);return treestuff.incrementZoom(1, this); });
+                   
+        zoomButtons.append("rect")
+                   .attr("identifier", treestuff.counter)
+                   .attr("y", 30)
+                   .attr("width", 30)
+                   .attr("height", 30)
+                   .style("fill", "red")
+                   .on("click", function() {console.log(this);return treestuff.incrementZoom(-1, this); });
+                   
 
         treestuff.counter += 1;
     });
 };
-
 
 treestuff.addPointlessCircles = function() {
     var div = d3.select("body").append("div")
@@ -163,20 +183,29 @@ treestuff.addPointlessCircles = function() {
                  
     treestuff.circScale = d3.scale.linear()
                                   .domain([0, 300])
-                                  .range([15, 2 * treestuff.width - 15]);
-    //treestuff.counter += 1;           
+                                  .range([15, 2 * treestuff.width - 15]);         
 };
 
 
 treestuff.addSearchBox = function() {
-    var div = d3.select("body").append("div")
-                .attr("class", "searchBox");
+    d3.select("body").append("div")
+      .attr("class", "searchBox")
+      .append("input")
+      .attr("type", "text")
+      .attr("id", "search")
+      .attr("value", "search")
+      .on("keyup", treestuff.search);       
+};
 
-    div.append("input")
-       .attr("type", "text")
-       .attr("id", "search")
-       .attr("name", "search")
-       .on("keyup", treestuff.search);       
+
+treestuff.addColorPicker = function() {
+    d3.select("body")
+      .append("div")
+      .attr("class", "colorBox")
+      .append("input")
+      .attr("id", "color")
+      .attr("value", "color")
+      .on("keyup", treestuff.applyColor);
 };
 
 
@@ -197,6 +226,15 @@ treestuff.search = function(searchTerm) {
     
     treestuff.focusedLeaves = selectedNodes;
     treestuff.updateFrames();
+};
+
+
+treestuff.applyColor = function() {
+    var color = document.getElementById("color").value;
+    d3.selectAll("svg.treeFrame")
+      .selectAll(".leaf")
+      .filter(function(d) {return treestuff.containsLeaf(treestuff.focusedLeaves, d); })
+      .style("fill", color);
 };
 
 
@@ -258,10 +296,27 @@ treestuff.scaleBranchLengths = function(nodes, w) {
 };
 
 
-treestuff.zoomed = function() {
-    treestuff.focusedFrame = this.parentNode.parentNode.id;
+treestuff.incrementZoom = function incrementZoom(dir, context) {
+    //var currScale = treestuff.frameData[treestuff.focusedFrame].zoom.scale();
+    //treestuff.frameData[treestuff.focusedFrame].zoom.scale(currScale + (0.1 * dir));
+    //console.log(d3.select(target));
+    treestuff.focusedFrame = context.attributes.identifier.nodeValue;
 
-    var svg = d3.select(this.parentNode);
+    var change = 50 * dir;
+    var currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
+    treestuff.frameData[treestuff.focusedFrame]
+             .y.range([currRange[0] - change, currRange[1] + change]);
+    treestuff.zoomed(context); 
+};
+         
+         
+
+treestuff.zoomed = function(context) {
+    
+    //treestuff.focusedFrame = identifier || this.parentNode.parentNode.id;
+    //console.log(treestuff.focusedFrame);
+
+    var svg = d3.select("#frame" + treestuff.focusedFrame);
 
     svg.selectAll("path.link")
         .attr("d", treestuff.elbow);

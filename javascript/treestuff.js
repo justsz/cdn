@@ -143,7 +143,7 @@ treestuff.initializeTree = function(filename) {
 
         var brushBox = svg.append("rect")
                           .attr("identifier", treestuff.counter)
-                          .attr("width", treestuff.width - treestuff.marginForLabels)
+                          .attr("width", treestuff.width)
                           .attr("height", treestuff.height)
                           .attr("class", "brushBox")
                           .call(brush);
@@ -304,11 +304,14 @@ treestuff.incrementZoom = function incrementZoom(dir, context) {
     //console.log(d3.select(target));
     treestuff.focusedFrame = context.attributes.identifier.nodeValue;
 
-    var change = 100 * dir;
     var currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
-    treestuff.frameData[treestuff.focusedFrame]
-             .y.range([0, currRange[1] + change]);
-    treestuff.zoomed(context); 
+    var newScaleMax = currRange[1] + 100 * dir;
+    
+    if (newScaleMax >= treestuff.height) {
+        treestuff.frameData[treestuff.focusedFrame]
+                 .y.range([0, newScaleMax]);
+        treestuff.zoomed(context); 
+    }
 };
          
          

@@ -1,5 +1,11 @@
 .node {
   font: 10px sans-serif;
+  user-select: none;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+
   fill: black;
 }
 
@@ -48,6 +54,7 @@
 	border: 2px solid;
 	border-color: gray;
 	overflow: auto;
+	user-select: none;
 }
 
 .brushBox {

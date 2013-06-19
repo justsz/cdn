@@ -6,15 +6,18 @@
   -webkit-user-select: none;
   -ms-user-select: none;
 
-  fill: black;
+  fill-opacity: 0;
 }
 
-.node.highlighted {
-    font: 10px sans-serif;
+.highlighted {
+    fill-opacity: 0.3;
     fill: orange;
-    selected: true;
 }
 
+.leafText {
+    fill: black;
+    fill-opacity: 1;
+}
 
 .link {
   fill: none;
@@ -54,7 +57,6 @@
 	border: 2px solid;
 	border-color: gray;
 	overflow: auto;
-	user-select: none;
 }
 
 .brushBox {

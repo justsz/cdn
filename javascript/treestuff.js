@@ -121,13 +121,31 @@ treestuff.initializeTree = function(filename) {
            .attr("class", "rootLink")
            .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
 
-        svg.selectAll(".leaf").append("text")
-           .attr("dx", 8)
-           .attr("dy", 3)
-           .attr("text-anchor", "start")
-           .text(function(d) { return d.name; });
+        var leaves = svg.selectAll(".leaf");
+        
+        leaves.append("text")
+              .attr("class", "leafText")
+              .attr("dx", 8)
+              .attr("dy", 3)
+              .attr("text-anchor", "start")
+              .text(function(d) { return d.name; });
+        
+        leaves.append("rect")
+              .attr("class", "leafBack")
+              .attr("y", -7)
+              .attr("x", 5)
+              .attr("width", 23)
+              .attr("height", 12)
+              .on("click", function() {
+                  var node = d3.select(this.parentNode);
+                  var addNodeToSelection = !node.classed("highlighted");
+                  node.classed("highlighted", addNodeToSelection);
+                  addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : treestuff.removeElement(node.datum(), treestuff.focusedLeaves);
+                  treestuff.updateFrames();                      
+              });
 
-        svg.selectAll(".leaf").append("path")
+
+        leaves.append("path")
            .attr("class", "dashedLink")
            .attr("d", treestuff.dashedElbow);
 
@@ -143,7 +161,7 @@ treestuff.initializeTree = function(filename) {
 
         var brushBox = svg.append("rect")
                           .attr("identifier", treestuff.counter)
-                          .attr("width", treestuff.width)
+                          .attr("width", treestuff.width - treestuff.marginForLabels)
                           .attr("height", treestuff.height)
                           .attr("class", "brushBox")
                           .call(brush);
@@ -171,6 +189,17 @@ treestuff.initializeTree = function(filename) {
 
         treestuff.counter += 1;
     });
+};
+
+treestuff.removeElement = function(obj, array) {
+    var i;
+    for (i = 0; i < array.length; i += 1) {
+        if (array[i].name === obj.name) {
+            array.splice(i, 1);
+            return;
+        }
+    }
+    console.log("removable element not found");
 };
 
 treestuff.addPointlessCircles = function() {
@@ -305,7 +334,7 @@ treestuff.incrementZoom = function incrementZoom(dir, context) {
     treestuff.focusedFrame = context.attributes.identifier.nodeValue;
 
     var currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
-    var newScaleMax = currRange[1] + 100 * dir;
+    var newScaleMax = currRange[1] + 300 * dir;
     
     if (newScaleMax >= treestuff.height) {
         treestuff.frameData[treestuff.focusedFrame]
@@ -360,7 +389,7 @@ treestuff.brushmove = function() {
             }
         });
 
-    treestuff.focusedLeaves = selectedNodes;
+    treestuff.focusedLeaves = selectedNodes.slice(0);
     
     //highlight all matching leaf nodes
     treestuff.updateFrames();

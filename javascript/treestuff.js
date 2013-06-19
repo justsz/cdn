@@ -39,6 +39,7 @@ treestuff.updateBehaviour.circles = {
                        .attr("cx", function(d) {return treestuff.circScale(parseInt(d.name, 10)); })
                        .attr("cy", 15);
 
+
                 circles.exit().remove();
                             
             }
@@ -131,17 +132,20 @@ treestuff.initializeTree = function(filename) {
               .text(function(d) { return d.name; });
         
         leaves.append("rect")
+              .attr("identifier", treestuff.counter)
               .attr("class", "leafBack")
               .attr("y", -7)
               .attr("x", 5)
               .attr("width", 23)
               .attr("height", 12)
               .on("click", function() {
+                  treestuff.focusedFrame = this.attributes.identifier.nodeValue;
                   var node = d3.select(this.parentNode);
                   var addNodeToSelection = !node.classed("highlighted");
                   node.classed("highlighted", addNodeToSelection);
                   addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : treestuff.removeElement(node.datum(), treestuff.focusedLeaves);
-                  treestuff.updateFrames();                      
+                  treestuff.updateFrames();
+                  treestuff.scrollToNode(node);                    
               });
 
 
@@ -200,6 +204,25 @@ treestuff.removeElement = function(obj, array) {
         }
     }
     console.log("removable element not found");
+};
+
+treestuff.scrollToNode = function(node) {
+    var i,
+        nodeInOtherFrame;
+        
+    for (i = 0; i < treestuff.frameData.length; i += 1) {
+        //focusedFrame is retrieved as a string, must convert i to match
+        if ("" + i !== treestuff.focusedFrame) {
+            nodeInOtherFrame = d3.select("#frame" + i)
+                                 .selectAll(".leaf")
+                                 .filter(function(d) {return node.datum().name === d.name; });
+
+            if (nodeInOtherFrame[0].length) {   //if the leaf exists in other frame
+                document.getElementById("frame" + i).parentNode.scrollTop =
+                treestuff.frameData[i].y(nodeInOtherFrame.datum().x) - treestuff.height / 2;
+            }
+        }
+    }
 };
 
 treestuff.addPointlessCircles = function() {
@@ -265,7 +288,8 @@ treestuff.applyColor = function() {
     d3.selectAll("svg.treeFrame")
       .selectAll(".leaf")
       .filter(function(d) {return treestuff.containsLeaf(treestuff.focusedLeaves, d); })
-      .style("fill", color);
+      .style("fill", color)
+      .style("fill-opacity", 0.3);
 };
 
 

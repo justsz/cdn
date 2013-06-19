@@ -241,6 +241,29 @@ treestuff.addPointlessCircles = function() {
 };
 
 
+treestuff.addGlobalZoomButton = function() {
+    var zoomButton = d3.select("body")
+                       .append("div")
+                       .append("svg")
+                       .attr("width", 40)
+                       .attr("height", 80)
+                       .append("g");
+
+        zoomButton.append("rect")
+                   .attr("width", 40)
+                   .attr("height", 40)
+                   .style("fill", "green")
+                   .on("click", function() {return treestuff.incrementZoom(1); });
+                   
+        zoomButton.append("rect")
+                   .attr("y", 40)
+                   .attr("width", 40)
+                   .attr("height", 40)
+                   .style("fill", "red")
+                   .on("click", function() {return treestuff.incrementZoom(-1); });
+};
+
+
 treestuff.addSearchBox = function() {
     d3.select("body").append("div")
       .attr("class", "searchBox")
@@ -355,21 +378,37 @@ treestuff.incrementZoom = function incrementZoom(dir, context) {
     //var currScale = treestuff.frameData[treestuff.focusedFrame].zoom.scale();
     //treestuff.frameData[treestuff.focusedFrame].zoom.scale(currScale + (0.1 * dir));
     //console.log(d3.select(target));
-    treestuff.focusedFrame = context.attributes.identifier.nodeValue;
-
-    var currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
-    var newScaleMax = currRange[1] + 300 * dir;
     
-    if (newScaleMax >= treestuff.height) {
-        treestuff.frameData[treestuff.focusedFrame]
-                 .y.range([0, newScaleMax]);
-        treestuff.zoomed(context); 
+    var targets = [],
+        currRange,
+        newScaleMax
+        i;
+    
+    if (context) {
+        targets.push(context.attributes.identifier.nodeValue);
+    } else {
+        for (i = 0; i < treestuff.frameData.length; i += 1) {
+            targets.push(i);
+        }
     }
+    
+    for (i = 0; i < targets.length; i += 1) {
+        treestuff.focusedFrame = targets[i];
+
+        currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
+        newScaleMax = currRange[1] + 300 * dir;
+    
+        if (newScaleMax >= treestuff.height) {
+            treestuff.frameData[treestuff.focusedFrame]
+                     .y.range([0, newScaleMax]);
+            treestuff.zoomed(); 
+        }
+    } 
 };
          
          
 
-treestuff.zoomed = function(context) {
+treestuff.zoomed = function() {
     
     //treestuff.focusedFrame = identifier || this.parentNode.parentNode.id;
     //console.log(treestuff.focusedFrame);

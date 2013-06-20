@@ -48,7 +48,7 @@ treestuff.updateBehaviour.circles = {
 
 
 treestuff.initializeTree = function(filename) {
-    d3.json(filename, function(root) { //root is the root node of the input tree
+    d3.json(filename, function(json) { //root is the root node of the input tree
         treestuff.focusedFrame = treestuff.counter;
         //initialize d3 cluster layout
         var cluster = d3.layout.cluster()
@@ -57,7 +57,7 @@ treestuff.initializeTree = function(filename) {
 
         //get an array of all nodes and where they should be placed 
         //(ignoring branch lengths)
-        var nodes = cluster.nodes(root);
+        var nodes = cluster.nodes(json.root);
         var linkData = cluster.links(nodes);
 
         treestuff.attachLinkReferences(nodes, linkData);
@@ -420,11 +420,9 @@ treestuff.zoomed = function() {
              .brushBox.attr("height", treestuff.frameData[treestuff.focusedFrame].y(treestuff.height));
     
     svg.selectAll("path.link")
-        .transition()
         .attr("d", treestuff.elbow);
 
     svg.selectAll("g.node")
-        .transition()
         .attr("transform", function(d) { return "translate(" + (d.y) + "," + treestuff.frameData[treestuff.focusedFrame].y(d.x) + ")"; });
 };
 
@@ -487,6 +485,7 @@ treestuff.addConnectingNodes = function(nodes) {
     while (cont) {
         cont = false;
         for (i = 0; i < nodes.length; i += 1) {
+            if (nodes[i].parent) {
             if (nodes[i].parent.children[0] === nodes[i]) {
                 if (treestuff.contains(nodes, nodes[i].parent.children[1]) && !treestuff.contains(nodes, nodes[i].parent)) {
                     nodes.push(nodes[i].parent);
@@ -498,6 +497,7 @@ treestuff.addConnectingNodes = function(nodes) {
                     cont = true;
                 }
             }
+            } else {console.log(nodes[i].parent)}
         }
     }
 };

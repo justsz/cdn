@@ -15,8 +15,14 @@
 
 
 <script>
-	var inputFiles = ["data/tree1.json", "data/tree2.json"];
+	//var inputFiles = ["data/tree1.json", "data/tree2.json"];
 	//var inputFiles = ["data/testTree2.json", "data/testTree2.json"];
+	var inputFiles = ["data/H9N2 Trees/H9N2.MP.json",
+	                  "data/H9N2 Trees/H9N2.NP.json",
+	                  "data/H9N2 Trees/H9N2.NS.json",
+	                  "data/H9N2 Trees/H9N2.PA.json",
+	                  "data/H9N2 Trees/H9N2.PB1.json",
+	                  "data/H9N2 Trees/H9N2.PB2.json"];
 	
 	//read each input file and draw the tree in its own div
 	for (var i = 0; i < inputFiles.length; i++) {
@@ -24,7 +30,7 @@
 		treestuff.initializeTree(inputFiles[i]);
 	}
 	
-	treestuff.addPointlessCircles();
+	//treestuff.addPointlessCircles();
 	treestuff.addSearchBox();
 	treestuff.addColorPicker();
 	treestuff.addGlobalZoomButton();

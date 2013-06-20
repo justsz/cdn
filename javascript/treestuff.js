@@ -420,9 +420,11 @@ treestuff.zoomed = function() {
              .brushBox.attr("height", treestuff.frameData[treestuff.focusedFrame].y(treestuff.height));
     
     svg.selectAll("path.link")
+        .transition()
         .attr("d", treestuff.elbow);
 
     svg.selectAll("g.node")
+        .transition()
         .attr("transform", function(d) { return "translate(" + (d.y) + "," + treestuff.frameData[treestuff.focusedFrame].y(d.x) + ")"; });
 };
 

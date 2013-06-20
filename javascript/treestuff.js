@@ -2,9 +2,9 @@
 
 var treestuff = {}; //object for holding all variables and functions
 
-treestuff.width = 400;
+treestuff.width = 700;
 treestuff.height = 500;
-treestuff.marginForLabels = 100;
+treestuff.marginForLabels = 300;
 treestuff.frameData = [];
 treestuff.counter = 0;
 treestuff.focusedFrame = 0;
@@ -116,13 +116,19 @@ treestuff.initializeTree = function(filename) {
            })
            .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
 
-        //draw root node line. It is placed inside the root nodes g so it transforms along with it.
+        //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
         svg.select(".root")
            .append("path")
            .attr("class", "rootLink")
            .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
 
         var leaves = svg.selectAll(".leaf");
+        
+        /*
+        var nameLengths = [];
+        leaves.each(function (d) {nameLengths.push(d.name.length); });
+        treestuff.marginForLabels = d3.max(nameLengths) * 7;
+        */
         
         leaves.append("text")
               .attr("class", "leafText")
@@ -136,7 +142,7 @@ treestuff.initializeTree = function(filename) {
               .attr("class", "leafBack")
               .attr("y", -7)
               .attr("x", 5)
-              .attr("width", 23)
+              .attr("width", treestuff.marginForLabels)
               .attr("height", 12)
               .on("click", function() {
                   treestuff.focusedFrame = this.attributes.identifier.nodeValue;
@@ -153,15 +159,17 @@ treestuff.initializeTree = function(filename) {
            .attr("class", "dashedLink")
            .attr("d", treestuff.dashedElbow);
 
-        // svg.append("rect")
-//            .attr("class", "scrollArea")
-//            .attr("x", treestuff.width - 60)
-//            .attr("y", 0)
-//            .attr("rx", 10)
-//            .attr("ry", 10)
-//            .attr("width", 20)
-//            .attr("height", treestuff.height);
-//            //.call(zoom);
+/*
+         svg.append("rect")
+            .attr("class", "scrollArea")
+            .attr("x", treestuff.width - 60)
+            .attr("y", 0)
+            .attr("rx", 10)
+            .attr("ry", 10)
+            .attr("width", 20)
+            .attr("height", treestuff.height);
+            //.call(zoom);
+*/
 
         var brushBox = svg.append("rect")
                           .attr("identifier", treestuff.counter)
@@ -171,7 +179,8 @@ treestuff.initializeTree = function(filename) {
                           .call(brush);
 
         treestuff.frameData[treestuff.focusedFrame].brushBox = brushBox;
-           
+       
+       /*    
         var zoomButtons = svg.append("g")
                              .attr("transform", "translate(-25, 10)");
 
@@ -189,7 +198,7 @@ treestuff.initializeTree = function(filename) {
                    .attr("height", 30)
                    .style("fill", "red")
                    .on("click", function() {return treestuff.incrementZoom(-1, this); });
-                   
+         */          
 
         treestuff.counter += 1;
     });
@@ -457,7 +466,11 @@ treestuff.brushmove = function() {
     //highlight all matching leaf nodes
     treestuff.updateFrames();
 
-    treestuff.addConnectingNodes(selectedNodes);
+
+
+    //treestuff.addConnectingNodes(selectedNodes);
+
+
 
     //could make this a bit faster by saving previous selection
     d3.select(this.parentNode).selectAll("path.link").classed("highlighted", false);
@@ -485,7 +498,6 @@ treestuff.addConnectingNodes = function(nodes) {
     while (cont) {
         cont = false;
         for (i = 0; i < nodes.length; i += 1) {
-            if (nodes[i].parent) {
             if (nodes[i].parent.children[0] === nodes[i]) {
                 if (treestuff.contains(nodes, nodes[i].parent.children[1]) && !treestuff.contains(nodes, nodes[i].parent)) {
                     nodes.push(nodes[i].parent);
@@ -497,7 +509,6 @@ treestuff.addConnectingNodes = function(nodes) {
                     cont = true;
                 }
             }
-            } else {console.log(nodes[i].parent)}
         }
     }
 };

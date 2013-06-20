@@ -151,7 +151,9 @@ treestuff.initializeTree = function(filename) {
                   node.classed("highlighted", addNodeToSelection);
                   addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : treestuff.removeElement(node.datum(), treestuff.focusedLeaves);
                   treestuff.updateFrames();
-                  treestuff.scrollToNode(node);                    
+                  if (addNodeToSelection) {
+                      treestuff.scrollToNode(node);
+                  }
               });
 
 

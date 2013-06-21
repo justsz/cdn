@@ -60,7 +60,7 @@ body {
 
 
 .svgBox {
-	/*display: inline-block;*/
+	display: inline-block;
 	height: 520px;
 	width: 720px;
 	line-height: 0;

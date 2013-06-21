@@ -5,19 +5,18 @@ var treestuff = {}; //object for holding all variables and functions
 treestuff.width = 700;
 treestuff.height = 500;
 treestuff.marginForLabels = 300;
-treestuff.frameData = [];
+treestuff.panelData = [];
 treestuff.counter = 0;
-treestuff.focusedFrame = 0;
+treestuff.focusedPanel = 0;
 treestuff.focusedLeaves = [];
 
 treestuff.updateBehaviour = {}; //TODO hide this in a closure?
 treestuff.updateBehaviour.tree = {
-    target: "svg.treeFrame",    
+    target: "svg.treePanel",    
     action: function(domSelection, selectedNodes) {
                 var nodes = selectedNodes || treestuff.focusedLeaves;
                 domSelection.selectAll(".leaf").classed("highlighted", function(d) {
                        if (treestuff.containsLeaf(nodes, d)) {
-                           var bll = $(d3.select(this.childNodes[0])).select();
                            return true;
                        }
                        return false;
@@ -26,7 +25,7 @@ treestuff.updateBehaviour.tree = {
     };
     
 treestuff.updateBehaviour.circles = {
-    target: "svg.circleFrame",    
+    target: "svg.circlePanel",    
     action: function(domSelection, selectedNodes) {
                 var nodes = selectedNodes || treestuff.focusedLeaves;
                 var circles = domSelection.selectAll("circle")
@@ -49,7 +48,7 @@ treestuff.updateBehaviour.circles = {
 
 treestuff.initializeTree = function(filename) {
     d3.json(filename, function(json) { //root is the root node of the input tree
-        treestuff.focusedFrame = treestuff.counter;
+        treestuff.focusedPanel = treestuff.counter;
         //initialize d3 cluster layout
         var cluster = d3.layout.cluster()
                         .size([treestuff.height, treestuff.width - treestuff.marginForLabels])
@@ -79,8 +78,8 @@ treestuff.initializeTree = function(filename) {
                     .attr("class", "svgBox");
 
         var svg = div.append("svg")
-                     .attr("class", "treeFrame")
-                     .attr("id", "frame" + treestuff.counter)    //append a number to later identify this svg
+                     .attr("class", "treePanel")
+                     .attr("id", "panel" + treestuff.counter)    //append a number to later identify this svg
                      .attr("width", treestuff.width)
                      .attr("height", treestuff.height)
                      .append("g")
@@ -93,7 +92,7 @@ treestuff.initializeTree = function(filename) {
                      .on("zoom", treestuff.zoomed)
                      .scaleExtent([1, 10]);
 
-        treestuff.frameData.push({x: xScale, y: yScale, brush: brush, zoom: zoom});
+        treestuff.panelData.push({x: xScale, y: yScale, brush: brush, zoom: zoom});
 
         svg.selectAll("path.link")
            .data(linkData, treestuff.getLinkKey)
@@ -145,12 +144,12 @@ treestuff.initializeTree = function(filename) {
               .attr("width", treestuff.marginForLabels)
               .attr("height", 12)
               .on("click", function() {
-                  treestuff.focusedFrame = this.attributes.identifier.nodeValue;
+                  treestuff.focusedPanel = this.attributes.identifier.nodeValue;
                   var node = d3.select(this.parentNode);
                   var addNodeToSelection = !node.classed("highlighted");
                   node.classed("highlighted", addNodeToSelection);
                   addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : treestuff.removeElement(node.datum(), treestuff.focusedLeaves);
-                  treestuff.updateFrames();
+                  treestuff.updatePanels();
                   if (addNodeToSelection) {
                       treestuff.scrollToNode(node);
                   }
@@ -180,7 +179,7 @@ treestuff.initializeTree = function(filename) {
                           .attr("class", "brushBox")
                           .call(brush);
 
-        treestuff.frameData[treestuff.focusedFrame].brushBox = brushBox;
+        treestuff.panelData[treestuff.focusedPanel].brushBox = brushBox;
        
        /*    
         var zoomButtons = svg.append("g")
@@ -219,18 +218,18 @@ treestuff.removeElement = function(obj, array) {
 
 treestuff.scrollToNode = function(node) {
     var i,
-        nodeInOtherFrame;
+        nodeInOtherPanel;
         
-    for (i = 0; i < treestuff.frameData.length; i += 1) {
-        //focusedFrame is retrieved as a string, must convert i to match
-        if ("" + i !== treestuff.focusedFrame) {
-            nodeInOtherFrame = d3.select("#frame" + i)
+    for (i = 0; i < treestuff.panelData.length; i += 1) {
+        //focusedPanel is retrieved as a string, must convert i to match
+        if ("" + i !== treestuff.focusedPanel) {
+            nodeInOtherPanel = d3.select("#panel" + i)
                                  .selectAll(".leaf")
                                  .filter(function(d) {return node.datum().name === d.name; });
 
-            if (nodeInOtherFrame[0].length) {   //if the leaf exists in other frame
-                document.getElementById("frame" + i).parentNode.scrollTop =
-                treestuff.frameData[i].y(nodeInOtherFrame.datum().x) - treestuff.height / 2;
+            if (nodeInOtherPanel[0].length) {   //if the leaf exists in other panel
+                document.getElementById("panel" + i).parentNode.scrollTop =
+                treestuff.panelData[i].y(nodeInOtherPanel.datum().x) - treestuff.height / 2;
             }
         }
     }
@@ -241,7 +240,7 @@ treestuff.addPointlessCircles = function() {
                 .attr("class", "circBox");
 
     div.append("svg")
-       .attr("class", "circleFrame")
+       .attr("class", "circlePanel")
      //.attr("id", treestuff.counter)    //append a number to later identify this svg
        .attr("width", 2 * treestuff.width)
        .attr("height", 30);
@@ -301,25 +300,35 @@ treestuff.search = function(searchTerm) {
     var searchTerm = searchTerm || document.getElementById("search").value;
     var searchRegex = new RegExp(searchTerm);
     var selectedNodes = [];
+    //var firstHit;
     
     if (searchTerm) { //do no selection if search field is empty
-        d3.selectAll("svg.treeFrame")
+        d3.selectAll("svg.treePanel")
           .selectAll(".leaf")
           .each(function(d) {
               if (searchRegex.test(d.name)) {
-                  selectedNodes.push(d); 
+                  selectedNodes.push(d);
+                  //if (!firstHit) {
+                  //    firstHit = this;
+                  //}
               }
           });
     }
     
     treestuff.focusedLeaves = selectedNodes;
-    treestuff.updateFrames();
+    treestuff.updatePanels();
+    
+    /*
+    if (firstHit) {
+        treestuff.scrollToNode(d3.select(firstHit));
+    }
+    */
 };
 
 
 treestuff.applyColor = function() {
     var color = document.getElementById("color").value;
-    d3.selectAll("svg.treeFrame")
+    d3.selectAll("svg.treePanel")
       .selectAll(".leaf")
       .filter(function(d) {return treestuff.containsLeaf(treestuff.focusedLeaves, d); })
       .style("fill", color)
@@ -351,14 +360,14 @@ treestuff.getNodeLinks = function(nodes) {
 
 
 treestuff.elbow = function(d) {
-    var currentFrame = treestuff.frameData[treestuff.focusedFrame];
-    return "M" + currentFrame.x(d.source.rootDist) + "," + currentFrame.y(d.source.x)
-        + "V" + currentFrame.y(d.target.x) + "H" + currentFrame.x(d.target.rootDist);
+    var currentPanel = treestuff.panelData[treestuff.focusedPanel];
+    return "M" + currentPanel.x(d.source.rootDist) + "," + currentPanel.y(d.source.x)
+        + "V" + currentPanel.y(d.target.x) + "H" + currentPanel.x(d.target.rootDist);
 };
 
 treestuff.dashedElbow = function(d) {
     return "M" + 0 + "," + 0
-        + "h" + (treestuff.frameData[treestuff.focusedFrame].x(d.rootDist) - d.y);
+        + "h" + (treestuff.panelData[treestuff.focusedPanel].x(d.rootDist) - d.y);
 };
 
 treestuff.scaleBranchLengths = function(nodes, w) {
@@ -386,8 +395,8 @@ treestuff.scaleBranchLengths = function(nodes, w) {
 
 
 treestuff.incrementZoom = function incrementZoom(dir, context) {
-    //var currScale = treestuff.frameData[treestuff.focusedFrame].zoom.scale();
-    //treestuff.frameData[treestuff.focusedFrame].zoom.scale(currScale + (0.1 * dir));
+    //var currScale = treestuff.panelData[treestuff.focusedPanel].zoom.scale();
+    //treestuff.panelData[treestuff.focusedPanel].zoom.scale(currScale + (0.1 * dir));
     //console.log(d3.select(target));
     
     var targets = [],
@@ -398,19 +407,19 @@ treestuff.incrementZoom = function incrementZoom(dir, context) {
     if (context) {
         targets.push(context.attributes.identifier.nodeValue);
     } else {
-        for (i = 0; i < treestuff.frameData.length; i += 1) {
+        for (i = 0; i < treestuff.panelData.length; i += 1) {
             targets.push(i);
         }
     }
     
     for (i = 0; i < targets.length; i += 1) {
-        treestuff.focusedFrame = targets[i];
+        treestuff.focusedPanel = targets[i];
 
-        currRange = treestuff.frameData[treestuff.focusedFrame].y.range();
+        currRange = treestuff.panelData[treestuff.focusedPanel].y.range();
         newScaleMax = currRange[1] + 300 * dir;
     
         if (newScaleMax >= treestuff.height) {
-            treestuff.frameData[treestuff.focusedFrame]
+            treestuff.panelData[treestuff.focusedPanel]
                      .y.range([0, newScaleMax]);
             treestuff.zoomed(); 
         }
@@ -421,44 +430,44 @@ treestuff.incrementZoom = function incrementZoom(dir, context) {
 
 treestuff.zoomed = function() {
     
-    //treestuff.focusedFrame = identifier || this.parentNode.parentNode.id;
-    //console.log(treestuff.focusedFrame);
+    //treestuff.focusedPanel = identifier || this.parentNode.parentNode.id;
+    //console.log(treestuff.focusedPanel);
 
-    var svg = d3.select("#frame" + treestuff.focusedFrame);
+    var svg = d3.select("#panel" + treestuff.focusedPanel);
     
-    svg.attr("height", treestuff.frameData[treestuff.focusedFrame].y(treestuff.height))
-    treestuff.frameData[treestuff.focusedFrame]
-             .brushBox.attr("height", treestuff.frameData[treestuff.focusedFrame].y(treestuff.height));
+    svg.attr("height", treestuff.panelData[treestuff.focusedPanel].y(treestuff.height))
+    treestuff.panelData[treestuff.focusedPanel]
+             .brushBox.attr("height", treestuff.panelData[treestuff.focusedPanel].y(treestuff.height));
     
     svg.selectAll("path.link")
         .attr("d", treestuff.elbow);
 
     svg.selectAll("g.node")
-        .attr("transform", function(d) { return "translate(" + (d.y) + "," + treestuff.frameData[treestuff.focusedFrame].y(d.x) + ")"; });
+        .attr("transform", function(d) { return "translate(" + (d.y) + "," + treestuff.panelData[treestuff.focusedPanel].y(d.x) + ")"; });
 };
 
 
 // Clear the previously-active brush, if any.
 treestuff.brushstart = function() {
-    var newFocusedFrame = this.attributes.identifier.nodeValue;
+    var newFocusedPanel = this.attributes.identifier.nodeValue;
 
-    if (newFocusedFrame !== treestuff.focusedFrame) {
+    if (newFocusedPanel !== treestuff.focusedPanel) {
         d3.selectAll(".highlighted").classed("highlighted", false);
-        treestuff.frameData[treestuff.focusedFrame].brush.clear();
+        treestuff.panelData[treestuff.focusedPanel].brush.clear();
     }
-    treestuff.focusedFrame = newFocusedFrame;
+    treestuff.focusedPanel = newFocusedPanel;
 };
 
 // Highlight the selected leaf links.
 treestuff.brushmove = function() {
-    var e = treestuff.frameData[treestuff.focusedFrame].brush.extent();
+    var e = treestuff.panelData[treestuff.focusedPanel].brush.extent();
     var selectedNodes = [];
-    var currentFrame = treestuff.frameData[treestuff.focusedFrame];
+    var currentPanel = treestuff.panelData[treestuff.focusedPanel];
 
     d3.select(this.parentNode)
         .selectAll(".leaf")
         .each(function(d) {
-            if (currentFrame.y(e[0]) < currentFrame.y(d.x) && currentFrame.y(d.x) < currentFrame.y(e[1])) {
+            if (currentPanel.y(e[0]) < currentPanel.y(d.x) && currentPanel.y(d.x) < currentPanel.y(e[1])) {
                 selectedNodes.push(d);
             }
         });
@@ -466,7 +475,7 @@ treestuff.brushmove = function() {
     treestuff.focusedLeaves = selectedNodes.slice(0);
     
     //highlight all matching leaf nodes
-    treestuff.updateFrames();
+    treestuff.updatePanels();
 
 
 
@@ -487,7 +496,7 @@ treestuff.brushmove = function() {
 
 // If the brush is empty, un-highlight all links.
 treestuff.brushend = function() {
-    if (treestuff.frameData[treestuff.focusedFrame].brush.empty()) {
+    if (treestuff.panelData[treestuff.focusedPanel].brush.empty()) {
         d3.select(this.parentNode)
           .selectAll(".highlighted").classed("highlighted", false);
     }
@@ -556,7 +565,7 @@ treestuff.addUpdateBehaviour = function(name, targ, behaviour) {
 };
 
 
-treestuff.updateFrames = function(targetNames) {//TODO add support for single string
+treestuff.updatePanels = function(targetNames) {//TODO add support for single string
     var targ, 
         i,
         callUpdate = function(t) {

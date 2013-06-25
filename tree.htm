@@ -10,29 +10,39 @@
 		<script src="javascript/d3.v3.min.js"></script>
 		<script src="javascript/treestuff.js"></script>
 		<script src="javascript/jquery-2.0.2.js"></script>
+    	<script src="javascript/circlePanel.js"></script>
+    	<script src="javascript/treePanel.js"></script>
 	</head>
 <body>
 
 
 <script>
-	//var inputFiles = ["data/tree1.json", "data/tree2.json"];
-	var inputFiles = ["data/H9N2 Trees/H9N2.MP.json",
-	                  "data/H9N2 Trees/H9N2.NP.json"];/*,
-	                  "data/H9N2 Trees/H9N2.NS.json",
-	                  "data/H9N2 Trees/H9N2.PA.json",
-	                  "data/H9N2 Trees/H9N2.PB1.json",
-	                  "data/H9N2 Trees/H9N2.PB2.json"];*/
-	
-	//read each input file and draw the tree in its own div
-	for (var i = 0; i < inputFiles.length; i++) {
-		console.log("reading " + inputFiles[i]);
-		treestuff.initializeTree(inputFiles[i]);
-	}
-	
-	//treestuff.addPointlessCircles();
-	treestuff.addSearchBox();
-	treestuff.addColorPicker();
-	treestuff.addGlobalZoomButton();
+    (function() {
+        var i,
+            //inputFiles = ["data/tree1.json", "data/tree2.json"];
+        var inputFiles = ["data/H9N2 Trees/H9N2.MP.json",
+                          "data/H9N2 Trees/H9N2.NP.json",
+                          "data/H9N2 Trees/H9N2.NS.json",
+                          "data/H9N2 Trees/H9N2.PA.json",
+                          "data/H9N2 Trees/H9N2.PB1.json",
+                          "data/H9N2 Trees/H9N2.PB2.json"];
+
+        //read each input file and draw the tree in its own div
+        for (i = 0; i < inputFiles.length; i++) {
+            var treePanel = new treestuff.TreePanel;
+            treePanel.placePanel(inputFiles[i]);
+            treestuff.panels.push(treePanel);
+        }
+/*
+        var circlePanel = new treestuff.CirclePanel;
+        circlePanel.placePanel();
+        treestuff.panels.push(circlePanel);
+  */      
+        
+        treestuff.addSearchBox();
+        treestuff.addColorPicker();
+        treestuff.addGlobalZoomButton();
+	})();
 </script>
 
 </body></html>

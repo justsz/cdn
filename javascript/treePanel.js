@@ -168,7 +168,7 @@
 
                     //get an array of all nodes and where they should be placed 
                     //(ignoring branch lengths)
-                    var nodes = cluster.nodes(json);
+                    var nodes = cluster.nodes(json.root);
                     var linkData = cluster.links(nodes);
 
                     attachLinkReferences(nodes, linkData);

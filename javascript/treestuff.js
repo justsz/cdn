@@ -9,6 +9,12 @@ treestuff = (function() {
     treestuff.counter = 0;
     treestuff.focusedLeaves = [];
     
+    d3.selection.prototype.size = function() {
+        var n = 0;
+        this.each(function() {n += 1; });
+        return n;
+    };
+    
     treestuff.addGlobalZoomButton = function() {
         var zoomButton = d3.select("body")
                            .append("div")

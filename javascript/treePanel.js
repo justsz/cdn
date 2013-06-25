@@ -1,15 +1,19 @@
 (function() {
     treestuff.TreePanel = function() {
         var panelID,
+            cluster,
             div,
             svg,
             xScale,
             yScale,
+            links, //the d3 selection
+            nodes, //the d3 selection
+            leaves,
             brush,
             brushBox,
-            width = 700,
-            height = 500,
-            marginForLabels = 300;
+            width = 400, //width of tree display
+            height = 500, //height of tree display
+            marginForLabels = 300; //additional space for labels
             
             
         function attachLinkReferences(nodes, linkData) {
@@ -120,12 +124,11 @@
             var e = brush.extent();
             var selectedNodes = [];
 
-                svg.selectAll(".leaf")
-                   .each(function(d) {
-                       if (yScale(e[0]) < yScale(d.x) && yScale(d.x) < yScale(e[1])) {
-                           selectedNodes.push(d);
-                       }
-                   });
+            leaves.each(function(d) {
+                if (yScale(e[0]) < yScale(d.x) && yScale(d.x) < yScale(e[1])) {
+                    selectedNodes.push(d);
+                }
+            });
 
             treestuff.focusedLeaves = selectedNodes.slice(0);
     
@@ -133,12 +136,11 @@
             treestuff.callUpdate("selectionUpdate");
             //addConnectingNodes(selectedNodes);
 
-            svg.selectAll("path.link").classed("highlighted", false);
+            links.classed("highlighted", false);
 
             //highlight full paths
-            svg.selectAll("path.link")
-               .data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
-               .classed("highlighted", true);
+            links.data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
+                 .classed("highlighted", true);
         };
 
 
@@ -159,21 +161,22 @@
             placePanel : function(filename) {
                 d3.json(filename, function(json) { //json is the root node of the input tree
                     panelID = 0 + treestuff.counter; //get value, not reference
-
                     treestuff.focusedPanel = panelID;
+                    
                     //initialize d3 cluster layout
-                    var cluster = d3.layout.cluster()
-                                    .size([height, width - marginForLabels])
-                                    .separation(function() {return 1; });
+                    cluster = d3.layout.cluster()
+                                .size([height, width])
+                                .separation(function() {return 1; });
 
                     //get an array of all nodes and where they should be placed 
                     //(ignoring branch lengths)
-                    var nodes = cluster.nodes(json.root);
-                    var linkData = cluster.links(nodes);
+                    var nodeArray = cluster.nodes(json);
+                    var linkArray = cluster.links(nodeArray);
 
-                    attachLinkReferences(nodes, linkData);
+                    //give nodes a reference to the link leading to it
+                    attachLinkReferences(nodeArray, linkArray);
 
-                    xScale = scaleBranchLengths(nodes, width - marginForLabels);
+                    xScale = scaleBranchLengths(nodeArray, width);
 
                     yScale = d3.scale.linear()
                                .domain([0, height])
@@ -191,33 +194,32 @@
 
                     svg = div.append("svg")
                              .attr("class", "treePanel")
-                             .attr("id", "panel" + treestuff.counter)    //append a number to later identify this svg
                              .attr("width", width)
                              .attr("height", height);
                          
                     var g = svg.append("g")
                                .attr("transform", "translate(35, 0)");                
 
-                      g.selectAll("path.link")
-                       .data(linkData, treestuff.getLinkKey)
-                       .enter().append("path")
-                       .attr("class", "link")
-                       .attr("d", elbow);
+                    links = g.selectAll("path.link")
+                             .data(linkArray, treestuff.getLinkKey)
+                             .enter().append("path")
+                             .attr("class", "link")
+                             .attr("d", elbow);
 
                     //assign node classification and position it
-                      g.selectAll("g.node")
-                       .data(nodes, treestuff.getNodeKey)
-                       .enter().append("g")
-                       .attr("class", function(d) {
-                           if (d.children) {
-                               if (d.depth === 0) {
-                                   return "root node";
-                               }
-                               return "inner node";
-                           }
-                           return "leaf node";
-                       })
-                       .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
+                    nodes = g.selectAll("g.node")
+                             .data(nodeArray, treestuff.getNodeKey)
+                             .enter().append("g")
+                             .attr("class", function(d) {
+                                 if (d.children) {
+                                     if (d.depth === 0) {
+                                         return "root node";
+                                     }
+                                     return "inner node";
+                                 }
+                                 return "leaf node";
+                             })
+                             .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
 
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
                     g.select(".root")
@@ -225,13 +227,15 @@
                        .attr("class", "rootLink")
                        .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
 
-                    var leaves = svg.selectAll(".leaf");
+                    leaves = svg.selectAll(".leaf");
         
-                    /*
                     var nameLengths = [];
                     leaves.each(function (d) {nameLengths.push(d.name.length); });
-                    marginForLabels = d3.max(nameLengths) * 7;
-                    */
+                    marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
+                    svg.attr("width", width + marginForLabels);
+                    div.style("width", (width + marginForLabels + 15) + "px")
+                       .style("height", (height + 15) + "px");
+                    
         
                     leaves.append("text")
                           .attr("class", "leafText")
@@ -265,8 +269,7 @@
 
 
                     brushBox = g.append("rect")
-                                  .attr("identifier", treestuff.counter)
-                                  .attr("width", width - marginForLabels)
+                                  .attr("width", width)
                                   .attr("height", height)
                                   .attr("class", "brushBox")
                                   .call(brush);
@@ -276,11 +279,8 @@
             },
         
             selectionUpdate : function() {
-                var nodes = treestuff.focusedLeaves;
-                d3.selectAll("svg.treePanel")
-                  .selectAll(".leaf")
-                  .classed("highlighted", function(d) {
-                    if (treestuff.containsLeaf(nodes, d)) {
+                leaves.classed("highlighted", function(d) {
+                    if (treestuff.containsLeaf(treestuff.focusedLeaves, d)) {
                           return true;
                     }
                     return false;
@@ -291,20 +291,14 @@
                 yScale.range([0, height * treestuff.scale]);
     
                 svg.attr("height", yScale(height));
-            
                 brushBox.attr("height", yScale(height));
-    
-                svg.selectAll("path.link")
-                    .attr("d", elbow);
-
-                svg.selectAll("g.node")
-                    .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
+                links.attr("d", elbow);
+                nodes.attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
             },
         
             focusUpdate : function(node) {
                 if (panelID !== treestuff.focusedPanel) {
-                    var nodeSelection =  svg.selectAll(".leaf")
-                                            .filter(function(d) {return node.datum().name === d.name; });
+                    var nodeSelection =  leaves.filter(function(d) {return node.datum().name === d.name; });
 
                     if (nodeSelection[0].length) {   //if the leaf exists in this panel
                         div[0][0].scrollTop = yScale(nodeSelection.datum().x) - height / 2;

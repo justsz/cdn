@@ -5,7 +5,7 @@
         var height = 30;
         var circScale = d3.scale.linear()
                           .domain([0, 300])
-                          .range([15, 2 * width - 15]);
+                          .range([15, width - 15]);
 
         return {
             selectionUpdate : function() {

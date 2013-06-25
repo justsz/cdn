@@ -12,6 +12,7 @@
 		<script src="javascript/jquery-2.0.2.js"></script>
     	<script src="javascript/circlePanel.js"></script>
     	<script src="javascript/treePanel.js"></script>
+    	<script src="javascript/tablePanel.js"></script>
 	</head>
 <body>
 
@@ -19,25 +20,29 @@
 <script>
     (function() {
         var i,
-            //inputFiles = ["data/tree1.json", "data/tree2.json"];
-            inputFiles = ["data/H9N2 Trees/H9N2.MP.json",
+            inputFiles = ["data/tree1.json", "data/tree2.json"];
+            /*inputFiles = ["data/H9N2 Trees/H9N2.MP.json",
                           "data/H9N2 Trees/H9N2.NP.json",
                           "data/H9N2 Trees/H9N2.NS.json",
                           "data/H9N2 Trees/H9N2.PA.json",
                           "data/H9N2 Trees/H9N2.PB1.json",
                           "data/H9N2 Trees/H9N2.PB2.json"];
-
+*/
         //read each input file and draw the tree in its own div
         for (i = 0; i < inputFiles.length; i++) {
             var treePanel = new treestuff.TreePanel;
             treePanel.placePanel(inputFiles[i]);
             treestuff.panels.push(treePanel);
         }
-/*
+
         var circlePanel = new treestuff.CirclePanel;
         circlePanel.placePanel();
         treestuff.panels.push(circlePanel);
-  */      
+        
+        var tablePanel = new treestuff.TablePanel;
+        tablePanel.placePanel();
+        treestuff.panels.push(tablePanel);
+
         
         treestuff.addSearchBox();
         treestuff.addColorPicker();

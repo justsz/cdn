@@ -11,8 +11,12 @@
             leaves,
             brush,
             brushBox,
+            rootHeight,
+            minLeafHeight,
+            axisSelection,
             width = 400, //width of tree display
             height = 500, //height of tree display
+            verticalPadding = 20;
             marginForLabels = 300; //additional space for labels
             
             
@@ -101,6 +105,7 @@
             });
 
             var rootDists = nodes.map(function(n) { return n.rootDist; });
+            console.log(d3.max(rootDists));
             var outScale = d3.scale.linear()
                              .domain([0, d3.max(rootDists)])
                              .range([0, w]);
@@ -170,7 +175,7 @@
 
                     //get an array of all nodes and where they should be placed 
                     //(ignoring branch lengths)
-                    var nodeArray = cluster.nodes(json);
+                    var nodeArray = cluster.nodes(json.root);
                     var linkArray = cluster.links(nodeArray);
 
                     //give nodes a reference to the link leading to it
@@ -195,7 +200,7 @@
                     svg = div.append("svg")
                              .attr("class", "treePanel")
                              .attr("width", width)
-                             .attr("height", height);
+                             .attr("height", height + verticalPadding);
                          
                     var g = svg.append("g")
                                .attr("transform", "translate(35, 0)");                
@@ -226,15 +231,23 @@
                        .append("path")
                        .attr("class", "rootLink")
                        .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
+                       
+                    rootHeight = g.select(".root").datum().height;
 
                     leaves = svg.selectAll(".leaf");
         
                     var nameLengths = [];
-                    leaves.each(function (d) {nameLengths.push(d.name.length); });
+                    var leafHeights = [];
+                    leaves.each(function (d) {
+                        leafHeights.push(d.height);
+                        nameLengths.push(d.name.length); 
+                    });
                     marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
                     svg.attr("width", width + marginForLabels);
                     div.style("width", (width + marginForLabels + 15) + "px")
                        .style("height", (height + 15) + "px");
+                       
+                    minLeafHeight = d3.min(leafHeights);
                     
         
                     leaves.append("text")
@@ -273,9 +286,47 @@
                                   .attr("height", height)
                                   .attr("class", "brushBox")
                                   .call(brush);
+                                  
+                    var timeScale = d3.scale.linear()
+                                        .domain([rootHeight, minLeafHeight])
+                                        .range([0, width]);
+                    var timeAxis = d3.svg.axis()
+                                        .scale(timeScale)
+                                        .orient("bottom");
+                    var aimLine;
+                    axisSelection = g.append("g")
+                                     .attr("class", "axis")
+                                     .attr("transform", "translate(0," + (height) + ")")
+                                     .call(timeAxis);
+                                     
+                    axisSelection.append("rect")
+                                 .attr("width", width)
+                                 .attr("height", verticalPadding)
+                                 .style("fill-opacity", 0)
+                                 .on("mousemove", function() {
+                                     var coords = d3.mouse(this);
+                                     if (aimLine) {aimLine.remove(); };
+                                     aimLine = svg.append("line")
+                                                  .attr("x1", coords[0] + 35)
+                                                  .attr("y1", yScale(height))
+                                                  .attr("x2", coords[0] + 35)
+                                                  .attr("y2", "0")
+                                                  .style("stroke", "red");
+                                 });
      
                     treestuff.counter += 1;
                 }); 
+            },
+            
+            addTimeAxis : function() {
+                var timeScale = d3.scale.linear()
+                                        .domain([rootHeight, minLeafHeight])
+                                        .range([0, width]);
+                var timeAxis = d3.svg.axis()
+                                     .scale(timeScale)
+                                     .orient("bottom");
+                svg.select("g").call(xAxis);
+                
             },
         
             selectionUpdate : function() {
@@ -290,7 +341,8 @@
             zoomUpdate : function() {
                 yScale.range([0, height * treestuff.scale]);
     
-                svg.attr("height", yScale(height));
+                svg.attr("height", yScale(height) + verticalPadding);
+                axisSelection.attr("transform", "translate(0," + yScale(height) + ")");
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 nodes.attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
@@ -300,7 +352,7 @@
                 if (panelID !== treestuff.focusedPanel) {
                     var nodeSelection =  leaves.filter(function(d) {return node.datum().name === d.name; });
 
-                    if (nodeSelection[0].length) {   //if the leaf exists in this panel
+                    if (!nodeSelection.empty()) {
                         div[0][0].scrollTop = yScale(nodeSelection.datum().x) - height / 2;
                     }
                 }

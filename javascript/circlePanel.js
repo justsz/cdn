@@ -18,7 +18,7 @@
                        .append("circle")
                        .attr("class", "pointlessCircle")
                        .attr("r", 12)
-                       .attr("cx", function(d) {return circScale(parseInt(d.name, 10)); })
+                       .attr("cx", function(d) {return circScale(parseInt(d.name, 10)) || 0; })
                        .attr("cy", 15);
 
                 circles.exit().remove();

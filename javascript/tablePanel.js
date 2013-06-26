@@ -20,10 +20,14 @@
                     .attr("class", "tableRow")
                     .append("text") 
                     .text(function(d) {return d.name; });
-                    
-                    rows.attr("transform", function(d, i) {
-                        return "translate(0," + (10 * (i + 1)) + ")"; 
+
+                rows.call(function() {
+                    var i = 0;
+                    this.attr("transform", function() {
+                        i += 1;
+                        return "translate(0," + (10 * (i)) + ")"; 
                     });
+                });
                     
                 var rowCount = rows.size();
                 if (rowCount < height / 10) {
@@ -37,6 +41,8 @@
                     .attr("class", "tableBox")
                     .style("width", width + "px")
                     .style("height", height + "px")
+                    .style("float", "right")
+                    .style("border", "1px solid")
                     .style("overflow", "scroll");
 
             svg = div.append("svg")

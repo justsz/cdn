@@ -287,13 +287,14 @@
                                   .attr("class", "brushBox")
                                   .call(brush);
                                   
-                    var timeScale = d3.scale.linear()
-                                        .domain([rootHeight, minLeafHeight])
+                    var timeScale = d3.time.scale()
+                                        .domain([new Date((2014 - 1970 - rootHeight) * 31557600000), new Date((2014 - 1970 - minLeafHeight) * 31557600000)])
                                         .range([0, width]);
                     var timeAxis = d3.svg.axis()
                                         .scale(timeScale)
                                         .orient("bottom");
                     var aimLine;
+                    var placeAimLine = false;
                     axisSelection = g.append("g")
                                      .attr("class", "axis")
                                      .attr("transform", "translate(0," + (height) + ")")
@@ -303,15 +304,23 @@
                                  .attr("width", width)
                                  .attr("height", verticalPadding)
                                  .style("fill-opacity", 0)
+                                 .on("click", function() {
+                                     if (placeAimLine) {
+                                         aimLine.remove();
+                                     }
+                                     placeAimLine = !placeAimLine;
+                                 })
                                  .on("mousemove", function() {
+                                     if (placeAimLine) {
                                      var coords = d3.mouse(this);
                                      if (aimLine) {aimLine.remove(); };
-                                     aimLine = svg.append("line")
-                                                  .attr("x1", coords[0] + 35)
-                                                  .attr("y1", yScale(height))
-                                                  .attr("x2", coords[0] + 35)
-                                                  .attr("y2", "0")
-                                                  .style("stroke", "red");
+                                         aimLine = svg.append("line")
+                                                      .attr("x1", coords[0] + 35)
+                                                      .attr("y1", yScale(height))
+                                                      .attr("x2", coords[0] + 35)
+                                                      .attr("y2", "0")
+                                                      .style("stroke", "red");
+                                     }
                                  });
      
                     treestuff.counter += 1;

@@ -14,6 +14,9 @@
             rootHeight,
             minLeafHeight,
             axisSelection,
+            aimLine,
+            placeAimLine,
+            prevCoords, //previous coordinates of aim line, used when zooming
             width = 400, //width of tree display
             height = 500, //height of tree display
             verticalPadding = 20;
@@ -63,7 +66,34 @@
                 }
             }
         };
-
+        
+        
+        /*
+            Converts a decimal year to a Date object by multiplying by number
+            of milliseconds in 365.25 years.
+            Zero point year corresponds to node height of 0.
+            Javascript dates appear to start from 1970.
+        */
+        treestuff.nodeHeightToDate = function(nodeHeight, zeroPointYear) {
+            return new Date((zeroPointYear - 1970 - nodeHeight) * 31557600000);
+        };
+        
+        treestuff.dateToNodeHeight = function(date, zeroPointYear) {
+            return zeroPointYear - 1970 - date / 31557600000;
+        };
+        
+        /*
+            Used in drawing the vertical line coming from the time axis.
+        */
+        function drawAimLine(coords) {
+            prevCoords = coords || prevCoords;
+            aimLine = svg.append("line")
+                         .attr("x1", prevCoords[0] + 35)
+                         .attr("y1", yScale(height))
+                         .attr("x2", prevCoords[0] + 35)
+                         .attr("y2", "0")
+                         .style("stroke", "red");
+        };
 
 
         function elbow(d) {
@@ -159,6 +189,12 @@
         
         //return public methods
         return {
+            panelType : "treePanel",
+            
+            rootHeight : function() {return rootHeight; },
+            
+            minLeafHeight : function() {return minLeafHeight; },
+            
             clearBrush : function() {
                 brush.clear();
             },
@@ -286,15 +322,17 @@
                                   .attr("height", height)
                                   .attr("class", "brushBox")
                                   .call(brush);
-                                  
+                    
+                    
+                    //add time axis and aim line              
                     var timeScale = d3.time.scale()
-                                        .domain([new Date((2014 - 1970 - rootHeight) * 31557600000), new Date((2014 - 1970 - minLeafHeight) * 31557600000)])
+                                        .domain([treestuff.nodeHeightToDate(rootHeight, 2014), treestuff.nodeHeightToDate(minLeafHeight, 2014)])
                                         .range([0, width]);
                     var timeAxis = d3.svg.axis()
                                         .scale(timeScale)
                                         .orient("bottom");
-                    var aimLine;
-                    var placeAimLine = false;
+
+                    placeAimLine = false;
                     axisSelection = g.append("g")
                                      .attr("class", "axis")
                                      .attr("transform", "translate(0," + (height) + ")")
@@ -307,35 +345,22 @@
                                  .on("click", function() {
                                      if (placeAimLine) {
                                          aimLine.remove();
+                                     } else {
+                                         drawAimLine(d3.mouse(this));
                                      }
                                      placeAimLine = !placeAimLine;
                                  })
                                  .on("mousemove", function() {
                                      if (placeAimLine) {
-                                     var coords = d3.mouse(this);
-                                     if (aimLine) {aimLine.remove(); };
-                                         aimLine = svg.append("line")
-                                                      .attr("x1", coords[0] + 35)
-                                                      .attr("y1", yScale(height))
-                                                      .attr("x2", coords[0] + 35)
-                                                      .attr("y2", "0")
-                                                      .style("stroke", "red");
+                                         var coords = d3.mouse(this);
+                                         if (aimLine) {aimLine.remove(); };
+                                         drawAimLine(coords);
                                      }
                                  });
      
                     treestuff.counter += 1;
+                    treestuff.updateGlobalTimeAxis(rootHeight, minLeafHeight);
                 }); 
-            },
-            
-            addTimeAxis : function() {
-                var timeScale = d3.scale.linear()
-                                        .domain([rootHeight, minLeafHeight])
-                                        .range([0, width]);
-                var timeAxis = d3.svg.axis()
-                                     .scale(timeScale)
-                                     .orient("bottom");
-                svg.select("g").call(xAxis);
-                
             },
         
             selectionUpdate : function() {
@@ -346,12 +371,27 @@
                     return false;
                 });
             },
+            
+            timeSelectionUpdate : function() {
+                var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], 2014);
+                var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], 2014);
+                leaves.each( function (d) {
+                    if (start > d.height && d.height > end) {
+                        treestuff.focusedLeaves.push(d);
+                    }
+                });
+                this.selectionUpdate();
+            },
         
             zoomUpdate : function() {
                 yScale.range([0, height * treestuff.scale]);
     
                 svg.attr("height", yScale(height) + verticalPadding);
                 axisSelection.attr("transform", "translate(0," + yScale(height) + ")");
+                if (placeAimLine) {
+                    aimLine.remove(); 
+                    drawAimLine();
+                };
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 nodes.attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });

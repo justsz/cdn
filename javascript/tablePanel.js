@@ -8,6 +8,8 @@
             rowCount = 0;
 
         return {
+            panelType : "tablePanel",
+            
             selectionUpdate : function() {
                 var nodes = treestuff.focusedLeaves;
                 var rows = svg.selectAll(".tableRow")

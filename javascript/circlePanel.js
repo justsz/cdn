@@ -8,6 +8,8 @@
                           .range([15, width - 15]);
 
         return {
+            panelType : "circlePanel",
+            
             selectionUpdate : function() {
                 var nodes = treestuff.focusedLeaves;
                 var circles = d3.selectAll("svg.circlePanel")

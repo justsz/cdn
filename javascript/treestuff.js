@@ -58,6 +58,54 @@ treestuff = (function() {
           .attr("value", "color")
           .on("keyup", applyColor);
     };
+    
+    
+    treestuff.addGlobalTimeAxis = function() {
+        timeScale = d3.time.scale()
+                            .domain([0, 0])
+                            .range([0, 500]);
+        timeAxis = d3.svg.axis()
+                            .scale(timeScale)
+                            .orient("bottom");
+                            
+        brush = d3.svg.brush()
+          //.x(d3.scale.linear().domain([0, 500]).range([0, 500]))
+          .x(timeScale)
+          .on("brush", brushmove);
+
+        //placeAimLine = false;
+        axisSelection = d3.select("body").append("svg")
+                          .attr("width", 550)
+                          .attr("height", 20)
+                          .append("g")
+                          .attr("class", "axis")
+                          //.attr("transform", "translate(0," + (height) + ")")
+                          .call(timeAxis)
+                          .call(brush);
+    };
+    
+    function brushmove() {
+            treestuff.selectedPeriod = brush.extent();
+            treestuff.callUpdate("timeSelectionUpdate");
+    };
+    
+    treestuff.selectedPeriod;
+    
+    var axisSelection;
+    var timeScale;
+    var timeAxis;
+    var rootHeights = [];
+    var leafHeights = [];
+    var brush;
+    
+    treestuff.updateGlobalTimeAxis = function(rootHeight, minLeafHeight) {
+        rootHeights.push(rootHeight);
+        leafHeights.push(minLeafHeight);
+        
+        timeScale.domain([treestuff.nodeHeightToDate(d3.max(rootHeights), 2014), treestuff.nodeHeightToDate(d3.min(leafHeights), 2014)]);
+
+        axisSelection.call(timeAxis);
+    };
 
 
     function search(searchTerm) {

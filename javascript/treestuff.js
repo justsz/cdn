@@ -71,7 +71,9 @@ treestuff = (function() {
         brush = d3.svg.brush()
           //.x(d3.scale.linear().domain([0, 500]).range([0, 500]))
           .x(timeScale)
-          .on("brush", brushmove);
+          .on("brushstart", brushstart)
+          .on("brush", brushmove)
+          .on("brushend", brushend);
 
         //placeAimLine = false;
         axisSelection = d3.select("body").append("svg")
@@ -84,9 +86,35 @@ treestuff = (function() {
                           .call(brush);
     };
     
+    function brushstart() {
+        brush.clear();
+    };
+    
     function brushmove() {
-            treestuff.selectedPeriod = brush.extent();
-            treestuff.callUpdate("timeSelectionUpdate");
+        var e = brush.extent();
+        treestuff.selectedPeriod = e;
+        if (brushHighlight) {
+            brushHighlight.attr("x", timeScale(e[0]))
+                          .attr("width", timeScale(e[1]) - timeScale(e[0]));
+        } else {
+            brushHighlight = axisSelection.append("rect")
+                                          .attr("x", timeScale(e[0]))
+                                          .attr("y", 0)
+                                          .attr("width", timeScale(e[1]) - timeScale(e[0]))
+                                          .attr("height", 20)
+                                          .style("fill", "green")
+                                          .style("fill-opacity", 0.2);
+        }
+        treestuff.callUpdate("timeSelectionUpdate");
+    };
+    
+    function brushend() {
+        if (brush.empty()) {
+            if (brushHighlight) {
+                brushHighlight.remove();
+                brushHighlight = null;
+            }
+        }
     };
     
     treestuff.selectedPeriod;
@@ -97,6 +125,7 @@ treestuff = (function() {
     var rootHeights = [];
     var leafHeights = [];
     var brush;
+    var brushHighlight;
     
     treestuff.updateGlobalTimeAxis = function(rootHeight, minLeafHeight) {
         rootHeights.push(rootHeight);

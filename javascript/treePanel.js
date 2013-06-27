@@ -13,8 +13,10 @@
             brushBox,
             rootHeight,
             minLeafHeight,
+            timeScale,
             axisSelection,
             aimLine,
+            periodHighlight,
             placeAimLine,
             prevCoords, //previous coordinates of aim line, used when zooming
             width = 400, //width of tree display
@@ -97,14 +99,14 @@
 
 
         function elbow(d) {
-            return "M" + xScale(d.source.rootDist) + "," + yScale(d.source.x)
-                + "V" + yScale(d.target.x) + "H" + xScale(d.target.rootDist);
+            return "M" + xScale(d.source.height) + "," + yScale(d.source.x)
+                + "V" + yScale(d.target.x) + "H" + xScale(d.target.height);
         };
 
 
         function dashedElbow(d) {
             return "M" + 0 + "," + 0
-                + "h" + (xScale(d.rootDist) - d.y);
+                + "h" + (xScale(d.height) - d.y);
         };
         
         function removeElement(obj, array) {
@@ -131,11 +133,11 @@
             };
 
             visitPreOrder(nodes[0], function(node) {
-                node.rootDist = (node.parent ? node.parent.rootDist : 0) + (node.length || 0);
+                node.rootDist = (node.parent ? node.parent.rootDist : 0) + (node.length);
+                //removed 0 as the default node length. all branches should have length specified
             });
 
             var rootDists = nodes.map(function(n) { return n.rootDist; });
-            console.log(d3.max(rootDists));
             var outScale = d3.scale.linear()
                              .domain([0, d3.max(rootDists)])
                              .range([0, w]);
@@ -284,6 +286,16 @@
                        .style("height", (height + 15) + "px");
                        
                     minLeafHeight = d3.min(leafHeights);
+                    xScale.domain([rootHeight, minLeafHeight]);
+                    
+                    
+                    //test node height and distane consistency
+                   //  for (var x = 0; x < nodeArray.length; x++) {
+//                         var diff = nodeArray[x].rootDist - (rootHeight - nodeArray[x].height);
+//                         if (diff > 0.1) {
+//                             console.log(diff);
+//                         }
+//                     }
                     
         
                     leaves.append("text")
@@ -325,9 +337,9 @@
                     
                     
                     //add time axis and aim line              
-                    var timeScale = d3.time.scale()
-                                        .domain([treestuff.nodeHeightToDate(rootHeight, 2014), treestuff.nodeHeightToDate(minLeafHeight, 2014)])
-                                        .range([0, width]);
+                    timeScale = d3.time.scale()
+                                       .domain([treestuff.nodeHeightToDate(rootHeight, 2014), treestuff.nodeHeightToDate(minLeafHeight, 2014)])
+                                       .range([0, width]);
                     var timeAxis = d3.svg.axis()
                                         .scale(timeScale)
                                         .orient("bottom");
@@ -375,12 +387,29 @@
             timeSelectionUpdate : function() {
                 var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], 2014);
                 var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], 2014);
-                leaves.each( function (d) {
-                    if (start > d.height && d.height > end) {
-                        treestuff.focusedLeaves.push(d);
-                    }
-                });
+                if (periodHighlight) {
+                    periodHighlight.attr("x", timeScale(treestuff.selectedPeriod[0]) + 35)
+                                   .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
+                } else {
+                    periodHighlight = svg.append("rect")
+                                         .attr("x", timeScale(treestuff.selectedPeriod[0]) + 35) 
+                                         .attr("y", 0)
+                                         .attr("height", yScale(height))
+                                         .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]))
+                                         .style("fill", "green")
+                                         .style("fill-opacity", 0.2);
+                }
+                if (start !== end) {
+                    leaves.each(function (d) {
+                        if (start > d.height && d.parent.height > end) {
+                            treestuff.focusedLeaves.push(d);
+                        }
+                    });
+                }
+
                 this.selectionUpdate();
+                //visually, the selection is correct, but no underlying selection is made
+                treestuff.focusedLeaves = [];
             },
         
             zoomUpdate : function() {

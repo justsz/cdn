@@ -1,7 +1,7 @@
 (function() {
 
     treestuff.TablePanel = function() {
-        var width = 100,
+        var width = 200,
             height = 300,
             div,
             svg,

@@ -13,6 +13,7 @@
             minHeight,
             brush,
             brushBox,
+            timeOrigin,
             timeScale,
             axisSelection,
             aimLine,
@@ -239,7 +240,7 @@
                         timeAxis;
                 
                 
-                
+                    timeOrigin = parseInt(json.origin, 10);
                     //initialize d3 cluster layout
                     cluster = d3.layout.cluster()
                                 .size([height, width])
@@ -371,7 +372,7 @@
                     
                     //add time axis and aim line              
                     timeScale = d3.time.scale()
-                                       .domain([treestuff.nodeHeightToDate(maxHeight, 2014), treestuff.nodeHeightToDate(minHeight, 2014)])
+                                       .domain([treestuff.nodeHeightToDate(maxHeight, timeOrigin), treestuff.nodeHeightToDate(minHeight, timeOrigin)])
                                        .range([0, width])
                                        .clamp(true);
 
@@ -423,8 +424,8 @@
             },
             
             timeSelectionUpdate : function() {
-                var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], 2014);
-                var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], 2014);
+                var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
+                var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], timeOrigin);
                 if (periodHighlight) {
                     periodHighlight.attr("x", timeScale(treestuff.selectedPeriod[0]) + 35)
                                    .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
@@ -439,15 +440,17 @@
                 }
                 if (start !== end) {
                     leaves.each(function (d) {
-                        if (start > d.height && d.parent.height > end) {
+                        if (start > d.height && d.height > end) {
                             treestuff.focusedLeaves.push(d);
                         }
                     });
+                } else {
+                    //visually, the selection is correct, but no underlying selection is made
+                    treestuff.focusedLeaves = [];
                 }
 
                 this.selectionUpdate();
-                //visually, the selection is correct, but no underlying selection is made
-                treestuff.focusedLeaves = [];
+                
             },
         
             zoomUpdate : function() {

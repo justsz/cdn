@@ -4,8 +4,11 @@
         var width = 100,
             height = 300,
             div,
-            svg
-            rowCount = 0;
+            svg,
+            rowCount = 0,
+            panelID = 0 + treestuff.counter;
+            
+            treestuff.counter += 1;
 
         return {
             panelType : "tablePanel",

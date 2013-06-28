@@ -7,12 +7,12 @@
             xScale,
             yScale,
             links, //the d3 selection
-            nodes, //the d3 selection
+            innerNodes, //the d3 selection
             leaves,
+            maxHeight,
+            minHeight,
             brush,
             brushBox,
-            rootHeight,
-            minLeafHeight,
             timeScale,
             axisSelection,
             aimLine,
@@ -106,7 +106,7 @@
 
         function dashedElbow(d) {
             return "M" + 0 + "," + 0
-                + "h" + (xScale(d.height) - d.y);
+                + "h" + (xScale(d.height) - xScale(minHeight));
         };
         
         function removeElement(obj, array) {
@@ -193,19 +193,42 @@
         return {
             panelType : "treePanel",
             
-            rootHeight : function() {return rootHeight; },
+            maxHeight : function() {return maxHeight; },
             
-            minLeafHeight : function() {return minLeafHeight; },
+            minHeight : function() {return minHeight; },
             
             clearBrush : function() {
                 brush.clear();
             },
+            
+            placePanel : function() {
+                panelID = 0 + treestuff.counter; //get value, not reference
+                treestuff.focusedPanel = panelID;
+                
+                div = d3.select("body").append("div")
+                        .attr("class", "svgBox")
+                        .style("height", (height + verticalPadding) + "px");
+
+                svg = div.append("svg")
+                         .attr("class", "treePanel")
+                         .attr("width", width + marginForLabels)
+                         .attr("height", height + verticalPadding);
+                             
+                treestuff.counter += 1;
+            },
                     
-            placePanel : function(filename) {
+            initializePanelData : function(filename) {
                 d3.json(filename, function(json) { //json is the root node of the input tree
-                    panelID = 0 + treestuff.counter; //get value, not reference
-                    treestuff.focusedPanel = panelID;
-                    
+                    var nodeArray,
+                        linkArray,
+                        nameLengths,
+                        leafHeights,
+                        i,
+                        g,
+                        timeAxis;
+                
+                
+                
                     //initialize d3 cluster layout
                     cluster = d3.layout.cluster()
                                 .size([height, width])
@@ -213,13 +236,33 @@
 
                     //get an array of all nodes and where they should be placed 
                     //(ignoring branch lengths)
-                    var nodeArray = cluster.nodes(json.root);
-                    var linkArray = cluster.links(nodeArray);
+                    nodeArray = cluster.nodes(json.root);
+                    linkArray = cluster.links(nodeArray);
+                    
+                    //nameLengths = [];
+                    leafHeights = [];
+                    
+                    for (i = 0; i < nodeArray.length; i += 1) {
+                        if (!nodeArray[i].children) { //if leaf
+                            leafHeights.push(nodeArray[i].height);
+                            //nameLengths.push(nodeArray[i].length);
+                        }
+                    };
+                    /*marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
+                    svg.attr("width", width + marginForLabels);
+                    div.style("width", (width + marginForLabels + 15) + "px")
+                       .style("height", (height + 15) + "px");
+                     */
+                    minHeight = d3.min(leafHeights);
+                    maxHeight = json.root.height;
+                    xScale = d3.scale.linear()
+                               .domain([maxHeight, minHeight])
+                               .range([0, width]);
 
                     //give nodes a reference to the link leading to it
                     attachLinkReferences(nodeArray, linkArray);
 
-                    xScale = scaleBranchLengths(nodeArray, width);
+                    //xScale = scaleBranchLengths(nodeArray, width);
 
                     yScale = d3.scale.linear()
                                .domain([0, height])
@@ -232,16 +275,10 @@
                               .on("brush", brushmove)
                               .on("brushend", brushend);
 
-                    div = d3.select("body").append("div")
-                            .attr("class", "svgBox");
 
-                    svg = div.append("svg")
-                             .attr("class", "treePanel")
-                             .attr("width", width)
-                             .attr("height", height + verticalPadding);
                          
-                    var g = svg.append("g")
-                               .attr("transform", "translate(35, 0)");                
+                    g = svg.append("g")
+                           .attr("transform", "translate(35, 0)");                
 
                     links = g.selectAll("path.link")
                              .data(linkArray, treestuff.getLinkKey)
@@ -250,54 +287,39 @@
                              .attr("d", elbow);
 
                     //assign node classification and position it
-                    nodes = g.selectAll("g.node")
-                             .data(nodeArray, treestuff.getNodeKey)
-                             .enter().append("g")
-                             .attr("class", function(d) {
-                                 if (d.children) {
-                                     if (d.depth === 0) {
-                                         return "root node";
-                                     }
-                                     return "inner node";
-                                 }
-                                 return "leaf node";
-                             })
-                             .attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
+                    g.selectAll(".node")
+                     .data(nodeArray, treestuff.getNodeKey)
+                     .enter().append("g")
+                     .attr("class", function(d) {
+                         if (d.children) {
+                             if (d.depth === 0) {
+                                 return "root inner node";
+                             }
+                             return "inner node";
+                         }
+                         return "leaf node";
+                     });
+                     
+                    innerNodes = g.selectAll(".inner")
+                                  .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
 
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
                     g.select(".root")
                        .append("path")
                        .attr("class", "rootLink")
                        .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
-                       
-                    rootHeight = g.select(".root").datum().height;
-
-                    leaves = svg.selectAll(".leaf");
-        
-                    var nameLengths = [];
-                    var leafHeights = [];
-                    leaves.each(function (d) {
-                        leafHeights.push(d.height);
-                        nameLengths.push(d.name.length); 
-                    });
-                    marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
-                    svg.attr("width", width + marginForLabels);
-                    div.style("width", (width + marginForLabels + 15) + "px")
-                       .style("height", (height + 15) + "px");
-                       
-                    minLeafHeight = d3.min(leafHeights);
-                    xScale.domain([rootHeight, minLeafHeight]);
-                    
                     
                     //test node height and distane consistency
                    //  for (var x = 0; x < nodeArray.length; x++) {
-//                         var diff = nodeArray[x].rootDist - (rootHeight - nodeArray[x].height);
+//                         var diff = nodeArray[x].rootDist - (maxHeight - nodeArray[x].height);
 //                         if (diff > 0.1) {
 //                             console.log(diff);
 //                         }
 //                     }
                     
-        
+                    leaves = svg.selectAll(".leaf")
+                                .attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
+
                     leaves.append("text")
                           .attr("class", "leafText")
                           .attr("dx", 8)
@@ -338,11 +360,13 @@
                     
                     //add time axis and aim line              
                     timeScale = d3.time.scale()
-                                       .domain([treestuff.nodeHeightToDate(rootHeight, 2014), treestuff.nodeHeightToDate(minLeafHeight, 2014)])
-                                       .range([0, width]);
-                    var timeAxis = d3.svg.axis()
-                                        .scale(timeScale)
-                                        .orient("bottom");
+                                       .domain([treestuff.nodeHeightToDate(maxHeight, 2014), treestuff.nodeHeightToDate(minHeight, 2014)])
+                                       .range([0, width])
+                                       .clamp(true);
+
+                    timeAxis = d3.svg.axis()
+                                    .scale(timeScale)
+                                    .orient("bottom");
 
                     placeAimLine = false;
                     axisSelection = g.append("g")
@@ -369,9 +393,12 @@
                                          drawAimLine(coords);
                                      }
                                  });
-     
-                    treestuff.counter += 1;
-                    treestuff.updateGlobalTimeAxis(rootHeight, minLeafHeight);
+                                 
+                    links.classed("highlighted", function(d) {
+                        return d.target.Nx === "N9";
+                    });
+
+                    treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
                 }); 
             },
         
@@ -423,7 +450,8 @@
                 };
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
-                nodes.attr("transform", function(d) { return "translate(" + (d.y) + "," + yScale(d.x) + ")"; });
+                innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
+                leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
             },
         
             focusUpdate : function(node) {

@@ -28,28 +28,31 @@
                           "data/H9N2 Trees/H9N2.PB1.json",
                           "data/H9N2 Trees/H9N2.PB2.json"];
 
+        treestuff.addSearchBox();
+        treestuff.addColorPicker();
+        treestuff.addGlobalZoomButton();
+
         treestuff.addGlobalTimeAxis();
-
-        //read each input file and draw the tree in its own div
-        for (i = 0; i < inputFiles.length; i++) {
-            var treePanel = new treestuff.TreePanel;
-            treePanel.placePanel(inputFiles[i]);
-//            treePanel.addTimeAxis();
-            treestuff.panels.push(treePanel);
-        }
-
-        var circlePanel = new treestuff.CirclePanel;
-        circlePanel.placePanel();
-        treestuff.panels.push(circlePanel);
-        
         var tablePanel = new treestuff.TablePanel;
         tablePanel.placePanel();
         treestuff.panels.push(tablePanel);
 
+        //read each input file and draw the tree in its own div
+        for (i = 0; i < inputFiles.length; i++) {
+            var treePanel = new treestuff.TreePanel;
+            treePanel.placePanel();
+            treePanel.initializePanelData(inputFiles[i]);
+            treestuff.panels.push(treePanel);
+        }
+/*
+        var circlePanel = new treestuff.CirclePanel;
+        circlePanel.placePanel();
+        treestuff.panels.push(circlePanel);
+*/        
+
+
         
-        treestuff.addSearchBox();
-        treestuff.addColorPicker();
-        treestuff.addGlobalZoomButton();
+
 	})();
 </script>
 

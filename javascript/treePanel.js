@@ -134,10 +134,21 @@
 
             visitPreOrder(nodes[0], function(node) {
                 node.rootDist = (node.parent ? node.parent.rootDist : 0) + (node.length);
+                var myHeight = node.height;
+                var parentHeight = node.parent ? node.parent.height : 0;
+                var diff = myHeight - parentHeight;
+                if (diff > 0) {
+                    console.log(panelID + " " + diff);
+                }
                 //removed 0 as the default node length. all branches should have length specified
             });
+            
+            console.log(panelID + " height span " + (maxHeight - minHeight));
 
             var rootDists = nodes.map(function(n) { return n.rootDist; });
+            
+            console.log(panelID + " length span " + d3.max(rootDists));
+            
             var outScale = d3.scale.linear()
                              .domain([0, d3.max(rootDists)])
                              .range([0, w]);

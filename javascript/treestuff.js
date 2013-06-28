@@ -81,6 +81,7 @@ treestuff = (function() {
                           .attr("height", 20)
                           .append("g")
                           .attr("class", "axis")
+                          .style("cursor", "crosshair")
                           //.attr("transform", "translate(0," + (height) + ")")
                           .call(timeAxis)
                           .call(brush);

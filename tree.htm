@@ -13,6 +13,7 @@
     	<script src="javascript/circlePanel.js"></script>
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
+    	<script src="javascript/crossfilter.min.js"></script>
 	</head>
 <body>
 
@@ -36,6 +37,8 @@
         var tablePanel = new treestuff.TablePanel;
         tablePanel.placePanel();
         treestuff.panels.push(tablePanel);
+        
+        treestuff.initializeCrossfilter();
 
         //read each input file and draw the tree in its own div
         for (i = 0; i < inputFiles.length; i++) {

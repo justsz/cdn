@@ -44,7 +44,7 @@ for filename in inputFiles:
     tree = json.load(json_data)
     changeHeights(tree['root'])
     json_data.close()
-    jsonWrite = open(filename + "n", "w+")
+    jsonWrite = open(filename, "w+")
     jsonWrite.write(json.dumps(tree, indent = 2, separators = (',', ': ')))
     jsonWrite.close()
 

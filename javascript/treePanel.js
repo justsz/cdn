@@ -274,8 +274,6 @@
                     //give nodes a reference to the link leading to it
                     attachLinkReferences(nodeArray, linkArray);
 
-                    //xScale = scaleBranchLengths(nodeArray, width);
-
                     yScale = d3.scale.linear()
                                .domain([0, height])
                                .range([0, height]);
@@ -321,14 +319,6 @@
                        .attr("class", "rootLink")
                        .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
                     
-                    //test node height and distane consistency
-                   //  for (var x = 0; x < nodeArray.length; x++) {
-//                         var diff = nodeArray[x].rootDist - (maxHeight - nodeArray[x].height);
-//                         if (diff > 0.1) {
-//                             console.log(diff);
-//                         }
-//                     }
-                    
                     leaves = svg.selectAll(".leaf")
                                 .attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
 
@@ -361,6 +351,15 @@
                     leaves.append("path")
                        .attr("class", "dashedLink")
                        .attr("d", dashedElbow);
+                       
+                    //add data to crossfilter
+                    leaves.each(function (d) {
+                        //tips with the same name should contain the same data
+                        if (!treestuff.globalData.hasOwnProperty(d.name)) {
+                            treestuff.globalData[d.name] = {"height" : d.height};
+                            treestuff.taxa.add([{"name": d.name, "height": d.height}]);
+                        }
+                    });
 
 
                     brushBox = g.append("rect")
@@ -405,10 +404,6 @@
                                          drawAimLine(coords);
                                      }
                                  });
-                                 
-                    links.classed("highlighted", function(d) {
-                        return d.target.Nx === "N9";
-                    });
 
                     treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
                 }); 
@@ -421,6 +416,10 @@
                     }
                     return false;
                 });
+                /*leaves.classed("highlighted", false);
+                leaves.data(treestuff.focusedLeaves, treestuff.getNodeKey)
+                      .classed("highlighted", true);*/
+                
             },
             
             timeSelectionUpdate : function() {
@@ -438,18 +437,20 @@
                                          .style("fill", "green")
                                          .style("fill-opacity", 0.2);
                 }
-                if (start !== end) {
+                /*if (start !== end) {
                     leaves.each(function (d) {
                         if (start > d.height && d.height > end) {
                             treestuff.focusedLeaves.push(d);
                         }
                     });
+                    var aaa = treestuff.height.filter(function(d) {return start > d && d > end; }).top(Infinity);
+                    console.log(aaa);
                 } else {
-                    //visually, the selection is correct, but no underlying selection is made
                     treestuff.focusedLeaves = [];
                 }
+                
 
-                this.selectionUpdate();
+                this.selectionUpdate();*/
                 
             },
         

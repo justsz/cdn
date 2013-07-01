@@ -196,6 +196,7 @@ treestuff = (function() {
         treestuff.taxa = crossfilter();
         treestuff.name = treestuff.taxa.dimension(function(d) {return d.name; });
         treestuff.height = treestuff.taxa.dimension(function(d) {return d.height; });
+        treestuff.vert = treestuff.taxa.dimension(function(d) {return d.vert; });
     };
 
 

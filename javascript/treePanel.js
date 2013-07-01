@@ -174,22 +174,26 @@
             var selectedNodes = [];
 
             leaves.each(function(d) {
-                if (yScale(e[0]) < yScale(d.x) && yScale(d.x) < yScale(e[1])) {
+                if (e[0] < d.x && d.x < e[1]) {
                     selectedNodes.push(d);
                 }
             });
-
+            
+            
             treestuff.focusedLeaves = selectedNodes.slice(0);
+            
     
             //highlight all matching leaf nodes
             treestuff.callUpdate("selectionUpdate");
             //addConnectingNodes(selectedNodes);
 
+/*
             links.classed("highlighted", false);
 
             //highlight full paths
             links.data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
                  .classed("highlighted", true);
+*/
         };
 
 
@@ -357,7 +361,7 @@
                         //tips with the same name should contain the same data
                         if (!treestuff.globalData.hasOwnProperty(d.name)) {
                             treestuff.globalData[d.name] = {"height" : d.height};
-                            treestuff.taxa.add([{"name": d.name, "height": d.height}]);
+                            treestuff.taxa.add([{"name": d.name, "height": d.height, "vert": d.x}]);
                         }
                     });
 
@@ -410,7 +414,7 @@
             },
         
             selectionUpdate : function() {
-                leaves.classed("highlighted", function(d) {
+                leaves.classed("highlighted", function(d) {                    
                     if (treestuff.containsLeaf(treestuff.focusedLeaves, d)) {
                           return true;
                     }

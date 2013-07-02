@@ -361,7 +361,7 @@
                         //tips with the same name should contain the same data
                         if (!treestuff.globalData.hasOwnProperty(d.name)) {
                             treestuff.globalData[d.name] = {"height" : d.height};
-                            treestuff.taxa.add([{"name": d.name, "height": d.height, "vert": d.x}]);
+                            treestuff.taxa.add([{"name": d.name, "date": treestuff.nodeHeightToDate(d.height, timeOrigin)}]);
                         }
                     });
 
@@ -440,22 +440,7 @@
                                          .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]))
                                          .style("fill", "green")
                                          .style("fill-opacity", 0.2);
-                }
-                /*if (start !== end) {
-                    leaves.each(function (d) {
-                        if (start > d.height && d.height > end) {
-                            treestuff.focusedLeaves.push(d);
-                        }
-                    });
-                    var aaa = treestuff.height.filter(function(d) {return start > d && d > end; }).top(Infinity);
-                    console.log(aaa);
-                } else {
-                    treestuff.focusedLeaves = [];
-                }
-                
-
-                this.selectionUpdate();*/
-                
+                }                
             },
         
             zoomUpdate : function() {

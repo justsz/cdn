@@ -108,10 +108,7 @@ treestuff = (function() {
                                           .style("fill-opacity", 0.2);
         }
         
-        var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], 2013.2903);
-        var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], 2013.2903);
-        
-        treestuff.focusedLeaves = treestuff.height.filterRange([end, start]).top(Infinity);
+        treestuff.focusedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
         treestuff.callUpdate("timeSelectionUpdate");
         treestuff.callUpdate("selectionUpdate");
     };
@@ -194,9 +191,8 @@ treestuff = (function() {
     
     treestuff.initializeCrossfilter = function() {
         treestuff.taxa = crossfilter();
-        treestuff.name = treestuff.taxa.dimension(function(d) {return d.name; });
-        treestuff.height = treestuff.taxa.dimension(function(d) {return d.height; });
-        treestuff.vert = treestuff.taxa.dimension(function(d) {return d.vert; });
+        treestuff.nameDim = treestuff.taxa.dimension(function(d) {return d.name; });
+		treestuff.dateDim = treestuff.taxa.dimension(function(d) { return d.date; });
     };
 
 

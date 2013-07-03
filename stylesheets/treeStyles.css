@@ -55,7 +55,9 @@ body {
 
 
 .extent {
-    fill-opacity: 0.125;
+	fill: black;
+    fill-opacity: 0.5;
+	stroke: green;
 }
 
 
@@ -79,6 +81,11 @@ body {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;
+}
+
+.node circle {
+	fill: black;
+	fill-opacity: 1;
 }
 
 

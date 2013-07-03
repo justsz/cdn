@@ -207,7 +207,7 @@ treestuff = (function() {
         return (d.target.name || i);
     };
 
-    function contains(a, obj) {
+    treestuff.contains = function(a, obj) {
         var i;
         for (i = 0; i < a.length; i += 1) {
             if (a[i] === obj) {

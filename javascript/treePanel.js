@@ -10,6 +10,7 @@
             innerNodes, //the d3 selection
             leaves,
 			lastClickedLeaf,
+			lastSelectionRoot,
             maxHeight,
             minHeight,
             brush,
@@ -171,7 +172,9 @@
 
         // Highlight the selected leaf links.
         function brushmove() {
+/*
             var e = brush.extent();
+			console.log(e);
             var selectedNodes = [];
 
             leaves.each(function(d) {
@@ -187,7 +190,7 @@
             //highlight all matching leaf nodes
             treestuff.callUpdate("selectionUpdate");
             //addConnectingNodes(selectedNodes);
-
+*/
 /*
             links.classed("highlighted", false);
 
@@ -202,8 +205,52 @@
         function brushend() {
             if (brush.empty()) {
                 svg.selectAll(".highlighted").classed("highlighted", false);
-            }
+            } else {
+				var e = brush.extent();
+				console.log(e);
+				var selectedNodes = [];
+				var selectionRoot = {"depth": Infinity};
+				links.each(function(d) {
+					if (e[0][1] < d.target.x && d.target.x < e[1][1] &&
+						e[0][0] < xScale(d.target.height) && xScale(d.source.height) < e[1][0] &&
+						d.target.depth < selectionRoot.depth) {
+						selectionRoot = d.target;
+					}
+				});
+				if (selectionRoot !== lastSelectionRoot) {
+					//selectedNodes = cluster.nodes(selectionRoot);
+					selectedNodes = getNodeDescendents(selectionRoot);
+					console.log(selectedNodes);
+					treestuff.focusedLeaves = selectedNodes.slice(0);
+					//addConnectingNodes(selectedNodes);
+					/*links.classed("highlighted", false);
+
+				//highlight full paths
+				links.data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
+					 .classed("highlighted", true);*/
+					 
+					 links.classed("highlighted", function(d) {
+						if (treestuff.contains(getNodeLinks(selectedNodes), d)) {
+							  return true;
+						}
+						return false;
+					 });
+					treestuff.callUpdate("selectionUpdate");
+				}
+				lastSelectionRoot = selectionRoot;
+			}
         };
+		
+		
+		function getNodeDescendents(node) {
+			var nodeList = [node];
+			if (node.children) {
+				for (var i = 0; i < node.children.length; i++) {
+					nodeList = nodeList.concat(getNodeDescendents(node.children[i]));
+				}
+			}
+			return nodeList;
+		}
     
         
         //return public methods
@@ -284,7 +331,7 @@
                                .range([0, height]);
 
                     brush = d3.svg.brush()
-                            //.x(d3.scale.linear().domain([0, width]).range([0, width]))
+                              .x(d3.scale.linear().domain([0, width]).range([0, width]))
                               .y(yScale)
                               .on("brushstart", brushstart)
                               .on("brush", brushmove)
@@ -317,6 +364,11 @@
                      
                     innerNodes = g.selectAll(".inner")
                                   .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
+					innerNodes.append("circle")
+							  .attr("r", 3);
+							  /*.on("click", function() {
+							      console.log(getNodeDescendents(this.__data__));
+							  });*/
 
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
                     g.select(".root")
@@ -393,11 +445,11 @@
                     });
 
 
-                    brushBox = g.append("rect")
-                                  .attr("width", width)
-                                  .attr("height", height)
-                                  .attr("class", "brushBox")
-                                  .call(brush);
+                    /*brushBox = g.append("rect")
+                                .attr("width", width)
+                                .attr("height", height)
+                                .attr("class", "brushBox")*/
+								g.call(brush);
                     
                     
                     //add time axis and aim line              
@@ -479,7 +531,7 @@
                     aimLine.remove(); 
                     drawAimLine();
                 };
-                brushBox.attr("height", yScale(height));
+                //brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });

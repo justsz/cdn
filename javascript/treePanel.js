@@ -204,11 +204,11 @@
         // If the brush is empty, un-highlight all links.
         function brushend() {
             if (brush.empty()) {
+				lastSelectionRoot = null;
                 svg.selectAll(".highlighted").classed("highlighted", false);
             } else {
 				var e = brush.extent();
 				console.log(e);
-				var selectedNodes = [];
 				var selectionRoot = {"depth": Infinity};
 				links.each(function(d) {
 					if (e[0][1] < d.target.x && d.target.x < e[1][1] &&
@@ -217,29 +217,34 @@
 						selectionRoot = d.target;
 					}
 				});
-				if (selectionRoot !== lastSelectionRoot) {
-					//selectedNodes = cluster.nodes(selectionRoot);
-					selectedNodes = getNodeDescendents(selectionRoot);
-					console.log(selectedNodes);
-					treestuff.focusedLeaves = selectedNodes.slice(0);
-					//addConnectingNodes(selectedNodes);
-					/*links.classed("highlighted", false);
+				doNodeSelection(selectionRoot);
+			}
+        };
+		
+		
+		function doNodeSelection(node) {
+			if (node !== lastSelectionRoot) {
+				var selectedNodes = [];
+				//selectedNodes = cluster.nodes(selectionRoot);
+				selectedNodes = getNodeDescendents(node);
+				treestuff.focusedLeaves = selectedNodes.slice(0);
+				//addConnectingNodes(selectedNodes);
+				/*links.classed("highlighted", false);
 
 				//highlight full paths
 				links.data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
 					 .classed("highlighted", true);*/
 					 
-					 links.classed("highlighted", function(d) {
-						if (treestuff.contains(getNodeLinks(selectedNodes), d)) {
-							  return true;
-						}
-						return false;
-					 });
+				links.classed("highlighted", function(d) {
+				    if (treestuff.contains(getNodeLinks(selectedNodes), d)) {
+				  	    return true;
+					}
+					return false;
+					});
 					treestuff.callUpdate("selectionUpdate");
 				}
-				lastSelectionRoot = selectionRoot;
-			}
-        };
+			lastSelectionRoot = node;
+		};
 		
 		
 		function getNodeDescendents(node) {
@@ -364,12 +369,12 @@
                      
                     innerNodes = g.selectAll(".inner")
                                   .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
-					innerNodes.append("circle")
-							  .attr("r", 3);
-							  /*.on("click", function() {
-							      console.log(getNodeDescendents(this.__data__));
-							  });*/
-
+					/*innerNodes.append("circle")
+							  .attr("r", 3)
+							  .on("click", function() {
+							      doNodeSelection(this.__data__);
+							  });
+*/
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
                     g.select(".root")
                        .append("path")

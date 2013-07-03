@@ -9,6 +9,7 @@
             links, //the d3 selection
             innerNodes, //the d3 selection
             leaves,
+			lastClickedLeaf,
             maxHeight,
             minHeight,
             brush,
@@ -340,15 +341,41 @@
                           .attr("width", marginForLabels)
                           .attr("height", 12)
                           .on("click", function() {
+							//three modes of click-selection:
+							//no keys pressed - select clicked node, deselect everything else
+							//ctrl (cmd?) pressed - select multiple, nonadjacent or adjacent nodes
+							//shift pressed - select a range to clicked node from last clicked (ctrl or otherwise) node. deselect the rest
                               treestuff.focusedPanel = panelID;
                               var node = d3.select(this.parentNode);
-                              var addNodeToSelection = !node.classed("highlighted");
-                              node.classed("highlighted", addNodeToSelection);
-                              addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : removeElement(node.datum(), treestuff.focusedLeaves);
-                              treestuff.callUpdate("selectionUpdate");
-                              if (addNodeToSelection) {
-                                  treestuff.callUpdate("focusUpdate", node);
-                              }
+							  if (d3.event.ctrlKey) {
+								  lastClickedLeaf = node;
+							      var addNodeToSelection = !node.classed("highlighted");
+                                  node.classed("highlighted", addNodeToSelection);
+                                  addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : removeElement(node.datum(), treestuff.focusedLeaves);
+                                  if (addNodeToSelection) {
+                                      treestuff.callUpdate("focusUpdate", node);
+                                  }
+							  } else if (d3.event.shiftKey) {
+								  //var startNode = treestuff.focusedLeaves[treestuff.focusedLeaves.length - 1];
+								  var startPos = lastClickedLeaf ? lastClickedLeaf.datum().x : 0;
+								  var endPos = node.datum().x;
+								  if (startPos > endPos) {
+								      var temp = endPos;
+									  endPos = startPos;
+									  startPos = temp;
+								  }
+							      treestuff.focusedLeaves = [];
+								  leaves.each(function(d) {
+								      if (startPos <= d.x && d.x <= endPos) {
+									      treestuff.focusedLeaves.push(d);
+									  }
+								  });
+							  } else {
+							      lastClickedLeaf = node;
+							      treestuff.focusedLeaves = [node.datum()];
+								  treestuff.callUpdate("focusUpdate", node);
+							  }
+							  treestuff.callUpdate("selectionUpdate");
                           });
 
 

@@ -13,7 +13,6 @@
 			lastSelectionRoot,
             maxHeight,
             minHeight,
-            brush,
             brushBox,
             timeOrigin,
             timeScale,
@@ -161,68 +160,10 @@
         };
         
         
-            // Clear the previously-active brush, if any.
-        function brushstart() {
-            if (panelID !== treestuff.focusedPanel) {
-                d3.selectAll(".highlighted").classed("highlighted", false);
-                treestuff.panels[treestuff.focusedPanel].clearBrush(); //clear Previous brush
-            }
-            treestuff.focusedPanel = panelID;
-        };
-
-
-        // Highlight the selected leaf links.
-        function brushmove() {
-            console.log(brush.extent()[0] + " " + brush.extent()[1]);
-/*
-            var e = brush.extent();
-			console.log(e);
-            var selectedNodes = [];
-
-            leaves.each(function(d) {
-                if (e[0] < d.x && d.x < e[1]) {
-                    selectedNodes.push(d);
-                }
-            });
-            
-            
-            treestuff.focusedLeaves = selectedNodes.slice(0);
-            
-    
-            //highlight all matching leaf nodes
-            treestuff.callUpdate("selectionUpdate");
-            //addConnectingNodes(selectedNodes);
-*/
-/*
-            links.classed("highlighted", false);
-
-            //highlight full paths
-            links.data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
-                 .classed("highlighted", true);
-*/
-        };
-
-
-        // If the brush is empty, un-highlight all links.
-        function brushend() {
-            if (brush.empty()) {
-				lastSelectionRoot = null;
-                svg.selectAll(".highlighted").classed("highlighted", false);
-            } else {
-				var e = brush.extent();
-				console.log(e);
-				var selectionRoot = {"depth": Infinity};
-				links.each(function(d) {
-					if (e[0][1] < d.target.x && d.target.x < e[1][1] &&
-						e[0][0] < xScale(d.target.height) && xScale(d.source.height) < e[1][0] &&
-						d.target.depth < selectionRoot.depth) {
-						selectionRoot = d.target;
-					}
-				});
-				doNodeSelection(selectionRoot);
-			}
-        };
-        
+        function isMac() {
+            return navigator.appVersion.indexOf("Mac")!=-1;
+        }
+ 
         
         function mDown() {
             extent = [d3.mouse(this), []];
@@ -264,16 +205,16 @@
                 extent[0][1] = extent[1][1];
                 extent[1][1] = temp;
             }
-            
+                       
             var selectionRoot = {"depth": Infinity};
-				links.each(function(d) {
-					if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
-						extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
-						d.target.depth < selectionRoot.depth) {
-						selectionRoot = d.target;
-					}
-				});
-			doNodeSelection(selectionRoot);
+                links.each(function(d) {
+                    if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
+                        extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
+                        d.target.depth < selectionRoot.depth) {
+                        selectionRoot = d.target;
+                    }
+                });
+            doNodeSelection(selectionRoot);
             
             
             extent = undefined;
@@ -326,10 +267,6 @@
             maxHeight : function() {return maxHeight; },
             
             minHeight : function() {return minHeight; },
-            
-            clearBrush : function() {
-                brush.clear();
-            },
             
             placePanel : function() {
                 panelID = 0 + treestuff.counter; //get value, not reference
@@ -395,15 +332,6 @@
                     yScale = d3.scale.linear()
                                .domain([0, height])
                                .range([0, height]);
-
-                    brush = d3.svg.brush()
-                              .x(d3.scale.linear().domain([0, width]).range([0, width]))
-                              .y(yScale)
-                              .on("brushstart", brushstart)
-                              .on("brush", brushmove)
-                              .on("brushend", brushend);
-
-
                          
                     g = svg.append("g")
                            .attr("transform", "translate(35, 0)");                
@@ -465,7 +393,7 @@
 							//shift pressed - select a range to clicked node from last clicked (ctrl or otherwise) node. deselect the rest
                               treestuff.focusedPanel = panelID;
                               var node = d3.select(this.parentNode);
-							  if (d3.event.ctrlKey) {
+							  if (d3.event.metaKey || d3.event.ctrlKey) {
 								  lastClickedLeaf = node;
 							      var addNodeToSelection = !node.classed("highlighted");
                                   node.classed("highlighted", addNodeToSelection);

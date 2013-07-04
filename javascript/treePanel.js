@@ -267,7 +267,7 @@
             
             var selectionRoot = {"depth": Infinity};
 				links.each(function(d) {
-					if (extent[0][1] < d.target.x && d.target.x < extent[1][1] &&
+					if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
 						extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
 						d.target.depth < selectionRoot.depth) {
 						selectionRoot = d.target;

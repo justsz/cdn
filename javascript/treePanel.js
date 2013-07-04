@@ -20,6 +20,7 @@
             axisSelection,
             aimLine,
             periodHighlight,
+            extent,
             placeAimLine,
             prevCoords, //previous coordinates of aim line, used when zooming
             width = 400, //width of tree display
@@ -172,6 +173,7 @@
 
         // Highlight the selected leaf links.
         function brushmove() {
+            console.log(brush.extent()[0] + " " + brush.extent()[1]);
 /*
             var e = brush.extent();
 			console.log(e);
@@ -220,6 +222,65 @@
 				doNodeSelection(selectionRoot);
 			}
         };
+        
+        
+        function mDown() {
+            extent = [d3.mouse(this), []];
+            d3.select(this.parentNode)
+              .append("rect")
+              .attr("id", "extent")
+              .attr("x", extent[0][0])
+              .attr("y", extent[0][1])
+              .attr("width", 0)
+              .attr("height", 0);
+        };
+        
+        
+        function mMove() {
+            var temp;
+            if (extent) {
+                extent[1] = d3.mouse(this);
+                
+                d3.select("#extent")
+                  .attr("x", d3.min([extent[0][0], extent[1][0]]))
+                  .attr("y", d3.min([extent[0][1], extent[1][1]]))
+                  .attr("width", Math.abs(extent[1][0] - extent[0][0]))
+                  .attr("height", Math.abs(extent[1][1] - extent[0][1]));
+            }
+        };
+        
+        
+        function mUp() {
+            //transpose the two points so that extent[0] is top left
+            //and extent[1] is bottom right
+            if (extent[1][0] < extent[0][0]) {
+                temp = extent[0][0];
+                extent[0][0] = extent[1][0];
+                extent[1][0] = temp;
+                
+            }
+            if (extent[1][1] < extent[0][1]) {
+                temp = extent[0][1];
+                extent[0][1] = extent[1][1];
+                extent[1][1] = temp;
+            }
+            
+            var selectionRoot = {"depth": Infinity};
+				links.each(function(d) {
+					if (extent[0][1] < d.target.x && d.target.x < extent[1][1] &&
+						extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
+						d.target.depth < selectionRoot.depth) {
+						selectionRoot = d.target;
+					}
+				});
+			doNodeSelection(selectionRoot);
+            
+            
+            extent = undefined;
+            d3.select("#extent").remove();
+        };
+        
+        
 		
 		
 		function doNodeSelection(node) {
@@ -450,11 +511,14 @@
                     });
 
 
-                    /*brushBox = g.append("rect")
+                    brushBox = g.append("rect")
                                 .attr("width", width)
                                 .attr("height", height)
-                                .attr("class", "brushBox")*/
-								g.call(brush);
+                                .attr("class", "brushBox")
+                                .on("mousedown", mDown)
+                                .on("mousemove", mMove)
+                                .on("mouseup", mUp);
+								//g.call(brush);
                     
                     
                     //add time axis and aim line              
@@ -536,7 +600,7 @@
                     aimLine.remove(); 
                     drawAimLine();
                 };
-                //brushBox.attr("height", yScale(height));
+                brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });

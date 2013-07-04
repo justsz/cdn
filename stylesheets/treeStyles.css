@@ -54,10 +54,10 @@ body {
 }
 
 
-.extent {
+#extent {
+    pointer-events: none;
 	fill: black;
-    fill-opacity: 0.5;
-	stroke: green;
+    fill-opacity: 0.125;
 }
 
 

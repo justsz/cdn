@@ -175,6 +175,10 @@
               .attr("y", extent[0][1])
               .attr("width", 0)
               .attr("height", 0);
+              
+            //d3.selectAll(".timeSelection").remove();
+            //treestuff.globalTimeBrush.clear();
+
             //this line needed to make selection not move like a slug!
             event.preventDefault();
         };
@@ -184,8 +188,6 @@
         function mMove() {
             if (extent) {
                 extent[1] = d3.mouse(brushBox[0][0]);
-                
-                console.log(extent[0] + " " + extent[1]);
                 
                 d3.select("#extent")
                   .attr("x", d3.min([extent[0][0], extent[1][0]]))
@@ -219,13 +221,22 @@
                 }
                    
                 selectionRoot = {"depth": Infinity};
-                    links.each(function(d) {
+                    /*links.each(function(d) {
                         if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
                             extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
                             d.target.depth < selectionRoot.depth) {
                             selectionRoot = d.target;
                         }
+                    });*/
+                    
+                    innerNodes.each(function(d) {
+                        if (extent[0][1] < yScale(d.x) && yScale(d.x) < extent[1][1] &&
+                            extent[0][0] < xScale(d.height) && xScale(d.height) < extent[1][0] &&
+                            d.depth < selectionRoot.depth) {
+                            selectionRoot = d;
+                        }
                     });
+                    
                 
                 doNodeSelection(selectionRoot);
         
@@ -551,12 +562,11 @@
                                    .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 } else {
                     periodHighlight = svg.append("rect")
+                                         .attr("class", "timeSelection")
                                          .attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding) 
                                          .attr("y", verticalPadding)
                                          .attr("height", yScale(height))
-                                         .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]))
-                                         .style("fill", "green")
-                                         .style("fill-opacity", 0.2);
+                                         .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 }                
             },
         
@@ -569,7 +579,9 @@
                     aimLine.remove(); 
                     drawAimLine();
                 };
-                periodHighlight.attr("height", yScale(height));
+                if (periodHighlight) {
+                    periodHighlight.attr("height", yScale(height));
+                }
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });

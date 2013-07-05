@@ -76,6 +76,11 @@ body {
 	cursor: crosshair;
 }
 
+.timeSelection {
+    fill: green;
+    fill-opacity: 0.2;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -87,14 +92,3 @@ body {
 	fill: black;
 	fill-opacity: 1;
 }
-
-
-/*
-.scrollArea {
-	cursor: ns-resize;
-	fill: green;
-	fill-opacity: 0.5;
-	stroke: gray;
-	stroke-width: 3;
-}
-*/

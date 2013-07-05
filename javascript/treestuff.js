@@ -75,6 +75,8 @@ treestuff = (function() {
           .on("brushstart", brushstart)
           .on("brush", brushmove)
           .on("brushend", brushend);
+          
+        treestuff.globalTimeBrush = brush;
 
         //placeAimLine = false;
         axisSelection = d3.select("body").append("svg")
@@ -100,12 +102,11 @@ treestuff = (function() {
                           .attr("width", timeScale(e[1]) - timeScale(e[0]));
         } else {
             brushHighlight = axisSelection.append("rect")
+                                          .attr("class", "timeSelection")
                                           .attr("x", timeScale(e[0]))
                                           .attr("y", 0)
                                           .attr("width", timeScale(e[1]) - timeScale(e[0]))
-                                          .attr("height", 20)
-                                          .style("fill", "green")
-                                          .style("fill-opacity", 0.2);
+                                          .attr("height", 20);
         }
         
         treestuff.focusedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);

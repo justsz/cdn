@@ -175,9 +175,17 @@
               .attr("y", extent[0][1])
               .attr("width", 0)
               .attr("height", 0);
-              
-            //d3.selectAll(".timeSelection").remove();
-            //treestuff.globalTimeBrush.clear();
+            
+            if (treestuff.brushHighlight) {
+                treestuff.focusedLeaves = [];
+                treestuff.selectedPeriod = [0,0];
+                d3.select(".axis").call(treestuff.globalTimeBrush.clear());
+                treestuff.brushHighlight.remove();
+                treestuff.brushHighlight = null;
+                treestuff.callUpdate("selectionUpdate");
+                treestuff.callUpdate("timeSelectionUpdate");
+            }
+            
 
             //this line needed to make selection not move like a slug!
             event.preventDefault();

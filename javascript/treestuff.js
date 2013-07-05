@@ -92,12 +92,13 @@ treestuff = (function() {
     
     function brushstart() {
         brush.clear();
+        d3.selectAll(".link").classed("highlighted", false);
     };
     
     function brushmove() {
         var e = brush.extent();
         treestuff.selectedPeriod = e;
-        if (brushHighlight) {
+        if (treestuff.brushHighlight) {
             brushHighlight.attr("x", timeScale(e[0]))
                           .attr("width", timeScale(e[1]) - timeScale(e[0]));
         } else {
@@ -107,6 +108,7 @@ treestuff = (function() {
                                           .attr("y", 0)
                                           .attr("width", timeScale(e[1]) - timeScale(e[0]))
                                           .attr("height", 20);
+            treestuff.brushHighlight = brushHighlight;
         }
         
         treestuff.focusedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);

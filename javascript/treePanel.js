@@ -174,11 +174,11 @@
               .attr("y", extent[0][1])
               .attr("width", 0)
               .attr("height", 0);
+            //this line needed to make selection not move like a slug!
+            event.preventDefault();
         };
         
-        
         function mMove() {
-            var temp;
             if (extent) {
                 extent[1] = d3.mouse(this);
                 
@@ -192,6 +192,12 @@
         
         
         function mUp() {
+            var temp,
+                selectionRoot;
+            
+            //remove visible extent first. It feels a bit snappier that way...
+            d3.select("#extent").remove();
+
             //transpose the two points so that extent[0] is top left
             //and extent[1] is bottom right
             if (extent[1][0] < extent[0][0]) {
@@ -206,7 +212,7 @@
                 extent[1][1] = temp;
             }
                        
-            var selectionRoot = {"depth": Infinity};
+            selectionRoot = {"depth": Infinity};
                 links.each(function(d) {
                     if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
                         extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
@@ -218,7 +224,7 @@
             
             
             extent = undefined;
-            d3.select("#extent").remove();
+            event.preventDefault();            
         };
         
         
@@ -226,37 +232,61 @@
 		
 		function doNodeSelection(node) {
 			if (node !== lastSelectionRoot) {
-				var selectedNodes = [];
-				//selectedNodes = cluster.nodes(selectionRoot);
-				selectedNodes = getNodeDescendents(node);
-				treestuff.focusedLeaves = selectedNodes.slice(0);
-				//addConnectingNodes(selectedNodes);
-				/*links.classed("highlighted", false);
+				var selectedNodes = getNodeChildren(node),
+				    innerLinks;
 
-				//highlight full paths
-				links.data(getNodeLinks(selectedNodes), treestuff.getLinkKey)
-					 .classed("highlighted", true);*/
+				//focus only on leaf nodes
+				treestuff.focusedLeaves = selectedNodes.slice(0);
+				treestuff.callUpdate("selectionUpdate");
+				
+				//continue this function with inner nodes as well
+                innerLinks = getNodeLinks(selectedNodes)
+                            .concat(getNodeLinks(getNodeDescendants(node)));
 					 
 				links.classed("highlighted", function(d) {
-				    if (treestuff.contains(getNodeLinks(selectedNodes), d)) {
+				    if (treestuff.contains(innerLinks, d)) {
 				  	    return true;
 					}
 					return false;
 					});
-					treestuff.callUpdate("selectionUpdate");
-				}
+			}
 			lastSelectionRoot = node;
 		};
 		
 		
-		function getNodeDescendents(node) {
-			var nodeList = [node];
+		function getNodeDescendants(node) {
+			var nodeList = [];
+			if (node.children) {
+			    nodeList.push(node)
+				for (var i = 0; i < node.children.length; i++) {
+					nodeList = nodeList.concat(getNodeDescendants(node.children[i]));
+				}
+			} 
+		    return nodeList;
+		    /*
+		    var nodeList = {"innerNodes": [], "leafNodes": []};
+			if (node.children) {
+			    nodeList.innerNodes.push(node);
+				for (var i = 0; i < node.children.length; i++) {
+					nodeList.innerNodes = nodeList.innerNodes.concat(getNodeDescendents(node.children[i]).innerNodes);
+					nodeList.leafNodes = nodeList.leafNodes.concat(getNodeDescendents(node.children[i]).leafNodes);
+				}
+			} else {
+			    nodeList.leafNodes.push(node);
+			}
+		    return nodeList;	*/
+		}
+		
+		function getNodeChildren(node) {
+		    var nodeList = [];
 			if (node.children) {
 				for (var i = 0; i < node.children.length; i++) {
-					nodeList = nodeList.concat(getNodeDescendents(node.children[i]));
+					nodeList = nodeList.concat(getNodeChildren(node.children[i]));
 				}
+			} else {
+			    nodeList.push(node);			    
 			}
-			return nodeList;
+		    return nodeList;
 		}
     
         
@@ -437,7 +467,8 @@
                             treestuff.taxa.add([{"name": d.name, "date": treestuff.nodeHeightToDate(d.height, timeOrigin)}]);
                         }
                     });
-
+                    
+                    
 
                     brushBox = g.append("rect")
                                 .attr("width", width)
@@ -446,7 +477,10 @@
                                 .on("mousedown", mDown)
                                 .on("mousemove", mMove)
                                 .on("mouseup", mUp);
-								//g.call(brush);
+                                
+                                
+                                //d3.select(window).on("mousemove", mMove)
+                                //.on("mouseup", mUp);
                     
                     
                     //add time axis and aim line              

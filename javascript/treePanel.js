@@ -24,7 +24,8 @@
             prevCoords, //previous coordinates of aim line, used when zooming
             width = 400, //width of tree display
             height = 500, //height of tree display
-            verticalPadding = 20;
+            verticalPadding = 20,
+            horizontalPadding = 35,
             marginForLabels = 300; //additional space for labels
             
             
@@ -93,9 +94,9 @@
         function drawAimLine(coords) {
             prevCoords = coords || prevCoords;
             aimLine = svg.append("line")
-                         .attr("x1", prevCoords[0] + 35)
-                         .attr("y1", yScale(height))
-                         .attr("x2", prevCoords[0] + 35)
+                         .attr("x1", prevCoords[0] + horizontalPadding)
+                         .attr("y1", yScale(height) + verticalPadding)
+                         .attr("x2", prevCoords[0] + horizontalPadding)
                          .attr("y2", "0")
                          .style("stroke", "red");
         };
@@ -165,7 +166,7 @@
         }
  
         
-        function mDown() {
+        function mDown() {            
             extent = [d3.mouse(this), []];
             d3.select(this.parentNode)
               .append("rect")
@@ -178,9 +179,13 @@
             event.preventDefault();
         };
         
+        
+        
         function mMove() {
             if (extent) {
-                extent[1] = d3.mouse(this);
+                extent[1] = d3.mouse(brushBox[0][0]);
+                
+                console.log(extent[0] + " " + extent[1]);
                 
                 d3.select("#extent")
                   .attr("x", d3.min([extent[0][0], extent[1][0]]))
@@ -192,39 +197,42 @@
         
         
         function mUp() {
-            var temp,
-                selectionRoot;
-            
-            //remove visible extent first. It feels a bit snappier that way...
-            d3.select("#extent").remove();
+            if (extent) {
+                var temp,
+                    selectionRoot;
 
-            //transpose the two points so that extent[0] is top left
-            //and extent[1] is bottom right
-            if (extent[1][0] < extent[0][0]) {
-                temp = extent[0][0];
-                extent[0][0] = extent[1][0];
-                extent[1][0] = temp;
+                //remove visible extent first. It feels a bit snappier that way...
+                d3.select("#extent").remove();
+
+                //transpose the two points so that extent[0] is top left
+                //and extent[1] is bottom right
+                if (extent[1][0] < extent[0][0]) {
+                    temp = extent[0][0];
+                    extent[0][0] = extent[1][0];
+                    extent[1][0] = temp;
+            
+                }
+                if (extent[1][1] < extent[0][1]) {
+                    temp = extent[0][1];
+                    extent[0][1] = extent[1][1];
+                    extent[1][1] = temp;
+                }
+                   
+                selectionRoot = {"depth": Infinity};
+                    links.each(function(d) {
+                        if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
+                            extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
+                            d.target.depth < selectionRoot.depth) {
+                            selectionRoot = d.target;
+                        }
+                    });
                 
+                doNodeSelection(selectionRoot);
+        
+        
+                extent = undefined;
+                event.preventDefault();
             }
-            if (extent[1][1] < extent[0][1]) {
-                temp = extent[0][1];
-                extent[0][1] = extent[1][1];
-                extent[1][1] = temp;
-            }
-                       
-            selectionRoot = {"depth": Infinity};
-                links.each(function(d) {
-                    if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
-                        extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
-                        d.target.depth < selectionRoot.depth) {
-                        selectionRoot = d.target;
-                    }
-                });
-            doNodeSelection(selectionRoot);
-            
-            
-            extent = undefined;
-            event.preventDefault();            
         };
         
         
@@ -304,12 +312,12 @@
                 
                 div = d3.select("body").append("div")
                         .attr("class", "svgBox")
-                        .style("height", (height + verticalPadding) + "px");
+                        .style("height", (height + 2 * verticalPadding + 3) + "px");
 
                 svg = div.append("svg")
                          .attr("class", "treePanel")
                          .attr("width", width + marginForLabels)
-                         .attr("height", height + verticalPadding);
+                         .attr("height", height + 2 * verticalPadding);
                              
                 treestuff.counter += 1;
             },
@@ -362,9 +370,9 @@
                     yScale = d3.scale.linear()
                                .domain([0, height])
                                .range([0, height]);
-                         
+
                     g = svg.append("g")
-                           .attr("transform", "translate(35, 0)");                
+                           .attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");                
 
                     links = g.selectAll("path.link")
                              .data(linkArray, treestuff.getLinkKey)
@@ -474,13 +482,12 @@
                                 .attr("width", width)
                                 .attr("height", height)
                                 .attr("class", "brushBox")
-                                .on("mousedown", mDown)
-                                .on("mousemove", mMove)
-                                .on("mouseup", mUp);
-                                
-                                
-                                //d3.select(window).on("mousemove", mMove)
+                                .on("mousedown", mDown);
+                                //.on("mousemove", mMove)
                                 //.on("mouseup", mUp);
+                                                    
+                    svg.on("mousemove", mMove)
+                       .on("mouseup", mUp);
                     
                     
                     //add time axis and aim line              
@@ -540,12 +547,12 @@
                 var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
                 var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], timeOrigin);
                 if (periodHighlight) {
-                    periodHighlight.attr("x", timeScale(treestuff.selectedPeriod[0]) + 35)
+                    periodHighlight.attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding)
                                    .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 } else {
                     periodHighlight = svg.append("rect")
-                                         .attr("x", timeScale(treestuff.selectedPeriod[0]) + 35) 
-                                         .attr("y", 0)
+                                         .attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding) 
+                                         .attr("y", verticalPadding)
                                          .attr("height", yScale(height))
                                          .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]))
                                          .style("fill", "green")
@@ -556,12 +563,13 @@
             zoomUpdate : function() {
                 yScale.range([0, height * treestuff.scale]);
     
-                svg.attr("height", yScale(height) + verticalPadding);
+                svg.attr("height", yScale(height) + 2 * verticalPadding);
                 axisSelection.attr("transform", "translate(0," + yScale(height) + ")");
                 if (placeAimLine) {
                     aimLine.remove(); 
                     drawAimLine();
                 };
+                periodHighlight.attr("height", yScale(height));
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });

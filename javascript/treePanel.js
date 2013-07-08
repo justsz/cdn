@@ -3,6 +3,8 @@
         var panelID,
             cluster,
             div,
+            controlPanel,
+            minimize = true,
             svg,
             xScale,
             yScale,
@@ -329,9 +331,42 @@
                 panelID = 0 + treestuff.counter; //get value, not reference
                 treestuff.focusedPanel = panelID;
                 
-                div = d3.select("body").append("div")
+                var outerDiv = d3.select("body")
+                                 .append("div")
+                                 .style("min-height", "20px")
+                                 .style("min-width", "100px")
+                                 .style("display", "inline-block");
+                                 //.style("width", "100px")
+                                 //.style("height", "20px");
+                                // .attr("position", "relative");
+                                 //.style("height", (height + 2 * verticalPadding + 3 + 15) + "px");
+                                 //.attr("width", "900px");
+                                 
+                controlPanel = outerDiv.append("svg")
+                                  .style("position", "absolute")
+                                  .attr("width", width + marginForLabels)
+                                  .attr("height", 15);                
+                                  
+                div = outerDiv.append("div")
                         .attr("class", "svgBox")
+                        //.style("position", "relative")
+                        //.style("top", "15px")
                         .style("height", (height + 2 * verticalPadding + 3) + "px");
+                
+                controlPanel.append("rect")
+                            .attr("x", 3)
+                            .attr("y", 3)
+                            .attr("width", 10)
+                            .attr("height", 10)
+                            .style("fill", "gray")
+                            .on("click", function() {
+                                if (minimize) {
+                                    div.style("display", "none");
+                                } else {
+                                    div.style("display", "inline-block");
+                                }
+                                minimize = !minimize;
+                            });
 
                 svg = div.append("svg")
                          .attr("class", "treePanel")
@@ -350,6 +385,12 @@
                         i,
                         g,
                         timeAxis;
+                        
+                    controlPanel.append("text")
+                                .attr("x", 15)
+                                .attr("y", 12)
+                                .attr("text-anchor", "start")
+                                .text(json.name);
                 
                 
                     timeOrigin = parseInt(json.origin, 10);
@@ -506,7 +547,7 @@
                                 //.on("mouseup", mUp);
                                                     
                     svg.on("mousemove", mMove)
-                       .on("mouseup", mUp);
+                       .on("mouseup", mUp);                       
                     
                     
                     //add time axis and aim line              

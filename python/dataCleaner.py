@@ -45,7 +45,7 @@ for filename in inputFiles:
     changeHeights(tree['root'])
     json_data.close()
     jsonWrite = open(filename, "w+")
-    jsonWrite.write(json.dumps(tree, indent = 2, separators = (',', ': ')))
+    jsonWrite.write(json.dumps(tree, separators = (',\n', ': ')))
     jsonWrite.close()
 
 #go through all trees, traverse them to find child nodes

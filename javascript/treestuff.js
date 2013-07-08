@@ -77,9 +77,11 @@ treestuff = (function() {
           .on("brushend", brushend);
           
         treestuff.globalTimeBrush = brush;
+        
+        var div = d3.select("body").append("div");
 
         //placeAimLine = false;
-        axisSelection = d3.select("body").append("svg")
+        axisSelection = div.append("svg")
                           .attr("width", 550)
                           .attr("height", 20)
                           .append("g")
@@ -121,6 +123,7 @@ treestuff = (function() {
             if (brushHighlight) {
                 brushHighlight.remove();
                 brushHighlight = null;
+                treestuff.brushHighlight = null;
             }
         }
     };

@@ -34,14 +34,14 @@
             
         function attachLinkReferences(nodes, linkData) {
             var i, j;
-            for (i = 1; i < nodes.length; i += 1) {
-                /*for (j = 0; j < linkData.length; j += 1) { //can this be done a bit faster?
-                    if (nodes[i] === linkData[j].target) {
-                        nodes[i].uplink = linkData[j];
+            for (i = 0; i < nodes.length; i += 1) {
+                for (j = 0; j < linkData[0].length; j += 1) {
+                    if (nodes[i] === linkData[0][j].__data__.target) {
+                        nodes[i].uplink = d3.select(linkData[0][j]);
                         break;
                     }
-                }*/
-                nodes[i].uplink = linkData.filter(function(d) {return nodes[i] === d.target; });
+                }
+                //nodes[i].uplink = linkData.filter(function(d) {return nodes[i] === d.target; });
             }
         };
         
@@ -58,6 +58,10 @@
         };
         
         
+        /*
+        Modifies passed list of nodes. The parent node of two selected sibling nodes is added
+        to the selection.
+        */
         function addConnectingNodes(nodes) {
             var cont = true,
                 i;
@@ -81,21 +85,24 @@
         
         
         /*
-            Converts a decimal year to a Date object by multiplying by number
-            of milliseconds in 365.25 years.
-            Zero point year corresponds to node height of 0.
-            Javascript dates appear to start from 1970.
+        Converts a decimal year to a Date object by multiplying by number
+        of milliseconds in 365.25 years.
+        Zero point year corresponds to node height of 0.
+        Javascript dates appear to start from 1970.
         */
         treestuff.nodeHeightToDate = function(nodeHeight, zeroPointYear) {
             return new Date((zeroPointYear - 1970 - nodeHeight) * 31557600000);
         };
         
+        /*
+        Reverse function of nodeHeightToDate.
+        */
         treestuff.dateToNodeHeight = function(date, zeroPointYear) {
             return zeroPointYear - 1970 - date / 31557600000;
         };
         
         /*
-            Used in drawing the vertical line coming from the time axis.
+        Used in drawing the vertical line coming from the time axis.
         */
         function drawAimLine(coords) {
             prevCoords = coords || prevCoords;
@@ -108,17 +115,27 @@
         };
 
 
+        /*
+        Draws node link.
+        */
         function elbow(d) {
             return "M" + xScale(d.source.height) + "," + yScale(d.source.x)
                 + "V" + yScale(d.target.x) + "H" + xScale(d.target.height);
         };
 
 
+        /*
+        Draws dashed link coming from leaves.
+        */
         function dashedElbow(d) {
             return "M" + 0 + "," + 0
                 + "h" + (xScale(d.height) - xScale(minHeight));
         };
         
+
+        /*
+        Removes the first occurance an element from an array if it is found in the array.
+        */
         function removeElement(obj, array) {
             var i;
             for (i = 0; i < array.length; i += 1) {
@@ -131,6 +148,9 @@
         };
 
 
+        /*
+        Calculates branch scaling based on branch length.
+        */
         function scaleBranchLengths(nodes, w) {
             var visitPreOrder = function(root, callback) {
                 var i;
@@ -153,6 +173,7 @@
                 //removed 0 as the default node length. all branches should have length specified
             });
             
+            //development time check for consistency between heights and lengths
             console.log(panelID + " height span " + (maxHeight - minHeight));
 
             var rootDists = nodes.map(function(n) { return n.rootDist; });
@@ -172,6 +193,9 @@
         }
  
         
+        /*
+        Topological selection mouse events.
+        */
         function mDown() {            
             extent = [d3.mouse(this), []];
             d3.select(this.parentNode)
@@ -182,6 +206,7 @@
               .attr("width", 0)
               .attr("height", 0);
             
+            //clear active time and leaf selections
             if (treestuff.brushHighlight) {
                 treestuff.selectedLeaves = [];
                 treestuff.selectedPeriod = [0,0];
@@ -197,8 +222,6 @@
             event.preventDefault();
         };
         
-        
-        
         function mMove() {
             if (extent) {
                 extent[1] = d3.mouse(brushBox[0][0]);
@@ -210,7 +233,6 @@
                   .attr("height", Math.abs(extent[1][1] - extent[0][1]));
             }
         };
-        
         
         function mUp() {
             if (extent) {
@@ -259,22 +281,20 @@
                 event.preventDefault();
             }
         };
-        
-        
 		
 		
 		function doNodeSelection(node) {
 			if (node !== lastSelectionRoot) {
-				var selectedNodes = getNodeChildren(node),
+				var selectedLeaves = getDescendingLeaves(node),
 				    innerLinks;
 
 				//focus only on leaf nodes
-				treestuff.selectedLeaves = selectedNodes.slice(0);
+				treestuff.selectedLeaves = selectedLeaves.slice(0);
 				treestuff.callUpdate("leafSelectionUpdate");
 				
 				//continue this function with inner nodes as well
-                innerLinks = getNodeLinks(selectedNodes)
-                            .concat(getNodeLinks(getNodeDescendants(node)));
+                innerLinks = getNodeLinks(selectedLeaves)
+                            .concat(getNodeLinks(getDescendingInnerNodes(node)));
                 
                 links.classed("highlighted", false);
                 if (node.depth !== Infinity) {
@@ -282,43 +302,27 @@
                         innerLinks[i].classed("highlighted", true);
                     }
                 }
-				/*	 
-				links.classed("highlighted", function(d) {
-				    return treestuff.contains(innerLinks, d);
-					});*/
 			}
 			lastSelectionRoot = node;
 		};
 		
 		
-		function getNodeDescendants(node) {
+		function getDescendingInnerNodes(node) {
 			var nodeList = [];
 			if (node.children) {
 			    nodeList.push(node)
 				for (var i = 0; i < node.children.length; i++) {
-					nodeList = nodeList.concat(getNodeDescendants(node.children[i]));
+					nodeList = nodeList.concat(getDescendingInnerNodes(node.children[i]));
 				}
 			} 
 		    return nodeList;
-		    /*
-		    var nodeList = {"innerNodes": [], "leafNodes": []};
-			if (node.children) {
-			    nodeList.innerNodes.push(node);
-				for (var i = 0; i < node.children.length; i++) {
-					nodeList.innerNodes = nodeList.innerNodes.concat(getNodeDescendents(node.children[i]).innerNodes);
-					nodeList.leafNodes = nodeList.leafNodes.concat(getNodeDescendents(node.children[i]).leafNodes);
-				}
-			} else {
-			    nodeList.leafNodes.push(node);
-			}
-		    return nodeList;	*/
 		}
 		
-		function getNodeChildren(node) {
+		function getDescendingLeaves(node) {
 		    var nodeList = [];
 			if (node.children) {
 				for (var i = 0; i < node.children.length; i++) {
-					nodeList = nodeList.concat(getNodeChildren(node.children[i]));
+					nodeList = nodeList.concat(getDescendingLeaves(node.children[i]));
 				}
 			} else {
 			    nodeList.push(node);			    
@@ -327,14 +331,20 @@
 		}
     
         
-        //return public methods
+        //return public methods and variables
         return {
             panelType : "treePanel",
+
             
             maxHeight : function() {return maxHeight; },
+
             
             minHeight : function() {return minHeight; },
+
             
+            /*
+            Create and place a container for the tree.
+            */
             placePanel : function() {
                 panelID = 0 + treestuff.counter; //get value, not reference
                 treestuff.focusedPanel = panelID;
@@ -383,7 +393,11 @@
                              
                 treestuff.counter += 1;
             },
-                    
+
+            
+            /*
+            Fill container with data.
+            */
             initializePanelData : function(filename) {
                 d3.json(filename, function(json) { //json is the root node of the input tree
                     var nodeArray,
@@ -600,12 +614,14 @@
                     treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
                 }); 
             },
+
         
             leafSelectionUpdate : function() {
                 leaves.classed("highlighted", function(d) {                    
                     return treestuff.containsLeaf(treestuff.selectedLeaves, d);
                 });
             },
+
             
             timeSelectionUpdate : function() {
                 var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
@@ -622,6 +638,7 @@
                                          .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 }                
             },
+
             
             //highlights the link going up from the selected nodes
             nodeSelectionUpdate : function() {
@@ -630,6 +647,7 @@
                     treestuff.selectedNodes[i].uplink.classed("highlighted", true);
                 }
             },
+
         
             zoomUpdate : function() {
                 yScale.range([0, height * treestuff.scale]);
@@ -649,6 +667,10 @@
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
             },
         
+
+            /*
+            Scrolls viewport to the selected node.
+            */
             focusUpdate : function(node) {
                 if (panelID !== treestuff.focusedPanel) {
                     var nodeSelection =  leaves.filter(function(d) {return node.datum().name === d.name; });

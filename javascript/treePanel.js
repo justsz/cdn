@@ -34,12 +34,13 @@
         function attachLinkReferences(nodes, linkData) {
             var i, j;
             for (i = 1; i < nodes.length; i += 1) {
-                for (j = 0; j < linkData.length; j += 1) { //can this be done a bit faster?
+                /*for (j = 0; j < linkData.length; j += 1) { //can this be done a bit faster?
                     if (nodes[i] === linkData[j].target) {
                         nodes[i].uplink = linkData[j];
                         break;
                     }
-                }
+                }*/
+                nodes[i].uplink = linkData.filter(function(d) {return nodes[i] === d.target; });
             }
         };
         
@@ -48,7 +49,9 @@
             var links = [],
                 i;
             for (i = 0; i < nodes.length; i += 1) {
-                links.push(nodes[i].uplink);
+                if (nodes[i].uplink) {
+                    links.push(nodes[i].uplink);
+                }
             }
             return links;
         };
@@ -271,13 +274,17 @@
 				//continue this function with inner nodes as well
                 innerLinks = getNodeLinks(selectedNodes)
                             .concat(getNodeLinks(getNodeDescendants(node)));
-					 
+                
+                links.classed("highlighted", false);
+                if (node.depth !== Infinity) {
+                    for (var i = 0; i < innerLinks.length; i += 1) {
+                        innerLinks[i].classed("highlighted", true);
+                    }
+                }
+				/*	 
 				links.classed("highlighted", function(d) {
-				    if (treestuff.contains(innerLinks, d)) {
-				  	    return true;
-					}
-					return false;
-					});
+				    return treestuff.contains(innerLinks, d);
+					});*/
 			}
 			lastSelectionRoot = node;
 		};
@@ -424,8 +431,7 @@
                                .domain([maxHeight, minHeight])
                                .range([0, width]);
 
-                    //give nodes a reference to the link leading to it
-                    attachLinkReferences(nodeArray, linkArray);
+
 
                     yScale = d3.scale.linear()
                                .domain([0, height])
@@ -439,6 +445,9 @@
                              .enter().append("path")
                              .attr("class", "link")
                              .attr("d", elbow);
+                             
+                    //give nodes a reference to the link leading to it
+                    attachLinkReferences(nodeArray, links);
 
                     //assign node classification and position it
                     g.selectAll(".node")
@@ -491,6 +500,7 @@
 							//shift pressed - select a range to clicked node from last clicked (ctrl or otherwise) node. deselect the rest
                               treestuff.focusedPanel = panelID;
                               var node = d3.select(this.parentNode);
+                              links.classed("highlighted", false);
 							  if (d3.event.metaKey || d3.event.ctrlKey) {
 								  lastClickedLeaf = node;
 							      var addNodeToSelection = !node.classed("highlighted");

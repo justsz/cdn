@@ -61,6 +61,17 @@ treestuff = (function() {
     };
     
     
+    treestuff.addTraitBox = function() {
+        d3.select("body").append("div")
+          .attr("class", "traitBox")
+          .append("input")
+          .attr("type", "text")
+          .attr("id", "trait")
+          .attr("value", "trait")
+          .on("keyup", lookupTrait);       
+    };
+    
+    
     treestuff.addGlobalTimeAxis = function() {
         timeScale = d3.time.scale()
                             .domain([0, 0])
@@ -163,6 +174,37 @@ treestuff = (function() {
                       //if (!firstHit) {
                       //    firstHit = this;
                       //}
+                  }
+              });
+        }
+    
+        treestuff.focusedLeaves = selectedNodes;
+        treestuff.callUpdate("selectionUpdate");
+    
+        /*
+        if (firstHit) {
+            scrollToNode(d3.select(firstHit));
+        }
+        */
+    };
+    
+    
+    function lookupTrait(searchTerm) {
+        var searchTerm = searchTerm || document.getElementById("trait").value;
+        var searchRegex = new RegExp(searchTerm);
+        var selectedNodes = [];
+        //var firstHit;
+    
+        if (searchTerm) { //do no selection if search field is empty
+            d3.selectAll("svg.treePanel")
+              .selectAll(".node")
+              .each(function(d) {
+                  for (var prop in d) {
+                      if(d.hasOwnProperty(prop)) {
+                          if (searchRegex.test(d[prop])) {
+                              selectedNodes.push(d);
+                          }
+                      }
                   }
               });
         }

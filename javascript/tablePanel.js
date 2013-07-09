@@ -13,8 +13,8 @@
         return {
             panelType : "tablePanel",
             
-            selectionUpdate : function() {
-                var nodes = treestuff.focusedLeaves;
+            leafSelectionUpdate : function() {
+                var nodes = treestuff.selectedLeaves;
                 var rows = svg.selectAll(".tableRow")
                               .data(nodes, treestuff.getNodeKey);
 

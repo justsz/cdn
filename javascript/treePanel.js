@@ -1,4 +1,5 @@
 (function() {
+    "use strict";
     treestuff.TreePanel = function() {
         var panelID,
             cluster,
@@ -182,12 +183,12 @@
               .attr("height", 0);
             
             if (treestuff.brushHighlight) {
-                treestuff.focusedLeaves = [];
+                treestuff.selectedLeaves = [];
                 treestuff.selectedPeriod = [0,0];
                 d3.select(".axis").call(treestuff.globalTimeBrush.clear());
                 treestuff.brushHighlight.remove();
                 treestuff.brushHighlight = null;
-                treestuff.callUpdate("selectionUpdate");
+                treestuff.callUpdate("leafSelectionUpdate");
                 treestuff.callUpdate("timeSelectionUpdate");
             }
             
@@ -268,8 +269,8 @@
 				    innerLinks;
 
 				//focus only on leaf nodes
-				treestuff.focusedLeaves = selectedNodes.slice(0);
-				treestuff.callUpdate("selectionUpdate");
+				treestuff.selectedLeaves = selectedNodes.slice(0);
+				treestuff.callUpdate("leafSelectionUpdate");
 				
 				//continue this function with inner nodes as well
                 innerLinks = getNodeLinks(selectedNodes)
@@ -505,12 +506,12 @@
 								  lastClickedLeaf = node;
 							      var addNodeToSelection = !node.classed("highlighted");
                                   node.classed("highlighted", addNodeToSelection);
-                                  addNodeToSelection ? treestuff.focusedLeaves.push(node.datum()) : removeElement(node.datum(), treestuff.focusedLeaves);
+                                  addNodeToSelection ? treestuff.selectedLeaves.push(node.datum()) : removeElement(node.datum(), treestuff.selectedLeaves);
                                   if (addNodeToSelection) {
                                       treestuff.callUpdate("focusUpdate", node);
                                   }
 							  } else if (d3.event.shiftKey) {
-								  //var startNode = treestuff.focusedLeaves[treestuff.focusedLeaves.length - 1];
+								  //var startNode = treestuff.selectedLeaves[treestuff.selectedLeaves.length - 1];
 								  var startPos = lastClickedLeaf ? lastClickedLeaf.datum().x : 0;
 								  var endPos = node.datum().x;
 								  if (startPos > endPos) {
@@ -518,18 +519,18 @@
 									  endPos = startPos;
 									  startPos = temp;
 								  }
-							      treestuff.focusedLeaves = [];
+							      treestuff.selectedLeaves = [];
 								  leaves.each(function(d) {
 								      if (startPos <= d.x && d.x <= endPos) {
-									      treestuff.focusedLeaves.push(d);
+									      treestuff.selectedLeaves.push(d);
 									  }
 								  });
 							  } else {
 							      lastClickedLeaf = node;
-							      treestuff.focusedLeaves = [node.datum()];
+							      treestuff.selectedLeaves = [node.datum()];
 								  treestuff.callUpdate("focusUpdate", node);
 							  }
-							  treestuff.callUpdate("selectionUpdate");
+							  treestuff.callUpdate("leafSelectionUpdate");
                           });
 
 
@@ -600,17 +601,10 @@
                 }); 
             },
         
-            selectionUpdate : function() {
+            leafSelectionUpdate : function() {
                 leaves.classed("highlighted", function(d) {                    
-                    if (treestuff.containsLeaf(treestuff.focusedLeaves, d)) {
-                          return true;
-                    }
-                    return false;
+                    return treestuff.containsLeaf(treestuff.selectedLeaves, d);
                 });
-                /*leaves.classed("highlighted", false);
-                leaves.data(treestuff.focusedLeaves, treestuff.getNodeKey)
-                      .classed("highlighted", true);*/
-                
             },
             
             timeSelectionUpdate : function() {
@@ -627,6 +621,14 @@
                                          .attr("height", yScale(height))
                                          .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 }                
+            },
+            
+            //highlights the link going up from the selected nodes
+            nodeSelectionUpdate : function() {
+                links.classed("highlighted", false);
+                for (var i = 0; i < treestuff.selectedNodes.length; i += 1) {
+                    treestuff.selectedNodes[i].uplink.classed("highlighted", true);
+                }
             },
         
             zoomUpdate : function() {

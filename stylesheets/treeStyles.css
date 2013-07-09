@@ -8,6 +8,7 @@ body {
 }
 
 
+/*Tree styling*/
 .node {
     fill-opacity: 0;
 }
@@ -91,4 +92,14 @@ body {
 .node circle {
 	fill: black;
 	fill-opacity: 1;
+}
+
+
+/*Zoom button styling*/
+.zoom.increase {
+    fill: green;
+}
+
+.zoom.decrease {
+    fill: red;
 }

@@ -1,21 +1,27 @@
 treestuff = (function() {
     "use strict";
 
-    var treestuff = {}; 
+    var treestuff = {};
 
-    treestuff.focusedPanel = 0;
-    treestuff.scale = 1;
-    treestuff.panels = [];
-    treestuff.counter = 0;
-    treestuff.focusedLeaves = [];
-    treestuff.globalData = {};
+    treestuff.counter = 0; //panel count and doubles as panel ID
+    treestuff.focusedPanel = 0; //ID of focused panel
+    treestuff.scale = 1; //zoom level
+    treestuff.panels = []; //array of all added panels
+    treestuff.selectedLeaves = [];
+    treestuff.globalData = {}; //keeps track of data added to crossfilter
     
+
+    /*
+    Adds a function that correctly counts the 
+    number of nodes in a selection.
+    */
     d3.selection.prototype.size = function() {
         var n = 0;
         this.each(function() {n += 1; });
         return n;
     };
-    
+
+
     treestuff.addGlobalZoomButton = function() {
         var zoomButton = d3.select("body")
                            .append("div")
@@ -25,17 +31,17 @@ treestuff = (function() {
                            .append("g");
 
             zoomButton.append("rect")
+                       .attr("class", "zoom increase")
                        .attr("width", 40)
                        .attr("height", 40)
-                       .style("fill", "green")
-                       .on("click", function() {return incrementZoom(1); });
+                       .on("click", function() {incrementZoom(1); });
                    
             zoomButton.append("rect")
+                       .attr("class", "zoom decrease")
                        .attr("y", 40)
                        .attr("width", 40)
                        .attr("height", 40)
-                       .style("fill", "red")
-                       .on("click", function() {return incrementZoom(-1); });
+                       .on("click", function() {incrementZoom(-1); });
     };
 
 
@@ -81,7 +87,6 @@ treestuff = (function() {
                             .orient("bottom");
                             
         brush = d3.svg.brush()
-          //.x(d3.scale.linear().domain([0, 500]).range([0, 500]))
           .x(timeScale)
           .on("brushstart", brushstart)
           .on("brush", brushmove)
@@ -91,7 +96,6 @@ treestuff = (function() {
         
         var div = d3.select("body").append("div");
 
-        //placeAimLine = false;
         axisSelection = div.append("svg")
                           .attr("width", 550)
                           .attr("height", 20)
@@ -102,12 +106,14 @@ treestuff = (function() {
                           .call(timeAxis)
                           .call(brush);
     };
-    
+
+
     function brushstart() {
-        brush.clear();
-        d3.selectAll(".link").classed("highlighted", false);
+        //brush.clear();
+        //d3.selectAll(".link").classed("highlighted", false);
     };
-    
+
+
     function brushmove() {
         var e = brush.extent();
         treestuff.selectedPeriod = e;
@@ -124,11 +130,12 @@ treestuff = (function() {
             treestuff.brushHighlight = brushHighlight;
         }
         
-        treestuff.focusedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
+        treestuff.selectedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
         treestuff.callUpdate("timeSelectionUpdate");
-        treestuff.callUpdate("selectionUpdate");
+        treestuff.callUpdate("leafSelectionUpdate");
     };
-    
+
+
     function brushend() {
         if (brush.empty()) {
             if (brushHighlight) {
@@ -149,6 +156,10 @@ treestuff = (function() {
     var brush;
     var brushHighlight;
     
+
+    /*
+    As data is being added, update the global time axis with new min/max taxon dates.
+    */
     treestuff.updateGlobalTimeAxis = function(rootHeight, minLeafHeight) {
         rootHeights.push(rootHeight);
         leafHeights.push(minLeafHeight);
@@ -163,7 +174,6 @@ treestuff = (function() {
         var searchTerm = searchTerm || document.getElementById("search").value;
         var searchRegex = new RegExp(searchTerm);
         var selectedNodes = [];
-        //var firstHit;
     
         if (searchTerm) { //do no selection if search field is empty
             d3.selectAll("svg.treePanel")
@@ -171,21 +181,12 @@ treestuff = (function() {
               .each(function(d) {
                   if (searchRegex.test(d.name)) {
                       selectedNodes.push(d);
-                      //if (!firstHit) {
-                      //    firstHit = this;
-                      //}
                   }
               });
         }
     
-        treestuff.focusedLeaves = selectedNodes;
-        treestuff.callUpdate("selectionUpdate");
-    
-        /*
-        if (firstHit) {
-            scrollToNode(d3.select(firstHit));
-        }
-        */
+        treestuff.selectedLeaves = selectedNodes;
+        treestuff.callUpdate("leafSelectionUpdate");
     };
     
     
@@ -193,7 +194,6 @@ treestuff = (function() {
         var searchTerm = searchTerm || document.getElementById("trait").value;
         var searchRegex = new RegExp(searchTerm);
         var selectedNodes = [];
-        //var firstHit;
     
         if (searchTerm) { //do no selection if search field is empty
             d3.selectAll("svg.treePanel")
@@ -209,14 +209,8 @@ treestuff = (function() {
               });
         }
     
-        treestuff.focusedLeaves = selectedNodes;
-        treestuff.callUpdate("selectionUpdate");
-    
-        /*
-        if (firstHit) {
-            scrollToNode(d3.select(firstHit));
-        }
-        */
+        treestuff.selectedLeaves = selectedNodes;
+        treestuff.callUpdate("leafSelectionUpdate");
     };
 
 
@@ -224,10 +218,11 @@ treestuff = (function() {
         var color = document.getElementById("color").value;
         d3.selectAll("svg.treePanel")
           .selectAll(".leaf")
-          .filter(function(d) {return treestuff.containsLeaf(treestuff.focusedLeaves, d); })
+          .filter(function(d) {return treestuff.containsLeaf(treestuff.selectedLeaves, d); })
           .style("fill", color)
           .style("fill-opacity", 0.3);
     };
+
 
     function incrementZoom(dir) {
         var newScale = treestuff.scale + 0.5 * dir;
@@ -236,14 +231,17 @@ treestuff = (function() {
             treestuff.callUpdate("zoomUpdate"); 
         }
     }; 
-    
+
+
+    /*
+    Create the crossfilter. Data can be added to it as it becomes available
+    when trees are being loaded.
+    */
     treestuff.initializeCrossfilter = function() {
         treestuff.taxa = crossfilter();
         treestuff.nameDim = treestuff.taxa.dimension(function(d) {return d.name; });
-		treestuff.dateDim = treestuff.taxa.dimension(function(d) { return d.date; });
+        treestuff.dateDim = treestuff.taxa.dimension(function(d) { return d.date; });
     };
-
-
 
 
     treestuff.getNodeKey = function(d, i) {
@@ -255,6 +253,7 @@ treestuff = (function() {
         return (d.target.name || i);
     };
 
+
     treestuff.contains = function(a, obj) {
         var i;
         for (i = 0; i < a.length; i += 1) {
@@ -265,7 +264,12 @@ treestuff = (function() {
         return false;
     };
 
+
     treestuff.containsLeaf = function(a, obj) {
+        if (a.length === 0) {
+            return false;
+        }
+    
         var i;
         for (i = 0; i < a.length; i += 1) {
             if (a[i].name === obj.name) {
@@ -275,7 +279,10 @@ treestuff = (function() {
         return false;
     };
 
-    
+    /*
+    Iterates through all registered panels and attempts
+    to call the specified update type.
+    */
     treestuff.callUpdate = function(type, args) {
         var i;
         for (i = 0; i < treestuff.panels.length; i += 1) {

@@ -345,12 +345,13 @@
             /*
             Create and place a container for the tree.
             */
-            placePanel : function() {
+            placePanel : function(targ) {
                 panelID = 0 + treestuff.counter; //get value, not reference
                 treestuff.focusedPanel = panelID;
                 
-                var outerDiv = d3.select("body")
+                var outerDiv = targ
                                  .append("div")
+                                 .attr("class", "span6")
                                  .style("min-height", "20px")
                                  .style("min-width", "100px")
                                  .style("display", "inline-block");
@@ -362,13 +363,14 @@
                                  
                 controlPanel = outerDiv.append("svg")
                                   .style("position", "absolute")
-                                  .attr("width", width + marginForLabels)
+                                  //.attr("width", width + marginForLabels)
                                   .attr("height", 15);                
                                   
                 div = outerDiv.append("div")
                         .attr("class", "svgBox")
                         //.style("position", "relative")
                         //.style("top", "15px")
+                        //.style("width", width + "px")
                         .style("height", (height + 2 * verticalPadding + 3) + "px");
                 
                 controlPanel.append("rect")
@@ -634,7 +636,7 @@
                                          .attr("class", "timeSelection")
                                          .attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding) 
                                          .attr("y", verticalPadding)
-                                         .attr("height", yScale(height))
+                                         .attr("height", "100%")
                                          .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 }                
             },
@@ -658,9 +660,6 @@
                     aimLine.remove(); 
                     drawAimLine();
                 };
-                if (periodHighlight) {
-                    periodHighlight.attr("height", yScale(height));
-                }
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });

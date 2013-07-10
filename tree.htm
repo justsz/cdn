@@ -5,7 +5,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
 		<title>Treestuff</title>
-		<link rel="stylesheet" type="text/css" href="stylesheets/treeStyles.css">
+		<link rel="stylesheet" type="text/css" href="css/treeStyles.css">
+        <link rel="stylesheet" media="screen" href="css/bootstrap.css">
 		<!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
 		<script src="javascript/d3.v3.min.js"></script>
 		<script src="javascript/treestuff.js"></script>
@@ -16,6 +17,7 @@
     	<script src="javascript/crossfilter.min.js"></script>
 	</head>
 <body>
+<script src="javascript/bootstrap.js"></script>
 
 
 <script>
@@ -31,20 +33,25 @@
 
         treestuff.addSearchBox();
         treestuff.addColorPicker();
-        treestuff.addTraitBox();
+        //treestuff.addTraitBox();
         treestuff.addGlobalZoomButton();
 
         treestuff.addGlobalTimeAxis();
+        /*
         var tablePanel = new treestuff.TablePanel;
         tablePanel.placePanel();
         treestuff.panels.push(tablePanel);
-        
+        */
         treestuff.initializeCrossfilter();
 
+        var row;
         //read each input file and draw the tree in its own div
         for (i = 0; i < inputFiles.length; i++) {
+            if (i % 2 === 0) {
+                row = d3.select("body").append("div").attr("class", "row-fluid");
+            }
             var treePanel = new treestuff.TreePanel;
-            treePanel.placePanel();
+            treePanel.placePanel(row);
             treePanel.initializePanelData(inputFiles[i]);
             treestuff.panels.push(treePanel);
         }

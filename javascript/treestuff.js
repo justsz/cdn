@@ -61,6 +61,7 @@ treestuff = (function() {
           .append("div")
           .attr("class", "colorBox")
           .append("input")
+          .attr("type", "text")
           .attr("id", "color")
           .attr("value", "color")
           .on("keyup", applyColor);
@@ -81,7 +82,7 @@ treestuff = (function() {
     treestuff.addGlobalTimeAxis = function() {
         timeScale = d3.time.scale()
                             .domain([0, 0])
-                            .range([0, 500]);
+                            .range([0, 700]);
         timeAxis = d3.svg.axis()
                             .scale(timeScale)
                             .orient("bottom");
@@ -97,7 +98,7 @@ treestuff = (function() {
         var div = d3.select("body").append("div");
 
         axisSelection = div.append("svg")
-                          .attr("width", 550)
+                          .attr("width", 750)
                           .attr("height", 20)
                           .append("g")
                           .attr("class", "axis")

@@ -8,6 +8,7 @@ treestuff = (function() {
     treestuff.scale = 1; //zoom level
     treestuff.panels = []; //array of all added panels
     treestuff.selectedLeaves = [];
+    treestuff.selectedNodes = [];
     treestuff.globalData = {}; //keeps track of data added to crossfilter
     
 

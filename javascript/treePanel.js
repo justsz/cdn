@@ -216,7 +216,14 @@
                 treestuff.callUpdate("leafSelectionUpdate");
                 treestuff.callUpdate("timeSelectionUpdate");
             }
-            
+
+            //clears previously highlighted links
+            treestuff.selectedNodes = [];
+            treestuff.callUpdate("nodeSelectionUpdate");
+
+            //clears previously highlighted leaves
+            treestuff.selectedLeaves = [];
+            treestuff.callUpdate("leafSelectionUpdate");            
 
             //this line needed to make selection not move like a slug!
             event.preventDefault();
@@ -351,7 +358,7 @@
                 
                 var outerDiv = targ
                                  .append("div")
-                                 .attr("class", "span6")
+                                 .attr("class", "span1")
                                  .style("min-height", "20px")
                                  .style("min-width", "100px")
                                  .style("display", "inline-block");

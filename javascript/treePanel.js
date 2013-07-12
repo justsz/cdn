@@ -569,7 +569,13 @@
                             treestuff.taxa.add([{"name": d.name, "date": treestuff.nodeHeightToDate(d.height, timeOrigin)}]);
                         }
                     });
-                    
+
+                    //add data to traitPanel
+                    for (var p = 0; p < treestuff.panels.length; p += 1) {
+                        if (treestuff.panels[p].panelType === "traitPanel") {
+                            treestuff.panels[p].addTraits({"Nx" : json["Nx.fullSet"], "Hx" : json["Hx.fullSet"]});
+                        }
+                    }                    
                     
 
                     brushBox = g.append("rect")
@@ -657,6 +663,20 @@
                 }
             },
 
+
+            traitSelectionUpdate : function() {
+                if (treestuff.traitType && treestuff.traitValues) {
+                   links.style("stroke", function(d) {
+                       for (var i = 0; i < treestuff.traitValues.length; i += 1) {
+                           if (d.target[treestuff.traitType] === treestuff.traitValues[i].name) {
+                               return treestuff.traitValues[i].color;
+                           }
+                        }
+                        return "";
+                   });
+                }
+            },
+
         
             zoomUpdate : function() {
                 yScale.range([0, height * treestuff.scale]);
@@ -671,6 +691,7 @@
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
+
             },
         
 

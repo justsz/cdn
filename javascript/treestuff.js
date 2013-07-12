@@ -26,6 +26,8 @@ treestuff = (function() {
     treestuff.addGlobalZoomButton = function() {
         var zoomButton = d3.select("body")
                            .append("div")
+                           .style("display", "inline-block")
+                           .style("margin", "10px")
                            .append("svg")
                            .attr("width", 40)
                            .attr("height", 80)
@@ -219,7 +221,7 @@ treestuff = (function() {
     function applyColor() {
         var color = document.getElementById("color").value;
         d3.selectAll("svg.treePanel")
-          .selectAll(".leaf")
+          .selectAll(".leaf text")
           .filter(function(d) {return treestuff.containsLeaf(treestuff.selectedLeaves, d); })
           .style("fill", color)
           .style("fill-opacity", 0.3);

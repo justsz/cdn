@@ -23,23 +23,37 @@
             var traitRows = svg.selectAll(".traitRow")
                                .data(traitTypes, function(d) {return d; });
 
-            traitRows.enter()
-                     .append("g")
-                     .attr("class", "traitRow")
-                     .on("click", function(d) {
-                         treestuff.traitType = d;
-                         treestuff.traitValues = [];
-                         d3.select(this)
-                           .selectAll(".traitValue")
-                           .each(function(d) {
-                               if (d.selected) {
-                                   treestuff.traitValues.push(d);
-                               }
-                           });
-                        treestuff.callUpdate("traitSelectionUpdate");
-                     })
-                     .append("text")
-                     .text(function(d) {return d; });
+            var rowEnter = traitRows.enter()
+                                    .append("g")
+                                    .attr("class", "traitRow")
+                                    .on("click", function(d) {
+                                        d3.selectAll(".traitRow").select(".traitRowBackground")
+                                          .style("fill-opacity", 0);
+                                        d3.select(this).select(".traitRowBackground")
+                                          .style("fill-opacity", 0.125);
+
+                                        treestuff.traitType = d;
+                                        treestuff.traitValues = [];
+                                        d3.select(this)
+                                          .selectAll(".traitValue")
+                                          .each(function(d) {
+                                              if (d.selected) {
+                                                  treestuff.traitValues.push(d);
+                                              }
+                                          });
+                                       treestuff.callUpdate("traitSelectionUpdate");
+                                    });
+
+            rowEnter.append("rect")
+                    .attr("class", "traitRowBackground")
+                    .attr("y", -10)
+                    .attr("height", 10)
+                    .attr("width", width)
+                    .style("fill", "blue")
+                    .style("fill-opacity", 0);
+
+            rowEnter.append("text")
+                    .text(function(d) {return d; });
 
             traitRows.attr("transform", function(d, i) {return "translate(0," + ((i + 1) * 11) + ")"; });
 

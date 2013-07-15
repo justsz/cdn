@@ -7,7 +7,7 @@
             svg,
             rowCount = 0,
             panelID = 0 + treestuff.counter,
-            traits = {};
+            traits = {"No trait" : []};
             
             treestuff.counter += 1;
 

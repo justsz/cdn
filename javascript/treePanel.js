@@ -217,13 +217,15 @@
                 treestuff.callUpdate("timeSelectionUpdate");
             }
 
-            //clears previously highlighted links
-            treestuff.selectedNodes = [];
-            treestuff.callUpdate("nodeSelectionUpdate");
+            if (!event.shiftKey) {
+                //clears previously highlighted links
+                treestuff.selectedNodes = [];
+                treestuff.callUpdate("nodeSelectionUpdate");
 
-            //clears previously highlighted leaves
-            treestuff.selectedLeaves = [];
-            treestuff.callUpdate("leafSelectionUpdate");            
+                //clears previously highlighted leaves
+                treestuff.selectedLeaves = [];
+                treestuff.callUpdate("leafSelectionUpdate");
+            }
 
             //this line needed to make selection not move like a slug!
             event.preventDefault();
@@ -293,19 +295,30 @@
 		function doNodeSelection(node) {
 			if (node !== lastSelectionRoot) {
 				var selectedLeaves = getDescendingLeaves(node),
-				    innerLinks;
+				    innerLinks,
+                    i;
 
 				//focus only on leaf nodes
-				treestuff.selectedLeaves = selectedLeaves.slice(0);
+                if (!event.shiftKey) {
+				    treestuff.selectedLeaves = selectedLeaves.slice(0);
+                } else {
+                    for (i = 0; i < selectedLeaves.length; i += 1) {
+                        if (!treestuff.containsLeaf(treestuff.selectedLeaves, selectedLeaves[i])) {
+                            treestuff.selectedLeaves.push(selectedLeaves[i]);
+                        }
+                    }
+                }
 				treestuff.callUpdate("leafSelectionUpdate");
 				
 				//continue this function with inner nodes as well
                 innerLinks = getNodeLinks(selectedLeaves)
                             .concat(getNodeLinks(getDescendingInnerNodes(node)));
                 
-                links.classed("highlighted", false);
+                if (!event.shiftKey) {
+                   links.classed("highlighted", false);
+                }
                 if (node.depth !== Infinity) {
-                    for (var i = 0; i < innerLinks.length; i += 1) {
+                    for (i = 0; i < innerLinks.length; i += 1) {
                         innerLinks[i].classed("highlighted", true);
                     }
                 }

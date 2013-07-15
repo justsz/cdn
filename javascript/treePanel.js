@@ -693,6 +693,12 @@
         
             zoomUpdate : function() {
                 yScale.range([0, height * treestuff.scale]);
+
+                if (treestuff.scale === 1) {
+                    div.style("overflow", "hidden");
+                } else {
+                    div.style("overflow", "auto");
+                }
     
                 svg.attr("height", yScale(height) + 2 * verticalPadding);
                 axisSelection.attr("transform", "translate(0," + yScale(height) + ")");

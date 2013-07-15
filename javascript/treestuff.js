@@ -230,10 +230,11 @@ treestuff = (function() {
 
     function incrementZoom(dir) {
         var newScale = treestuff.scale + 0.5 * dir;
-        if (newScale >= 1) {
-            treestuff.scale = newScale;
-            treestuff.callUpdate("zoomUpdate"); 
+        if (newScale < 1) {
+          newScale = 1;
         }
+        treestuff.scale = newScale;
+        treestuff.callUpdate("zoomUpdate"); 
     }; 
 
 

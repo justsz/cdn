@@ -428,7 +428,9 @@
                         leafHeights,
                         i,
                         g,
-                        timeAxis;
+                        timeAxis,
+                        prop,
+                        propRegex = /(.+)\.fullSet/;
                         
                     controlPanel.append("text")
                                 .attr("x", 15)
@@ -584,9 +586,19 @@
                     });
 
                     //add data to traitPanel
-                    for (var p = 0; p < treestuff.panels.length; p += 1) {
-                        if (treestuff.panels[p].panelType === "traitPanel") {
-                            treestuff.panels[p].addTraits({"Nx" : json["Nx.fullSet"], "Hx" : json["Hx.fullSet"]});
+                    for (i = 0; i < treestuff.panels.length; i += 1) {
+                        //lookup the trait panel
+                        if (treestuff.panels[i].panelType === "traitPanel") {
+                            for (prop in json) {
+                                if (json.hasOwnProperty(prop)) {
+                                    var match = propRegex.exec(prop);
+                                    if (match) {
+                                       var traitDict = {};
+                                       traitDict[match[1]] = json[prop];
+                                       treestuff.panels[i].addTraits(traitDict);
+                                    }
+                                }
+                            }
                         }
                     }                    
                     

@@ -1,7 +1,7 @@
 (function() {
 
     treestuff.TraitPanel = function() {
-        var width = 300,
+        var width = 640,
             height = 100,
             div,
             svg,

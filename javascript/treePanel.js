@@ -536,12 +536,12 @@
                           .on("click", function() {
 							//three modes of click-selection:
 							//no keys pressed - select clicked node, deselect everything else
-							//ctrl (cmd?) pressed - select multiple, nonadjacent or adjacent nodes
+							//ctrl/cmd pressed - select multiple, nonadjacent or adjacent nodes
 							//shift pressed - select a range to clicked node from last clicked (ctrl or otherwise) node. deselect the rest
                               treestuff.focusedPanel = panelID;
                               var node = d3.select(this.parentNode);
                               links.classed("highlighted", false);
-							  if (d3.event.metaKey || d3.event.ctrlKey) {
+							  if (d3.event.metaKey || d3.event.ctrlKey) { //meta key is apple's command key
 								  lastClickedLeaf = node;
 							      var addNodeToSelection = !node.classed("highlighted");
                                   node.classed("highlighted", addNodeToSelection);
@@ -569,7 +569,7 @@
 							      treestuff.selectedLeaves = [node.datum()];
 								  treestuff.callUpdate("focusUpdate", node);
 							  }
-							  treestuff.callUpdate("leafSelectionUpdate");
+							  treestuff.callUpdate("leafSelectionUpdate"); //possible to make this more incremental for better performance
                           });
 
 

@@ -3,17 +3,17 @@
 import json
 import numpy
 
-def getTraits(node, traitType):
+def getTraits(node, traitType, traitSet):
     for trait in node[traitType + '.set']:
-        if not trait in traitListings[traitType]:
-            traitListings[traitType].append(trait)
+        if not trait in traitSet:
+            traitSet.append(trait)
 
-def climbNode(node, traitType):
+def climbNode(node, traitType, traitSet):
     if ('children' in node):
         for child in node['children']:
-            climbNode(child, traitType)
+            climbNode(child, traitType, traitSet)
     else:
-        getTraits(node, traitType)
+        getTraits(node, traitType, traitSet)
 
             
 inputFiles = ["../data/H9N2 Trees/H9N2.MP.json",
@@ -23,31 +23,33 @@ inputFiles = ["../data/H9N2 Trees/H9N2.MP.json",
               "../data/H9N2 Trees/H9N2.PB1.json",
               "../data/H9N2 Trees/H9N2.PB2.json"]
 
-traitsToAggregate = ['Nx', 'Hx']
+traitsToAggregate = ['Nx', 'Hx', 'location']
 
-traitListings = {}
-
-for tr in traitsToAggregate:
-    traitListings[tr] = []
 
 for filename in inputFiles:
     print("processing " + filename)
     json_data = open(filename)
-    tree = json.load(json_data)
+    tree = json.load(json_data) #open file
     for trait in traitsToAggregate:
-        climbNode(tree['root'], trait)
-    json_data.close()
-
-
-
-for filename in inputFiles:
-    print("editing " + filename)
-    json_data = open(filename)
-    tree = json.load(json_data)
-    for trait in traitsToAggregate:
-        print(traitListings[trait])
-        tree[trait + '.fullSet'] = traitListings[trait]
+        traitSet = []
+        climbNode(tree['root'], trait, traitSet) #assamble set of all values of this trait
+        print(traitSet)
+        tree[trait + '.fullSet'] = traitSet #append full set to tree
     json_data.close()
     jsonWrite = open(filename, "w+")
-    jsonWrite.write(json.dumps(tree, separators = (',\n', ': ')))
+    jsonWrite.write(json.dumps(tree, separators = (',\n', ': '))) #write modified tree back to original file
     jsonWrite.close()
+
+
+
+# for filename in inputFiles:
+#     print("editing " + filename)
+#     json_data = open(filename)
+#     tree = json.load(json_data)
+#     for trait in traitsToAggregate:
+#         print(traitListings[trait])
+#         tree[trait + '.fullSet'] = traitListings[trait]
+#     json_data.close()
+#     jsonWrite = open(filename, "w+")
+#     jsonWrite.write(json.dumps(tree, separators = (',\n', ': ')))
+#     jsonWrite.close()

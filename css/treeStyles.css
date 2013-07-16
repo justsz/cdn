@@ -97,9 +97,30 @@ body {
 
 /*Zoom button styling*/
 .zoom.increase {
+    /*background-image: url('../img/glyphicons-halflings.png');
+    background-position: 0px 0px;*/
     fill: green;
 }
 
 .zoom.decrease {
     fill: red;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

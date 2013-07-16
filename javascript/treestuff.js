@@ -220,11 +220,10 @@ treestuff = (function() {
 
     function applyColor() {
         var color = document.getElementById("color").value;
-        d3.selectAll("svg.treePanel")
-          .selectAll(".leaf text")
-          .filter(function(d) {return treestuff.containsLeaf(treestuff.selectedLeaves, d); })
-          .style("fill", color)
-          .style("fill-opacity", 0.3);
+        if (color === "") {
+          color = null;
+        }
+        treestuff.callUpdate("leafColorUpdate", color);
     };
 
 
@@ -288,11 +287,11 @@ treestuff = (function() {
     Iterates through all registered panels and attempts
     to call the specified update type.
     */
-    treestuff.callUpdate = function(type, args) {
+    treestuff.callUpdate = function(type) {
         var i;
         for (i = 0; i < treestuff.panels.length; i += 1) {
             if (treestuff.panels[i].hasOwnProperty(type)) {
-                treestuff.panels[i][type](args);
+                treestuff.panels[i][type](arguments); //pass any additional arguments to the update function
             }
         }
     };
@@ -300,3 +299,16 @@ treestuff = (function() {
 
     return treestuff
 }());
+
+
+
+
+
+
+
+
+
+
+
+
+

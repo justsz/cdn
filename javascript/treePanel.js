@@ -662,6 +662,21 @@
                 });
             },
 
+
+            leafColorUpdate : function(args) {
+                if (args[1]) {
+                    leaves.select("text")
+                          .style("fill", function(d) {
+                              if (treestuff.containsLeaf(treestuff.selectedLeaves, d)) {
+                                  return args[1]; //return the color
+                              }
+                              return null; //remove the style
+                          });
+                } else {
+                    leaves.select("text").style("fill", null);
+                }
+            },
+
             
             timeSelectionUpdate : function() {
                 var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
@@ -697,7 +712,7 @@
                                return treestuff.traitValues[i].color;
                            }
                         }
-                        return "";
+                        return null;
                    });
                 }
             },
@@ -729,9 +744,9 @@
             /*
             Scrolls viewport to the selected node.
             */
-            focusUpdate : function(node) {
+            focusUpdate : function(args) {
                 if (panelID !== treestuff.focusedPanel) {
-                    var nodeSelection =  leaves.filter(function(d) {return node.datum().name === d.name; });
+                    var nodeSelection =  leaves.filter(function(d) {return args[1].datum().name === d.name; });
 
                     if (!nodeSelection.empty()) {
                         div[0][0].scrollTop = yScale(nodeSelection.datum().x) - height / 2;
@@ -742,3 +757,10 @@
     }; //end object closure
 
 })();
+
+
+
+
+
+
+

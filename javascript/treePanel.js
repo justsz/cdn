@@ -217,7 +217,7 @@
                 treestuff.callUpdate("timeSelectionUpdate");
             }
 
-            if (!event.shiftKey) {
+            if (!d3.event.shiftKey) {
                 //clears previously highlighted links
                 treestuff.selectedNodes = [];
                 treestuff.callUpdate("nodeSelectionUpdate");
@@ -299,7 +299,7 @@
                     i;
 
 				//focus only on leaf nodes
-                if (!event.shiftKey) {
+                if (!d3.event.shiftKey) {
 				    treestuff.selectedLeaves = selectedLeaves.slice(0);
                 } else {
                     for (i = 0; i < selectedLeaves.length; i += 1) {
@@ -314,7 +314,7 @@
                 innerLinks = getNodeLinks(selectedLeaves)
                             .concat(getNodeLinks(getDescendingInnerNodes(node)));
                 
-                if (!event.shiftKey) {
+                if (!d3.event.shiftKey) {
                    links.classed("highlighted", false);
                 }
                 if (node.depth !== Infinity) {

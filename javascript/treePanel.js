@@ -14,6 +14,7 @@
             leaves,
 			lastClickedLeaf,
 			lastSelectionRoot,
+            thisLeafSelection,
             maxHeight,
             minHeight,
             brushBox,
@@ -656,15 +657,20 @@
             },
 
         
+            /*
+            Saves the leaf selection and highlights selected leaves.
+            */
             leafSelectionUpdate : function() {
-                leaves.classed("highlighted", function(d) {                    
+                thisLeafSelection = leaves.filter(function(d) {                    
                     return treestuff.containsLeaf(treestuff.selectedLeaves, d);
                 });
+                leaves.classed("highlighted", false);
+                thisLeafSelection.classed("highlighted", true);
             },
 
 
             leafColorUpdate : function(args) {
-                if (args[1]) {
+                /*if (args[1]) {
                     leaves.select("text")
                           .style("fill", function(d) {
                               if (treestuff.containsLeaf(treestuff.selectedLeaves, d)) {
@@ -674,7 +680,9 @@
                           });
                 } else {
                     leaves.select("text").style("fill", null);
-                }
+                }*/     
+
+                thisLeafSelection.select("text").style("fill", args[1]);
             },
 
             

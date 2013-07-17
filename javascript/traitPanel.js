@@ -1,13 +1,19 @@
 (function() {
 
     treestuff.TraitPanel = function() {
-        var width = 640,
-            height = 100,
+        var width = 300, //div initial sizing. Later used to specify SVG size
+            height = 80, 
             div,
             svg,
             rowCount = 0,
             panelID = 0 + treestuff.counter,
-            traits = {"No trait" : []};
+            traits = {"No trait" : []},
+            legendSize = 10,
+            rowPadding = 1,
+            legendTextGap = 2,
+            maxTraitNameSize = 30,
+            maxRowWidth = width,
+            tableHeight = height;
             
             treestuff.counter += 1;
 
@@ -44,18 +50,13 @@
                                        treestuff.callUpdate("traitSelectionUpdate");
                                     });
 
-            rowEnter.append("rect")
-                    .attr("class", "traitRowBackground")
-                    .attr("y", -10)
-                    .attr("height", 10)
-                    .attr("width", width)
-                    .style("fill", "blue")
-                    .style("fill-opacity", 0);
-
             rowEnter.append("text")
+                    .attr("dy", -1)
                     .text(function(d) {return d; });
 
-            traitRows.attr("transform", function(d, i) {return "translate(0," + ((i + 1) * 11) + ")"; });
+            maxTraitNameSize = d3.max(traitRows.select("text")[0], function(d) {return d.getComputedTextLength(); });
+
+            traitRows.attr("transform", function(d, i) {return "translate(0," + ((i + 1) * (legendSize + rowPadding)) + ")"; });
 
             traitRows.exit().remove();
 
@@ -78,6 +79,7 @@
                                         .attr("class", "traitValue")
                                         .on("click", function(d) {
                                             d.selected = !d.selected;
+                                            //need to update colors here because calling drawPanel would rebind the data.
                                             svg.selectAll(".traitValue").select("rect").style("fill", function(d) {
                                                 if (d.selected) {
                                                     return d.color;
@@ -88,14 +90,28 @@
 
             traitEnter.append("rect")
                       .attr("y", "-10")
-                      .attr("height", 10)
-                      .attr("width", 10);
+                      .attr("height", legendSize)
+                      .attr("width", legendSize);
 
             traitEnter.append("text")
-                      .attr("x", 12)
+                      .attr("x", (legendSize + legendTextGap))
+                      .attr("dy", -1) //move text up 1 pixel
                       .text(function(d) {return d.name; });
 
-            traitValues.attr("transform", function(d, i) {return "translate(" + (30 * i + 30) + ",0)"; });
+
+            //every cell is a g element. Compute how to space-out
+            //the cells and how much space is needed to display them
+            traitRows.each(function(d) {
+                var rowWidth = maxTraitNameSize;
+                d3.select(this).selectAll(".traitValue").attr("transform", function() {
+                    var cellSize = d3.select(this).select("text")[0][0].getComputedTextLength() + legendSize + 2 * legendTextGap;
+                    rowWidth += cellSize;
+                    return "translate(" + (rowWidth - cellSize) + ",0)"; 
+                });
+                if (rowWidth > maxRowWidth) {
+                    maxRowWidth = rowWidth;
+                }
+            });
                        
 
             traitValues.select("rect").style("fill", function(d) {
@@ -107,6 +123,30 @@
 
 
             traitValues.exit().remove();
+
+            tableHeight = traitRows.size() * (legendSize + rowPadding);
+
+            svg.attr("width", maxRowWidth)
+               .attr("height", tableHeight);
+
+            if (maxRowWidth > width) {
+                div.style("overflow-x", "scroll");
+            } else {
+                div.style("overflow-x", null);
+            }
+            if (tableHeight > height) {
+                div.style("overflow-y", "scroll");
+            } else {
+                div.style("overflow-y", null);
+            }
+
+            rowEnter.append("rect")
+                    .attr("class", "traitRowBackground")
+                    .attr("y", -legendSize)
+                    .attr("height", legendSize)
+                    .attr("width", "100%")
+                    .style("fill", "blue")
+                    .style("fill-opacity", 0);
         };
 
 
@@ -121,7 +161,6 @@
                     .style("height", height + "px")
                     .style("display", "inline-block")
                     .style("border", "1px solid");
-                    //.style("overflow", "scroll");
 
             svg = div.append("svg")
                      .attr("class", "traitPanel")

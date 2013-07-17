@@ -457,14 +457,14 @@
                     for (i = 0; i < nodeArray.length; i += 1) {
                         if (!nodeArray[i].children) { //if leaf
                             leafHeights.push(nodeArray[i].height);
-                            //nameLengths.push(nodeArray[i].length);
+                            //nameLengths.push(nodeArray[i].getComputedTextLength());
                         }
                     };
-                    /*marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
+                    //marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
                     svg.attr("width", width + marginForLabels);
                     div.style("width", (width + marginForLabels + 15) + "px")
                        .style("height", (height + 15) + "px");
-                     */
+                    
                     minHeight = d3.min(leafHeights);
                     maxHeight = json.root.height;
                     xScale = d3.scale.linear()

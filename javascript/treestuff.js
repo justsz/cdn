@@ -297,6 +297,18 @@ treestuff = (function() {
     };
 
 
+    treestuff.panelsLoaded = function(panelType) {
+      var out = true,
+          i;
+      for (i = 0; i < treestuff.panels.length; i += 1) {
+            if (treestuff.panels[i].panelType === panelType && treestuff.panels[i].hasOwnProperty("finishedLoading")) {
+                out = out && treestuff.panels[i].finishedLoading();
+            }
+        }
+      return out;
+    }
+
+
     return treestuff
 }());
 

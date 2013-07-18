@@ -5,10 +5,10 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
 		<title>Treestuff</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- <link rel="stylesheet" href="css/bootstrap-responsive.css"> -->
 		<link rel="stylesheet" type="text/css" href="css/treeStyles.css">
-        <link rel="stylesheet" media="screen" href="css/bootstrap.css">
+        <!-- <link rel="stylesheet" media="screen" href="css/bootstrap.css"> -->
+        <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
 		<!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
 		<script src="javascript/d3.v3.min.js"></script>
 		<script src="javascript/treestuff.js"></script>
@@ -51,12 +51,12 @@
         */
         treestuff.initializeCrossfilter();
 
-        var row;
+        var row = d3.select("body").append("div").attr("class", "treePanels");
         //read each input file and draw the tree in its own div
         for (i = 0; i < inputFiles.length; i++) {
-            if (i % 2 === 0) {
-                row = d3.select("body").append("div").attr("class", "row");
-            }
+            // if (i % 2 === 0) {
+            //     row = d3.select("body").append("div").attr("class", "row");
+            // }
             var treePanel = new treestuff.TreePanel;
             treePanel.placePanel(row);
             treePanel.initializePanelData(inputFiles[i]);

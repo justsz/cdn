@@ -2,6 +2,7 @@
     "use strict";
     treestuff.TreePanel = function() {
         var panelID,
+            finishedLoading = false,
             cluster,
             div,
             controlPanel,
@@ -356,6 +357,9 @@
         return {
             panelType : "treePanel",
 
+
+            finishedLoading : function() {return finishedLoading; },
+
             
             maxHeight : function() {return maxHeight; },
 
@@ -372,7 +376,7 @@
                 
                 var outerDiv = targ
                                  .append("div")
-                                 .attr("class", "span1")
+                                 //.attr("class", "span1")
                                  .style("min-height", "20px")
                                  .style("min-width", "100px")
                                  .style("display", "inline-block");
@@ -463,7 +467,7 @@
                     //marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
                     svg.attr("width", width + marginForLabels);
                     div.style("width", (width + marginForLabels + 15) + "px")
-                       .style("height", (height + 15) + "px");
+                       .style("height", (height + 2 * verticalPadding) + "px");
                     
                     minHeight = d3.min(leafHeights);
                     maxHeight = json.root.height;
@@ -653,6 +657,7 @@
                                  });
 
                     treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
+                    finishedLoading = true;
                 }); 
             },
 

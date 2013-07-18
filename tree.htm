@@ -17,6 +17,7 @@
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
         <script src="javascript/traitPanel.js"></script>
+        <script src="javascript/legendPanel.js"></script>
     	<script src="javascript/crossfilter.min.js"></script>
 	</head>
 <body>
@@ -43,6 +44,10 @@
         traitPanel.placePanel();
         treestuff.panels.push(traitPanel);
 
+        /*var legendPanel = new treestuff.LegendPanel;
+        legendPanel.placePanel();
+        treestuff.panels.push(legendPanel);
+*/
         treestuff.addGlobalTimeAxis();
         /*
         var tablePanel = new treestuff.TablePanel;

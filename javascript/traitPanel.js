@@ -50,6 +50,14 @@
                                        treestuff.callUpdate("traitSelectionUpdate");
                                     });
 
+            rowEnter.append("rect")
+                    .attr("class", "traitRowBackground")
+                    .attr("y", -legendSize)
+                    .attr("height", legendSize)
+                    .attr("width", "100%")
+                    .style("fill", "blue")
+                    .style("fill-opacity", 0);
+
             rowEnter.append("text")
                     .attr("dy", -1)
                     .text(function(d) {return d; });
@@ -67,7 +75,7 @@
                                             var out = [];
                                             for (var i = 0; i < names.length; i += 1) {
                                                 out.push({name : names[i],
-                                                          color : "hsl(" + (i * Math.floor(360 / traits[d].length)) + ",100%,50%)",
+                                                          color : "hsl(" + (i * Math.floor(360 / names.length)) + ",100%,50%)",
                                                           selected : true});
                                             }
                                             return out;
@@ -78,6 +86,7 @@
                                         .append("g")
                                         .attr("class", "traitValue")
                                         .on("click", function(d) {
+                                            //console.log(d);
                                             d.selected = !d.selected;
                                             //need to update colors here because calling drawPanel would rebind the data.
                                             svg.selectAll(".traitValue").select("rect").style("fill", function(d) {
@@ -140,17 +149,11 @@
                 div.style("overflow-y", null);
             }
 
-            rowEnter.append("rect")
-                    .attr("class", "traitRowBackground")
-                    .attr("y", -legendSize)
-                    .attr("height", legendSize)
-                    .attr("width", "100%")
-                    .style("fill", "blue")
-                    .style("fill-opacity", 0);
+
         };
 
 
-        var traitPanel = {
+        var panel = {
             panelType : "traitPanel",
 
 
@@ -193,7 +196,7 @@
             }
         };
 
-        return traitPanel;
+        return panel;
     }
 
 })();

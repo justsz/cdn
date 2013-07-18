@@ -593,7 +593,7 @@
                     //add data to traitPanel
                     for (i = 0; i < treestuff.panels.length; i += 1) {
                         //lookup the trait panel
-                        if (treestuff.panels[i].panelType === "traitPanel") {
+                        if (treestuff.panels[i].panelType === "traitPanel" || treestuff.panels[i].panelType === "legendPanel") {
                             for (prop in json) {
                                 if (json.hasOwnProperty(prop)) {
                                     var match = propRegex.exec(prop);

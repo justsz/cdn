@@ -7,6 +7,8 @@
 		<title>Treestuff</title>
         <!-- <link rel="stylesheet" href="css/bootstrap-responsive.css"> -->
 		<link rel="stylesheet" type="text/css" href="css/treeStyles.css">
+        <link rel="stylesheet" type="text/css" href="css/mapStyles.css">
+        <link rel="stylesheet" type="text/css" href="css/leaflet.css" />
         <!-- <link rel="stylesheet" media="screen" href="css/bootstrap.css"> -->
         <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
 		<!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
@@ -19,13 +21,58 @@
         <script src="javascript/traitPanel.js"></script>
         <script src="javascript/legendPanel.js"></script>
     	<script src="javascript/crossfilter.min.js"></script>
+        <script src="javascript/leaflet.js"></script>
 	</head>
 <body>
 <script src="javascript/bootstrap.js"></script>
+<div id="map" style="height: 300px"></div>
 
 
 <script>
     (function() {
+        var map = new L.Map("map", {
+          center: [37.8, -96.9],
+          zoom: 4
+        })
+        .addLayer(new L.TileLayer("http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png"));
+
+        var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+            g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+        d3.json("data/china-province.geojson", function(collection) {
+          var bounds = d3.geo.bounds(collection),
+              path = d3.geo.path().projection(project);
+
+          var feature = g.selectAll("path")
+              .data(collection.features)
+            .enter().append("path");
+
+          map.on("viewreset", reset);
+          reset();
+
+          // Reposition the SVG to cover the features.
+          function reset() {
+            var bottomLeft = project(bounds[0]),
+                topRight = project(bounds[1]);
+
+            svg .attr("width", topRight[0] - bottomLeft[0])
+                .attr("height", bottomLeft[1] - topRight[1])
+                .style("margin-left", bottomLeft[0] + "px")
+                .style("margin-top", topRight[1] + "px");
+
+            g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
+
+            feature.attr("d", path);
+          }
+
+          // Use Leaflet to implement a D3 geographic projection.
+          function project(x) {
+            var point = map.latLngToLayerPoint(new L.LatLng(x[1], x[0]));
+            return [point.x, point.y];
+          }
+        });
+
+
         var i,
 //            inputFiles = ["data/tree1.json", "data/tree2.json"];
             inputFiles = ["data/H9N2 Trees/H9N2.MP.json",
@@ -40,14 +87,15 @@
         //treestuff.addTraitBox();
         treestuff.addGlobalZoomButton();
 
-        var traitPanel = new treestuff.TraitPanel;
+        /*var traitPanel = new treestuff.TraitPanel;
         traitPanel.placePanel();
         treestuff.panels.push(traitPanel);
+        */
 
-        /*var legendPanel = new treestuff.LegendPanel;
+        var legendPanel = new treestuff.LegendPanel;
         legendPanel.placePanel();
         treestuff.panels.push(legendPanel);
-*/
+
         treestuff.addGlobalTimeAxis();
         /*
         var tablePanel = new treestuff.TablePanel;

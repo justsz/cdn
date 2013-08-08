@@ -55,6 +55,8 @@
                 map.getPanes().overlayPane.appendChild(this._el);
 
                 this.svg = d3.select(this._el).append("svg");
+
+                this.svg.on("mousedown", function() {event.preventDefault(); });
                 this.g = this.svg.append("g");//.attr("class", "leaflet-zoom-hide");
 
                 d3.json("data/china.geojson", function(collection) {
@@ -130,6 +132,7 @@
                 map.getPanes().overlayPane.appendChild(this._el);
 
                 this.svg = d3.select(this._el).append("svg");
+                this.svg.on("mousedown", function() {event.preventDefault(); });
                 this.g = this.svg.append("g");//.attr("class", "leaflet-zoom-hide");
 
                 d3.json("data/china.geojson", function(collection) {

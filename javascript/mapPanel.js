@@ -212,20 +212,12 @@
 
             tree: "",
 
-            initialize: function (tree) {
-                // save position of the layer or any options from the constructor
-                //this._latlng = latLng;
-
-
-            },
-
-            onAdd: function (map) {
+            initialize: function (map, tree) {
                 var that = this;
                 this._map = map;
 
                 // create a DOM element and put it into one of the map panes
                 this._el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');
-                map.getPanes().overlayPane.appendChild(this._el);
 
                 this.svg = d3.select(this._el).append("svg");
                 this.svg.on("mousedown", function() {event.preventDefault(); });
@@ -249,11 +241,14 @@
                                   .data(circleCoords)
                                   .enter().append("circle").attr("r", 5);
 
-                // add a viewreset event listener for updating layer's position, do the latter
-                    map.on('viewreset', that._reset, that);
-                    that._reset();
+                
                 };
 
+            },
+
+            onAdd: function (map) {
+                map.getPanes().overlayPane.appendChild(this._el);
+                map.on('viewreset', that._reset, that);
             },
 
             onRemove: function (map) {

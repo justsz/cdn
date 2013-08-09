@@ -657,6 +657,13 @@
                                  });
 
                     treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
+
+                    for (i = 0; i < treestuff.panels.length; i++) {
+                        if (treestuff.panels[i].panelType === "mapPanel") {
+                            treestuff.panels[i].drawTree(json);
+                        }
+                    }
+
                     finishedLoading = true;
                 }); 
             },

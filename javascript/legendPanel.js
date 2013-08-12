@@ -154,6 +154,10 @@
                 if (dirty) {
                    drawPanel("location");
                 }
+            },
+
+            getTraits : function() {
+                return traits;
             }
         };
 

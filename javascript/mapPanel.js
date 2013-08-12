@@ -13,7 +13,15 @@
             overlayLayers,
             mapData = null,
             centroids = {},
-            centroidsLoaded = false;
+            centroidsLoaded = false,
+            dataFile = "data/reducedGeography.json";
+
+        function abs(v) {
+            if (v < 0) {
+                v = -v;
+            }
+            return v;
+        }
 
         provinceLayer = L.Class.extend({
             svg: "",
@@ -40,7 +48,7 @@
                 this.g = this.svg.append("g");//.attr("class", "leaflet-zoom-hide");
 
                 if (!mapData) {
-                    d3.json("data/china.geojson", function(collection) {
+                    d3.json(dataFile, function(collection) {
                         mapData = collection;
                         processData(collection);
                         that._reset();
@@ -80,8 +88,8 @@
                 var bottomLeft = this._project(this.bounds[0]),
                 topRight = this._project(this.bounds[1]);
 
-                this.svg .attr("width", topRight[0] - bottomLeft[0])
-                    .attr("height", bottomLeft[1] - topRight[1])
+                this.svg .attr("width", Math.abs(topRight[0] - bottomLeft[0]))
+                    .attr("height", Math.abs(bottomLeft[1] - topRight[1]))
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
@@ -121,7 +129,7 @@
                 this.g = this.svg.append("g");//.attr("class", "leaflet-zoom-hide");
 
                 if (!mapData) {
-                    d3.json("data/china.geojson", function(collection) {
+                    d3.json(dataFile, function(collection) {
                         mapData = collection;
                         processData(collection);
                         that._reset();
@@ -141,7 +149,7 @@
                             var centroid = that.path.centroid(dat.features[i]);
                             if (centroid) {
                                 centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
-                                centroids[dat.features[i].properties.Administra] = centroid;
+                                centroids[dat.features[i].properties.name] = centroid;
                             }
                         }
                         centroidsLoaded = true;
@@ -182,8 +190,8 @@
                 var bottomLeft = this._project(this.bounds[0]),
                 topRight = this._project(this.bounds[1]);
 
-                this.svg .attr("width", topRight[0] - bottomLeft[0])
-                    .attr("height", bottomLeft[1] - topRight[1])
+                this.svg .attr("width", Math.abs(topRight[0] - bottomLeft[0]))
+                    .attr("height", Math.abs(bottomLeft[1] - topRight[1]))
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
@@ -301,7 +309,7 @@
 
             initializePanelData: function() {
                 tileLayer = new L.TileLayer("http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png");
-                provLayer = new provinceLayer(map);
+                provLayer = new provinceLayer(map)
                 centroidLayer = new centroidLayer(map);
 
                 baseLayers = {"Tiles": tileLayer};
@@ -309,14 +317,14 @@
                                      "Centroids": centroidLayer};
 
                 map.addLayer(tileLayer)
-                   .addLayer(provLayer)
-                   .addLayer(centroidLayer);
+                   .addLayer(centroidLayer)
+                   .addLayer(provLayer);
 
                 L.control.layers(null, overlayLayers).addTo(map);
             },
 
             drawTree: function(tree) {
-                centroidLayer._drawTree(root);
+                //centroidLayer._drawTree(root);
             }
         };
 

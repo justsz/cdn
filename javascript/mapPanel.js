@@ -45,7 +45,7 @@
                 this.svg = d3.select(this._el).append("svg");
 
                 this.svg.on("mousedown", function() {event.preventDefault(); });
-                this.g = this.svg.append("g");//.attr("class", "leaflet-zoom-hide");
+                this.g = this.svg.append("g");
 
                 if (!mapData) {
                     d3.json(dataFile, function(collection) {
@@ -60,6 +60,12 @@
 
                 function processData(dat) {
                     that.bounds = d3.geo.bounds(dat);
+                    //TODO: add this check for latitude as well if needed
+                    if (that.bounds[1][0] < that.bounds[0][0]) { //if true, the area has crossed the antimeridian
+                        //set the bounds to span the entire map
+                        that.bounds[0][0] = -180;
+                        that.bounds[1][0] = 180;
+                    }
                     that.path = d3.geo.path().projection(that._project);
 
                     that.feature = that.g.selectAll("path")
@@ -81,12 +87,9 @@
             },
 
             _reset: function () {
-                // update layer's position
-                //var pos = this._map.latLngToLayerPoint(this._latlng);
-                //L.DomUtil.setPosition(this._el, pos);
-
                 var bottomLeft = this._project(this.bounds[0]),
                 topRight = this._project(this.bounds[1]);
+
 
                 this.svg .attr("width", Math.abs(topRight[0] - bottomLeft[0]))
                     .attr("height", Math.abs(bottomLeft[1] - topRight[1]))
@@ -96,7 +99,6 @@
                 this.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
                 this.feature.attr("d", this.path);
-
             },
 
             _project: function(x) {
@@ -208,6 +210,10 @@
             },
         });
 
+        function approx(a, b, p) {
+            return a > (b - p) || a < (b + p);
+        }
+
 
         treeLayer = L.Class.extend({
             svg: "",
@@ -267,9 +273,6 @@
 
             _reset: function () {
                 var that = this;
-                // update layer's position
-                //var pos = this._map.latLngToLayerPoint(this._latlng);
-                //L.DomUtil.setPosition(this._el, pos);
 
                 var bottomLeft = this._project(this.bounds[0]),
                 topRight = this._project(this.bounds[1]);
@@ -302,8 +305,8 @@
 
             placePanel: function(target) {
                 map = new L.Map(target, {
-                    center: [33.966142, 103.710938],
-                    zoom: 4
+                    center: [34, 104],
+                    zoom: 2,
                 });
             },
 
@@ -325,6 +328,10 @@
 
             drawTree: function(tree) {
                 //centroidLayer._drawTree(root);
+            },
+
+            getMap: function() {
+                return map;
             }
         };
 

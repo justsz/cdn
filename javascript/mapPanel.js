@@ -307,11 +307,14 @@
                 map = new L.Map(target, {
                     center: [34, 104],
                     zoom: 2,
+                    maxBounds: [[-90, -180], [90, 180]]
                 });
             },
 
             initializePanelData: function() {
-                tileLayer = new L.TileLayer("http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png");
+                tileLayer = new L.TileLayer("http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png", {
+                                 noWrap: true
+                             });
                 provLayer = new provinceLayer(map)
                 centroidLayer = new centroidLayer(map);
 

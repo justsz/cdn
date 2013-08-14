@@ -70,7 +70,16 @@
 
                     that.feature = that.g.selectAll("path")
                                     .data(dat.features)
-                                    .enter().append("path");                    
+                                    .enter().append("path")
+                                    .on("click", function(d) {
+                                        //find names via crossfilter
+                                        treestuff.selectedLeaves = 
+                                        treestuff.locDim.filter(d.properties.name).top(Infinity);
+                                        treestuff.callUpdate("leafSelectionUpdate");
+                                        //if no taxa are in this location, the clicked province won't highlight 
+                                        //from the selection update so highlight manually
+                                        d3.select(this).classed("highlighted", true);
+                                    });                    
                 }
             },
 
@@ -306,7 +315,7 @@
             placePanel: function(target) {
                 map = new L.Map(target, {
                     center: [34, 104],
-                    zoom: 2,
+                    zoom: 4,
                     maxBounds: [[-90, -180], [90, 180]]
                 });
             },
@@ -347,8 +356,14 @@
                     }
                 }
 
+                /*selectedRegions = treestuff.locDim
+                                           .filterFunction(function(d) {return d === })
+                                           .top(Infinity);*/
+
                 provLayer.feature.classed("highlighted", function(d) {
                     return treestuff.contains(selectedRegions, d.properties.name);
+                    //return treestuff.accContains(selectedRegions, d.properties,
+                    //       function(x) {return x.location}, function(x) {return x.name});
                 });
             }
         };

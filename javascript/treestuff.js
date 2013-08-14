@@ -135,6 +135,7 @@ treestuff = (function() {
         }
         
         treestuff.selectedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
+        console.log(treestuff.selectedLeaves);
         treestuff.callUpdate("timeSelectionUpdate");
         treestuff.callUpdate("leafSelectionUpdate");
     };
@@ -244,7 +245,8 @@ treestuff = (function() {
     treestuff.initializeCrossfilter = function() {
         treestuff.taxa = crossfilter();
         treestuff.nameDim = treestuff.taxa.dimension(function(d) {return d.name; });
-        treestuff.dateDim = treestuff.taxa.dimension(function(d) { return d.date; });
+        treestuff.dateDim = treestuff.taxa.dimension(function(d) {return d.date; });
+        treestuff.locDim = treestuff.taxa.dimension(function(d) {return d.location; });
     };
 
 
@@ -262,6 +264,17 @@ treestuff = (function() {
         var i;
         for (i = 0; i < a.length; i += 1) {
             if (a[i] === obj) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+
+    treestuff.accContains = function(a, obj, aAcc, objAcc) {
+        var i;
+        for (i = 0; i < a.length; i += 1) {
+            if (aAcc(a[i]) === objAcc(obj)) {
                 return true;
             }
         }
@@ -287,11 +300,11 @@ treestuff = (function() {
     Iterates through all registered panels and attempts
     to call the specified update type.
     */
-    treestuff.callUpdate = function(type) {
+    treestuff.callUpdate = function(updateType) {
         var i;
         for (i = 0; i < treestuff.panels.length; i += 1) {
-            if (treestuff.panels[i].hasOwnProperty(type)) {
-                treestuff.panels[i][type](arguments); //pass arguments given to this function to the update function
+            if (treestuff.panels[i].hasOwnProperty(updateType)) {
+                treestuff.panels[i][updateType](arguments); //pass arguments given to this function to the update function
             }
         }
     };

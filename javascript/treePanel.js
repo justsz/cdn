@@ -354,7 +354,7 @@
     
         
         //return public methods and variables
-        return {
+        var panel = {
             panelType : "treePanel",
 
 
@@ -586,7 +586,9 @@
                         //tips with the same name should contain the same data
                         if (!treestuff.globalData.hasOwnProperty(d.name)) {
                             treestuff.globalData[d.name] = {"height" : d.height};
-                            treestuff.taxa.add([{"name": d.name, "date": treestuff.nodeHeightToDate(d.height, timeOrigin)}]);
+                            treestuff.taxa.add([{"name": d.name,
+                                                 "date": treestuff.nodeHeightToDate(d.height, timeOrigin),
+                                                 "location": d.location}]);
                         }
                     });
 
@@ -772,8 +774,12 @@
                         div[0][0].scrollTop = yScale(nodeSelection.datum().x) - height / 2;
                     }
                 }
-            }
+            },
+
+
         } //end returnable object
+
+        return panel;
     }; //end object closure
 
 })();

@@ -11,17 +11,11 @@
             treeLayer,
             baseLayers,
             overlayLayers,
+            layerControl,
             mapData = null,
-            centroids = {},
+            centroids = {"Tibet": [87, 31.7], "HongKong": [114, 22]},
             centroidsLoaded = false,
             dataFile = "data/reducedGeography.json";
-
-        function abs(v) {
-            if (v < 0) {
-                v = -v;
-            }
-            return v;
-        }
 
         provinceLayer = L.Class.extend({
             svg: "",
@@ -117,6 +111,11 @@
         });
 
 
+
+
+
+
+
         centroidLayer = L.Class.extend({
             svg: "",
 
@@ -133,7 +132,7 @@
                 this._map = map;
 
                 // create a DOM element and put it into one of the map panes
-                this._el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');      //<<could replace this (And similar) with a D3 method for consistency
+                this._el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');  //<<could replace this (And similar) with a D3 method for consistency
 
                 this.svg = d3.select(this._el).append("svg");
                 this.svg.on("mousedown", function() {event.preventDefault(); });
@@ -160,7 +159,7 @@
                             var centroid = that.path.centroid(dat.features[i]);
                             if (centroid) {
                                 centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
-                                centroids[dat.features[i].properties.name] = centroid;
+                                centroids[dat.features[i].properties.name] = [centroid.lng, centroid.lat];
                             }
                         }
                         centroidsLoaded = true;
@@ -169,9 +168,10 @@
                     circleCoords = [];
                     for (c in centroids) {
                         if (centroids.hasOwnProperty(c)) {
-                            circleCoords.push({center : [centroids[c].lng, centroids[c].lat]});
+                            circleCoords.push({center : [centroids[c][0], centroids[c][1]]});
                         }
                     }
+
 
                     that.circle = that.g.selectAll("circle")
                                       .data(circleCoords)
@@ -207,7 +207,6 @@
                     .style("margin-top", topRight[1] + "px");
 
                 this.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
-
                 this.circle.attr("cx", function(d) {return that._project(d.center)[0]; })
                     .attr("cy", function(d) {return that._project(d.center)[1]; });
 
@@ -222,6 +221,11 @@
         function approx(a, b, p) {
             return a > (b - p) || a < (b + p);
         }
+
+
+
+
+
 
 
         treeLayer = L.Class.extend({
@@ -240,38 +244,27 @@
                 this._map = map;
 
                 // create a DOM element and put it into one of the map panes
-                this._el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');
+                this._el = L.DomUtil.create('div', 'treeLayer leaflet-zoom-hide');
 
                 this.svg = d3.select(this._el).append("svg");
                 this.svg.on("mousedown", function() {event.preventDefault(); });
                 this.g = this.svg.append("g");
 
-                function processData(dat) {
-                    that.bounds = d3.geo.bounds(dat);
-                    that.path = d3.geo.path().projection(that._project);
+                that.bounds = [[-180, -90], [180, 90]];
 
-                   circleCoords = [];    
-                   for (var i = 0; i < dat.features.length; i++) {
-                       var centroid = that.path.centroid(dat.features[i]);
-                       if (centroid) {
-                           centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
-                           centroids[dat.features[i].properties.Administra] = centroid;
-                           circleCoords.push({center : [centroid.lng, centroid.lat]});
-                       }
-                   }
+                if (centroidsLoaded) {
+                    that._drawTree(tree);
+                    that._reset();
+                } else {
+                    console.log("centroids not loaded D:");
+                }
 
-                    that.circle = that.g.selectAll("circle")
-                                  .data(circleCoords)
-                                  .enter().append("circle").attr("r", 5);
-
-                
-                };
 
             },
 
             onAdd: function (map) {
                 map.getPanes().overlayPane.appendChild(this._el);
-                map.on('viewreset', that._reset, that);
+                map.on('viewreset', this._reset, this);
             },
 
             onRemove: function (map) {
@@ -293,18 +286,42 @@
 
                 this.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
-                this.circle.attr("cx", function(d) {return that._project(d.center)[0]; })
-                    .attr("cy", function(d) {return that._project(d.center)[1]; });
+                this.g.selectAll("line")
+                   .attr("x1", function(d) {return that._project(d.start)[0]})
+                   .attr("y1", function(d) {return that._project(d.start)[1]})
+                   .attr("x2", function(d) {return that._project(d.end)[0]})
+                   .attr("y2", function(d) {return that._project(d.end)[1]})
+                   .style("stroke", 1);
+
 
             },
 
             _project: function(x) {
-                var point = map.latLngToLayerPoint(new L.LatLng(x[1], x[0]));
+                var point = map.latLngToLayerPoint([x[1], x[0]]);
                 return [point.x, point.y];
             },
 
-            _drawTree: function(tee) {
-                console.log(root);
+            _drawTree: function(node) {
+                //centroids {name: centerPoint}
+                if (node.children) {
+                    for (var i = 0; i < node.children.length; i += 1) {
+                        var child = node.children[i];
+
+                        if (centroids[node.location] && centroids[child.location]) {
+                            //var lineEnds = [this._project(centroids[node.location]),
+                            //                this._project(centroids[child.location])];
+                            var lineEnds = {"start": centroids[node.location], "end": centroids[child.location]};
+                            if (lineEnds.start !== lineEnds.end) {
+                                this.g.append("line").datum(lineEnds); //draw only lines that go somewhere
+                            }
+                            
+                        } else {
+                            console.log("didn't find location on map: " + child.location + " or " + node.location);
+                        }
+
+                        this._drawTree(child);
+                    } 
+                }
             }
         });
 
@@ -335,11 +352,14 @@
                    .addLayer(centroidLayer)
                    .addLayer(provLayer);
 
-                L.control.layers(null, overlayLayers).addTo(map);
+                layerControl = L.control.layers(null, overlayLayers).addTo(map);
             },
 
             drawTree: function(tree) {
-                //centroidLayer._drawTree(root);
+                var trLayer = new treeLayer(map, tree["root"]);
+                overlayLayers[tree.name] = trLayer;
+                layerControl.addOverlay(trLayer, tree.name);
+                map.addLayer(trLayer);
             },
 
             getMap: function() {
@@ -356,14 +376,8 @@
                     }
                 }
 
-                /*selectedRegions = treestuff.locDim
-                                           .filterFunction(function(d) {return d === })
-                                           .top(Infinity);*/
-
                 provLayer.feature.classed("highlighted", function(d) {
                     return treestuff.contains(selectedRegions, d.properties.name);
-                    //return treestuff.accContains(selectedRegions, d.properties,
-                    //       function(x) {return x.location}, function(x) {return x.name});
                 });
             }
         };

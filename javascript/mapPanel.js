@@ -335,6 +335,21 @@
 
             getMap: function() {
                 return map;
+            },
+
+            leafSelectionUpdate: function() {
+                var selectedRegions = [],
+                    i;
+
+                for (i = 0; i < treestuff.selectedLeaves.length; i += 1) {
+                    if (!treestuff.contains(selectedRegions, treestuff.selectedLeaves[i].location)) {
+                        selectedRegions.push(treestuff.selectedLeaves[i].location);
+                    }
+                }
+
+                provLayer.feature.classed("highlighted", function(d) {
+                    return treestuff.contains(selectedRegions, d.properties.name);
+                });
             }
         };
 

@@ -12,24 +12,28 @@
         <!-- <link rel="stylesheet" media="screen" href="css/bootstrap.css"> -->
         <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
 		<!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
+        <script src="javascript/jquery-2.0.2.js"></script>
+        <script src="javascript/bootstrap.js"></script>
 		<script src="javascript/d3.v3.min.js"></script>
+        <script src="javascript/crossfilter.min.js"></script>
+        <script src="javascript/leaflet.js"></script>
 		<script src="javascript/treestuff.js"></script>
-		<script src="javascript/jquery-2.0.2.js"></script>
+
     	<script src="javascript/circlePanel.js"></script>
         <script src="javascript/mapPanel.js"></script>
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
         <script src="javascript/traitPanel.js"></script>
         <script src="javascript/legendPanel.js"></script>
-    	<script src="javascript/crossfilter.min.js"></script>
-        <script src="javascript/leaflet.js"></script>
+
 	</head>
 <body>
-<script src="javascript/bootstrap.js"></script>
+
 <div id="map"></div>
 
 
 <script>
+    //script wrapped in a function to avoid polluting namespace
     (function() {
         var mapPanel = new treestuff.MapPanel;
         mapPanel.placePanel("map");
@@ -51,14 +55,14 @@
         //treestuff.addTraitBox();
         treestuff.addGlobalZoomButton();
 
-        /*var traitPanel = new treestuff.TraitPanel;
+        var traitPanel = new treestuff.TraitPanel;
         traitPanel.placePanel();
         treestuff.panels.push(traitPanel);
-        */
+        
 
-        var legendPanel = new treestuff.LegendPanel;
+        /*var legendPanel = new treestuff.LegendPanel;
         legendPanel.placePanel();
-        treestuff.panels.push(legendPanel);
+        treestuff.panels.push(legendPanel);*/
 
         treestuff.addGlobalTimeAxis();
         /*
@@ -79,15 +83,6 @@
             treePanel.initializePanelData(inputFiles[i]);
             treestuff.panels.push(treePanel);
         }
-/*
-        var circlePanel = new treestuff.CirclePanel;
-        circlePanel.placePanel();
-        treestuff.panels.push(circlePanel);
-*/        
-
-
-        
-
 	})();
 </script>
 

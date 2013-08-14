@@ -291,7 +291,7 @@ treestuff = (function() {
         var i;
         for (i = 0; i < treestuff.panels.length; i += 1) {
             if (treestuff.panels[i].hasOwnProperty(type)) {
-                treestuff.panels[i][type](arguments); //pass any additional arguments to the update function
+                treestuff.panels[i][type](arguments); //pass arguments given to this function to the update function
             }
         }
     };

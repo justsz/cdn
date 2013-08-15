@@ -333,7 +333,16 @@
         });
 
 
-
+function when(test, callback) {
+    var interval = 10; // ms
+    window.setTimeout(function() {
+        if (test()) {
+            callback();
+        } else {
+            window.setTimeout(arguments.callee, interval);
+        }
+    }, interval);
+}
 
 
         forceLayer = L.Class.extend({
@@ -378,6 +387,10 @@
 
                 that.bounds = [[-180, -90], [180, 90]];
 
+
+
+                var clbk = function() {
+
                 if (centroidsLoaded) {
                     //that._drawTree(tree);
                     for (c in centroids) {
@@ -392,22 +405,22 @@
                 console.log("foci length: " + that.foci.length);
 
 
-                var sizing = this._reset; //set svg's size and return the size
+                var sizing = that._reset; //set svg's size and return the size
                     //fill = d3.scale.category10(),
-                this.nodes = [];
+                that.nodes = [];
 
                 // var vis = d3.select("body").append("svg:svg")
                 //     .attr("width", w)
                 //     .attr("height", h);
 
-                this.force = d3.layout.force()
-                    .nodes(this.nodes)
+                that.force = d3.layout.force()
+                    .nodes(that.nodes)
                     .links([])
                     .gravity(0)
                     .size(sizing)
                     .charge(-1);
 
-                this.force.on("tick", function(e) {
+                that.force.on("tick", function(e) {
                   // Push nodes toward their designated focus.
                   var k = .1 * e.alpha;
                   that.nodes.forEach(function(o, i) {
@@ -456,6 +469,9 @@
                       .call(that.force.drag);
                 }, 3000);
 
+                }; //end of clbk function
+
+                when(function() {return centroidsLoaded;}, clbk);
 
 
             },

@@ -663,6 +663,7 @@
                     for (i = 0; i < treestuff.panels.length; i++) {
                         if (treestuff.panels[i].panelType === "mapPanel") {
                             treestuff.panels[i].drawTree(json);
+                            treestuff.panels[i].drawForce(json, panelID);
                         }
                     }
 

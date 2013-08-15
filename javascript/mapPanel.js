@@ -10,6 +10,7 @@
             centroidLayer,
             treeLayer,
             baseLayers,
+            //forceLayer,
             overlayLayers,
             layerControl,
             mapData = null,
@@ -176,7 +177,7 @@
 
                     that.circle = that.g.selectAll("circle")
                                       .data(circleCoords)
-                                      .enter().append("circle").attr("r", 5);
+                                      .enter().append("circle");
                 };
             },
 
@@ -207,9 +208,13 @@
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
+                var radius = 1 * map.getZoom();
+
                 this.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
-                this.circle.attr("cx", function(d) {return that._project(d.center)[0]; })
-                    .attr("cy", function(d) {return that._project(d.center)[1]; });
+                this.circle
+                    .attr("cx", function(d) {return that._project(d.center)[0]; })
+                    .attr("cy", function(d) {return that._project(d.center)[1]; })
+                    .attr("r", radius);
 
             },
 
@@ -266,6 +271,7 @@
             onAdd: function (map) {
                 map.getPanes().overlayPane.appendChild(this._el);
                 map.on('viewreset', this._reset, this);
+                //this._reset();
             },
 
             onRemove: function (map) {
@@ -327,6 +333,201 @@
         });
 
 
+
+
+
+        forceLayer = L.Class.extend({
+            svg: "",
+
+            g: "",
+
+            bounds: "",
+
+            path: "",
+
+            tree: "",
+
+            force: "",
+
+            node: "",
+
+            foci: "",
+
+            currNodes: "",
+
+            fill: d3.scale.category10(),
+
+            color: "",
+
+            initialize: function (map, tree, color) {
+                console.log(tree);
+                var that = this;
+                this._map = map;
+                this.tree = tree;
+                this.currNodes = [[tree, tree.location]];
+                this.color = color;
+                this.foci = [];
+                
+
+                // create a DOM element and put it into one of the map panes
+                this._el = L.DomUtil.create('div', 'treeLayer leaflet-zoom-hide');
+
+                this.svg = d3.select(this._el).append("svg");
+                this.svg.on("mousedown", function() {event.preventDefault(); });
+                this.g = this.svg.append("g");
+
+                that.bounds = [[-180, -90], [180, 90]];
+
+                if (centroidsLoaded) {
+                    //that._drawTree(tree);
+                    for (c in centroids) {
+                        if (centroids.hasOwnProperty(c)) {
+                            that.foci.push({name: c, x: that._project(centroids[c])[0], y: that._project(centroids[c])[1]});
+                        }
+                    }
+                    that._reset();
+                } else {
+                    console.log("centroids not loaded D:");
+                }
+                console.log("foci length: " + that.foci.length);
+
+
+                var sizing = this._reset; //set svg's size and return the size
+                    //fill = d3.scale.category10(),
+                this.nodes = [];
+
+                // var vis = d3.select("body").append("svg:svg")
+                //     .attr("width", w)
+                //     .attr("height", h);
+
+                this.force = d3.layout.force()
+                    .nodes(this.nodes)
+                    .links([])
+                    .gravity(0)
+                    .size(sizing)
+                    .charge(-1);
+
+                this.force.on("tick", function(e) {
+                  // Push nodes toward their designated focus.
+                  var k = .1 * e.alpha;
+                  that.nodes.forEach(function(o, i) {
+                    o.y += (that.foci[o.id].y - o.y) * k;
+                    o.x += (that.foci[o.id].x - o.x) * k;
+                  });
+
+                  that.g.selectAll("circle.virusParticle")
+                      .attr("cx", function(d) { return d.x; })
+                      .attr("cy", function(d) { return d.y; });
+                });
+
+                setInterval(function() {
+                    var newNodes = [];
+                  for (var i = 0; i < that.currNodes.length; i += 1) {
+                    var nd = that.currNodes[i];
+                    if (nd[0].children) {
+                        for (var a = 0; a < nd[0].children.length; a += 1) {
+                            newNodes.push([nd[0].children[a], nd[0].location]);
+                        }
+                    }
+                    for (var e = 0; e < that.foci.length; e += 1) {
+                        if (that.foci[e].name === nd[0].location) {//find the location to where the particle needs to go
+                            var initLoc = that._project(centroids[nd[1]]);
+                            that.nodes.push({id: e, x: initLoc[0], y: initLoc[1]}); //id is which focus the node will go to        centroids(that.currNodes[i].parent)
+                            break;
+                        }
+                    }
+                    
+                  }
+                  console.log("number of virus particles added: " + newNodes.length);
+                  that.currNodes = newNodes;  
+
+                  that.force.start();
+
+                  that.g.selectAll("circle.virusParticle")
+                      .data(that.nodes)
+                    .enter().append("svg:circle")
+                      .attr("class", "virusParticle")
+                      .attr("cx", function(d) { return d.x; })
+                      .attr("cy", function(d) { return d.y; })
+                      .attr("r", map.getZoom())
+                      .style("fill", that.fill(that.color)) //fill(d.id);
+                      .style("stroke", 1)//function(d) { return d3.rgb(fill(d.id)).darker(2); })
+                      //.style("stroke-width", 1.5)
+                      .call(that.force.drag);
+                }, 3000);
+
+
+
+            },
+
+            onAdd: function (map) {
+                map.getPanes().overlayPane.appendChild(this._el);
+                map.on('viewreset', this._reset, this);
+            },
+
+            onRemove: function (map) {
+                // remove layer's DOM elements and listeners
+                map.getPanes().overlayPane.removeChild(this._el);
+                map.off('viewreset', this._reset, this);
+            },
+
+            _reset: function () {
+                var that = this,
+                    w,
+                    h;
+
+                var bottomLeft = this._project(this.bounds[0]),
+                topRight = this._project(this.bounds[1]);
+
+                w = topRight[0] - bottomLeft[0];
+                h = bottomLeft[1] - topRight[1];
+
+                this.svg .attr("width", w)
+                    .attr("height", h)
+                    .style("margin-left", bottomLeft[0] + "px")
+                    .style("margin-top", topRight[1] + "px");
+
+                this.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
+
+                
+                return [w, h];
+            },
+
+            _project: function(x) {
+                var point = map.latLngToLayerPoint([x[1], x[0]]);
+                return [point.x, point.y];
+            },
+
+            _drawTree: function(node) {
+                //centroids {name: centerPoint}
+                if (node.children) {
+                    for (var i = 0; i < node.children.length; i += 1) {
+                        var child = node.children[i];
+
+                        if (centroids[node.location] && centroids[child.location]) {
+                            //var lineEnds = [this._project(centroids[node.location]),
+                            //                this._project(centroids[child.location])];
+                            var lineEnds = {"start": centroids[node.location], "end": centroids[child.location]};
+                            if (lineEnds.start !== lineEnds.end) {
+                                this.g.append("line").datum(lineEnds); //draw only lines that go somewhere
+                            }
+                            
+                        } else {
+                            console.log("didn't find location on map: " + child.location + " or " + node.location);
+                        }
+
+                        this._drawTree(child);
+                    } 
+                }
+            }
+        });
+
+
+
+
+
+        var 
+
         panel = {
             panelType: "mapPanel",
 
@@ -345,6 +546,7 @@
                 provLayer = new provinceLayer(map)
                 centroidLayer = new centroidLayer(map);
 
+
                 baseLayers = {"Tiles": tileLayer};
                 overlayLayers = {"Provinces": provLayer,
                                      "Centroids": centroidLayer};
@@ -357,10 +559,17 @@
             },
 
             drawTree: function(tree) {
-                var trLayer = new treeLayer(map, tree["root"]);
+                /*var trLayer = new treeLayer(map, tree["root"]);
                 overlayLayers[tree.name] = trLayer;
                 layerControl.addOverlay(trLayer, tree.name);
-                map.addLayer(trLayer);
+                map.addLayer(trLayer);*/
+            },
+
+            drawForce: function(tree, color) {
+                var frLayer = new forceLayer(map, tree["root"], color);
+                overlayLayers[tree.name] = frLayer;
+                layerControl.addOverlay(frLayer, tree.name);
+                map.addLayer(frLayer);
             },
 
             getMap: function() {

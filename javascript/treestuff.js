@@ -135,7 +135,6 @@ treestuff = (function() {
         }
         treestuff.locDim.filter(null);
         treestuff.selectedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
-        console.log(treestuff.selectedLeaves);
         treestuff.callUpdate("timeSelectionUpdate");
         treestuff.callUpdate("leafSelectionUpdate");
     };

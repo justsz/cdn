@@ -67,6 +67,7 @@
                                     .enter().append("path")
                                     .on("click", function(d) {
                                         //find names via crossfilter
+                                        treestuff.dateDim.filter(null);
                                         treestuff.selectedLeaves = 
                                         treestuff.locDim.filter(d.properties.name).top(Infinity);
                                         treestuff.callUpdate("leafSelectionUpdate");

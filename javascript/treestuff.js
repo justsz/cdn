@@ -133,7 +133,7 @@ treestuff = (function() {
                                           .attr("height", 20);
             treestuff.brushHighlight = brushHighlight;
         }
-        
+        treestuff.locDim.filter(null);
         treestuff.selectedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
         console.log(treestuff.selectedLeaves);
         treestuff.callUpdate("timeSelectionUpdate");
@@ -245,8 +245,9 @@ treestuff = (function() {
     treestuff.initializeCrossfilter = function() {
         treestuff.taxa = crossfilter();
         treestuff.nameDim = treestuff.taxa.dimension(function(d) {return d.name; });
-        treestuff.dateDim = treestuff.taxa.dimension(function(d) {return d.date; });
         treestuff.locDim = treestuff.taxa.dimension(function(d) {return d.location; });
+        treestuff.dateDim = treestuff.taxa.dimension(function(d) {return d.date; });
+        
     };
 
 

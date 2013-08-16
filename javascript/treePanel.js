@@ -2,7 +2,6 @@
     "use strict";
     treestuff.TreePanel = function() {
         var panelID,
-            finishedLoading = false,
             cluster,
             div,
             controlPanel,
@@ -358,7 +357,13 @@
             panelType : "treePanel",
 
 
-            finishedLoading : function() {return finishedLoading; },
+            finishedLoading : false,
+
+
+            panelID : undefined,
+
+
+            treeData : undefined,
 
             
             maxHeight : function() {return maxHeight; },
@@ -372,6 +377,7 @@
             */
             placePanel : function(targ) {
                 panelID = 0 + treestuff.counter; //get value, not reference
+                this.panelID = panelID;
                 treestuff.focusedPanel = panelID;
                 
                 var outerDiv = targ
@@ -426,7 +432,8 @@
             Fill container with data.
             */
             initializePanelData : function(filename) {
-                d3.json(filename, function(json) { //json is the root node of the input tree
+                var that = this;
+                d3.json(filename, function(json) { //json is the parsed input object
                     var nodeArray,
                         linkArray,
                         nameLengths,
@@ -436,6 +443,8 @@
                         timeAxis,
                         prop,
                         propRegex = /(.+)\.fullSet/;
+
+                    that.treeData = json;
                         
                     controlPanel.append("text")
                                 .attr("x", 15)
@@ -444,7 +453,7 @@
                                 .text(json.name);
                 
                 
-                    timeOrigin = parseInt(json.origin, 10);
+                    timeOrigin = parseFloat(json.origin);
                     //initialize d3 cluster layout
                     cluster = d3.layout.cluster()
                                 .size([height, width])
@@ -588,7 +597,7 @@
                             treestuff.globalData[d.name] = {"height" : d.height};
                             treestuff.taxa.add([{"name": d.name,
                                                  "date": treestuff.nodeHeightToDate(d.height, timeOrigin),
-                                                 "location": d.location}]);
+                                                 "location": d.location || ""}]);
                         }
                     });
 
@@ -660,14 +669,7 @@
 
                     treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
 
-                    for (i = 0; i < treestuff.panels.length; i++) {
-                        if (treestuff.panels[i].panelType === "mapPanel") {
-                            treestuff.panels[i].drawTree(json);
-                            treestuff.panels[i].drawForce(json, panelID);
-                        }
-                    }
-
-                    finishedLoading = true;
+                    that.finishedLoading = true;
                 }); 
             },
 
@@ -702,9 +704,10 @@
 
             
             timeSelectionUpdate : function() {
-                var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
-                var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], timeOrigin);
+                // var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
+                // var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], timeOrigin);
                 if (periodHighlight) {
+                    //console.log(start + " " + end);
                     periodHighlight.attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding)
                                    .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
                 } else {

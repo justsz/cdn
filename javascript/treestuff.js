@@ -10,6 +10,7 @@ treestuff = (function() {
     treestuff.selectedLeaves = [];
     treestuff.selectedNodes = [];
     treestuff.globalData = {}; //keeps track of data added to crossfilter
+    treestuff.map = {}; //store map related things, like layers
     
 
     /*
@@ -319,7 +320,23 @@ treestuff = (function() {
             }
         }
       return out;
-    }
+    };
+
+    /*
+    Waits until function "test" returns true.
+    When that happens, runs the "callback" function.
+    Checks "test" every "interval" milliseconds.
+    */
+    treestuff.when = function(test, callback, interval) {
+        var interval = interval || 100;
+            window.setTimeout(function loopFunc() {
+                if (test()) {
+                    callback();
+                } else {
+                    window.setTimeout(loopFunc, interval);
+                }
+            }, interval);
+        };
 
 
     return treestuff

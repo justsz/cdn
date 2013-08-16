@@ -25,3 +25,11 @@ path:hover {
 .treeLayer {
 	pointer-events: none;
 }
+
+.cenetroidLayer {
+  pointer-events: none;
+}
+
+.virusParticleLayer {
+  pointer-events: none;
+}

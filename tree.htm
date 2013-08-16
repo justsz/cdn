@@ -26,6 +26,10 @@
         <script src="javascript/traitPanel.js"></script>
         <script src="javascript/legendPanel.js"></script>
 
+        <script src="javascript/regionOutlineMapLayer.js"></script>        
+        <script src="javascript/centroidMapLayer.js"></script> 
+        <script src="javascript/virusParticleMapLayer.js"></script> 
+
 	</head>
 <body>
 
@@ -35,21 +39,30 @@
 <script>
     //script wrapped in a function to avoid polluting namespace
     (function() {
-        var mapPanel = new treestuff.MapPanel;
-        mapPanel.placePanel("map");
-        mapPanel.initializePanelData();
-        treestuff.panels.push(mapPanel);
+
 
 
         var i,
+            contourFile = "data/reducedGeography.json",
+            tileSource = "http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png",
 //            inputFiles = ["data/tree1.json", "data/tree2.json"];
             //inputFiles = ["data/MERS-CoV.json"];
-             inputFiles = ["data/H9N2 Trees/H9N2.PA.json",
-                           "data/H9N2 Trees/H9N2.MP.json"];
-                           // "data/H9N2 Trees/H9N2.NS.json"];
+              inputFiles = ["data/H9N2 Trees/H9N2.PA.json",
+                            "data/H9N2 Trees/H9N2.MP.json"];
+                          //  "data/H9N2 Trees/H9N2.NS.json",
                           // "data/H9N2 Trees/H9N2.PB2.json",
                           // "data/H9N2 Trees/H9N2.NP.json",
                           // "data/H9N2 Trees/H9N2.PB1.json"];
+
+        var mapPanel = new treestuff.MapPanel;
+        mapPanel.placePanel("map")
+                .loadContours(contourFile)
+                .addTileLayer(tileSource)
+                .addLayer(treestuff.map.regionOutlineLayer, {name: "Regions"})
+                .addLayer(treestuff.map.centroidLayer, {name: "Centroids"});
+
+        //mapPanel.initializePanelData();
+        treestuff.panels.push(mapPanel);                          
 
         treestuff.addSearchBox();
         treestuff.addColorPicker();
@@ -75,15 +88,50 @@
 
         var row = d3.select("body").append("div").attr("class", "treePanels");
         //read each input file and draw the tree in its own div
-        for (i = 0; i < inputFiles.length; i++) {
+        for (i = 0; i < inputFiles.length; i += 1) {
             // if (i % 2 === 0) {
             //     row = d3.select("body").append("div").attr("class", "row");
             // }
-            var treePanel = new treestuff.TreePanel;
-            treePanel.placePanel(row);
-            treePanel.initializePanelData(inputFiles[i]);
-            treestuff.panels.push(treePanel);
+            var f = inputFiles[i];
+            //var treePanel;
+
+            //>>>>>>all of this extra logic doesn't work because the json isn't loaded here...
+            if (f.trees) { //there are many trees in file
+                // for (var e = 0; e < f.trees.length; e += 1) {
+                //     console.log("ch 1");
+                //     treePanel = new treestuff.TreePanel;
+                //     treePanel.placePanel(row);
+                //     treePanel.initializePanelData(f.trees[e]);
+                //     treestuff.panels.push(treePanel);
+                // }
+            } else if (f.tree) { //one tree named tree
+                // console.log("ch 2");
+                // treePanel = new treestuff.TreePanel;
+                // treePanel.placePanel(row);
+                // treePanel.initializePanelData(f.tree);
+                // treestuff.panels.push(treePanel);
+            } else { //one tree without a name, the whole file is a tree
+                // console.log("ch 3");
+                
+
+                (function() {
+                    var treePanel = new treestuff.TreePanel;
+                treePanel.placePanel(row);
+                treePanel.initializePanelData(f);
+                treestuff.panels.push(treePanel);
+                    treestuff.when(function() {return treePanel.finishedLoading; },
+                           function() {
+                               mapPanel.addLayer(treestuff.map.virusParticleLayer,
+                               {name: treePanel.treeData.name, tree: treePanel.treeData.root, color: treePanel.panelID}
+                               )
+                           },
+                           100);
+                })();
+
+            }
+            
         }
+
 	})();
 </script>
 

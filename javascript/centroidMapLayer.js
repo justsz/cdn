@@ -38,7 +38,6 @@
                                    .data(circleCoords)
                                    .enter()
                                    .append("circle");
-                that.reset();
             },
 
             onAdd: function (map) {

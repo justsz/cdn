@@ -51,6 +51,28 @@
                                         d3.select(this).classed("highlighted", true);
                                     });                    
                 }
+				
+				var st = [-130, 36];//args.centroids["Russia"];
+				var nd = args.centroids["Russia"];
+				
+				var steps = 100;
+				
+				var incrX = (nd[0] - st[0]) / steps;
+				var incrY = (nd[1] - st[1]) / steps;
+				
+				var chord = [];
+				
+				for (var ii = 0; ii <= steps; ii += 1) {
+					chord.push([st[0] + ii * incrX, st[1] + ii * incrY]);
+				}
+				
+				var geoJSONChord = {coordinates: chord, type: "LineString"};
+				console.log(geoJSONChord);
+				
+				var tst = that.g.append("path").datum(geoJSONChord).attr("d", that.path).attr("class", "chord");
+				console.log(tst);
+				
+                that.reset();
 
 
             },

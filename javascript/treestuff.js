@@ -283,6 +283,17 @@ treestuff = (function() {
     };
 
 
+    treestuff.indexOf = function(a, obj, aAcc, objAcc) {
+        var i;
+        for (i = 0; i < a.length; i += 1) {
+            if (aAcc(a[i]) === objAcc(obj)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+
     treestuff.containsLeaf = function(a, obj) {
         if (a.length === 0) {
             return false;

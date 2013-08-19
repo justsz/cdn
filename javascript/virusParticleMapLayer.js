@@ -1,4 +1,76 @@
 (function() {
+    var climbNodes = function(that) {
+                /*
+                Start with root at its initial location.
+                When a branching point is reached, there will be new virus particles.
+                These have been sequence somewhere. It could be the same location as the parent, or different.
+                At any time the currently "active" viruses should be display. No past nodes.
+
+                */
+
+                var a,
+                    noMoreChildren = true,
+                    initLoc,
+                    newNodes;
+                if (that.nodes.length < 1) {
+                    if (that.tree.children) {
+                        noMoreChildren = false;
+                    }
+                    for (a = 0; a < that.foci.length; a += 1) {
+                        if (that.foci[a].name === that.tree.location) {
+                            initLoc = that.project(that.centroids[that.tree.location]);
+                            that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, children: that.tree.children});
+                            that.virNum += 1;
+                            break;
+                        }
+                    }
+                } else {
+                    noMoreChildren = true;
+                    newNodes = [];
+                    that.nodes.forEach(function(o) {
+                        if (o.children) {
+                            noMoreChildren = false;
+                            o.children.forEach(function(c) {
+                                for (a = 0; a < that.foci.length; a += 1) {
+                                    if (that.foci[a].name === c.location) {
+                                        newNodes.push({virNum: that.virNum, id: a, x: o.x, y: o.y, r: that.radius, children: c.children});
+                                        that.virNum += 1;
+                                        break;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    that.nodes = newNodes;
+                    that.force.nodes(newNodes);
+                }
+                console.log(that.nodes.length);
+
+
+                that.force.start();
+
+
+                var nodeSel = that.g.selectAll("circle.virusParticle")
+                                    .data(that.nodes, function(d) {return d.virNum});
+
+                nodeSel.exit().transition().attr("r", 0).remove();                                    
+
+                nodeSel.enter()
+                       .append("svg:circle")
+                       .attr("class", "virusParticle")
+                       .attr("cx", function(d) {return d.x; })
+                       .attr("cy", function(d) {return d.y; })
+                       .style("fill", that.fill(that.color)) 
+                       .style("stroke", 1)
+                       .attr("r", 0)
+                       .transition()
+                       .attr("r", function(d) {return d.r; });
+
+                if (noMoreChildren) {
+                    clearInterval(that.intervalID);
+                }
+    };
+
     treestuff.map.virusParticleLayer = L.Class.extend({
         svg: undefined,
 
@@ -78,78 +150,14 @@
             //this function, without regards to the time in the tree,
             //climbs down a level in the tree every 3 seconds and 
             //adds all the new virus particles to the layer
-            that.intervalID = setInterval(function() {
-                /*
-                Start with root at its initial location.
-                When a branching point is reached, there will be new virus particles.
-                These have been sequence somewhere. It could be the same location as the parent, or different.
-                At any time the currently "active" viruses should be display. No past nodes.
+            //that.intervalID = setInterval(function() {return climbNodes(that); }, 3000);
 
-                */
+            var day = (31557600000 / 365.25);
 
-                var a,
-                    noMoreChildren = true,
-                    initLoc,
-                    newNodes;
-                if (that.nodes.length < 1) {
-                    if (that.tree.children) {
-                        noMoreChildren = false;
-                    }
-                    for (a = 0; a < that.foci.length; a += 1) {
-                        if (that.foci[a].name === that.tree.location) {
-                            initLoc = that.project(that.centroids[that.tree.location]);
-                            that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, children: that.tree.children});
-                            that.virNum += 1;
-                            break;
-                        }
-                    }
-                } else {
-                    noMoreChildren = true;
-                    newNodes = [];
-                    that.nodes.forEach(function(o) {
-                        if (o.children) {
-                            noMoreChildren = false;
-                            o.children.forEach(function(c) {
-                                for (a = 0; a < that.foci.length; a += 1) {
-                                    if (that.foci[a].name === c.location) {
-                                        newNodes.push({virNum: that.virNum, id: a, x: o.x, y: o.y, r: that.radius, children: c.children});
-                                        that.virNum += 1;
-                                        break;
-                                    }
-                                }
-                            });
-                        }
-                    });
-                    that.nodes = newNodes;
-                    that.force.nodes(newNodes);
-                }
-                console.log(that.nodes.length);
+            var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day) ];
+            
 
-
-                that.force.start();
-
-
-                var nodeSel = that.g.selectAll("circle.virusParticle")
-                                    .data(that.nodes, function(d) {return d.virNum});
-
-                nodeSel.exit().transition().attr("r", 0).remove();                                    
-
-                nodeSel.enter()
-                       .append("svg:circle")
-                       .attr("class", "virusParticle")
-                       .attr("cx", function(d) {return d.x; })
-                       .attr("cy", function(d) {return d.y; })
-                       .style("fill", that.fill(that.color)) 
-                       .style("stroke", 1)
-                       .attr("r", 0)
-                       .transition()
-                       .attr("r", function(d) {return d.r; });
-
-                if (noMoreChildren) {
-                    clearInterval(that.intervalID);
-                }
-
-                }, 3000);
+            that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
 
 
             /*setInterval(function() {
@@ -191,6 +199,97 @@ that.force.start();
             }, 333);*/
 
 
+
+        },
+
+        showPeriod: function(period) {
+            var that = this;
+            var filteredNodes = treestuff.nodeDateDim.filterRange(period).top(Infinity);
+            var selectedNodes = [];
+
+            filteredNodes.forEach(function(d) {
+                if (d.treeID === that.color) {
+                    selectedNodes.push(d.node);
+                }
+            });
+
+
+            var a,
+                initLoc,
+                newNodes;
+
+            newNodes = [];
+
+
+            selectedNodes.forEach(function(nd) {
+                var parent = nd.parent;
+                var parentFound = false;
+                var initLoc = [];
+
+                that.nodes.forEach(function(n, i) {
+                    parentFound = true;
+                    initLoc.push(n.x);
+                    initLoc.push(n.y);
+                    if (n === parent) {
+                        console.log("splcing");
+                        this.nodes.splice(i, 1);
+                    }
+                    //break;
+                });
+
+
+                if (nd.children) {
+                    nd.children.forEach(function(ruk) {
+                        for (a = 0; a < that.foci.length; a += 1) {
+                            if (that.foci[a].name === ruk.location) {
+                                if (!parentFound) {
+                                    initLoc = that.project(that.centroids[ruk.location]);
+                                }
+                                that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, children: ruk.children});
+                                that.virNum += 1;
+                                break;
+                            }
+                        }
+                    });
+                }
+            });
+
+            // that.nodes.forEach(function(o) {
+            //     if (o.children) {
+            //         o.children.forEach(function(c) {
+            //             if () {
+            //                 newNodes.push({virNum: that.virNum, id: a, x: o.x, y: o.y, r: that.radius, children: c.children});
+            //                 that.virNum += 1;
+            //                 break;
+            //             }
+            //         });
+            //     }
+            // });
+
+            // that.nodes = newNodes;
+            // that.force.nodes(newNodes);
+            
+            //console.log(that.nodes.length);
+
+
+            that.force.start();
+
+
+            var nodeSel = that.g.selectAll("circle.virusParticle")
+                                .data(that.nodes, function(d) {return d.virNum});
+
+            nodeSel.exit().transition().attr("r", 0).remove();                                    
+
+            nodeSel.enter()
+                   .append("svg:circle")
+                   .attr("class", "virusParticle")
+                   .attr("cx", function(d) {return d.x; })
+                   .attr("cy", function(d) {return d.y; })
+                   .style("fill", that.fill(that.color)) 
+                   .style("stroke", 1)
+                   .attr("r", 0)
+                   .transition()
+                   .attr("r", function(d) {return d.r; });
 
         },
 

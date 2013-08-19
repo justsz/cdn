@@ -338,6 +338,16 @@
 			} 
 		    return nodeList;
 		}
+
+
+        function attachParent(node, parent) {
+            node.parent = parent;
+            if (node.children) {
+                for (var i = 0; i < node.children.length; i++) {
+                    attachParent(node.children[i], node);
+                }
+            } 
+        }
 		
 		function getDescendingLeaves(node) {
 		    var nodeList = [];
@@ -459,10 +469,17 @@
                                 .size([height, width])
                                 .separation(function() {return 1; });
 
+                    attachParent(json.root, undefined);
+
                     //get an array of all nodes and where they should be placed 
                     //(ignoring branch lengths)
                     nodeArray = cluster.nodes(json.root);
                     linkArray = cluster.links(nodeArray);
+
+                    //populate node crossfilter
+                    treestuff.nodes.add(nodeArray.map(function(n) {
+                       return {node: n, date: treestuff.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
+                    }));
                     
                     //nameLengths = [];
                     leafHeights = [];

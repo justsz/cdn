@@ -242,7 +242,10 @@ treestuff = (function() {
     Create the crossfilter. Data can be added to it as it becomes available
     when trees are being loaded.
     */
-    treestuff.initializeCrossfilter = function() {
+    treestuff.initializeCrossfilter = function() {        
+        treestuff.nodes = crossfilter();
+        treestuff.nodeDateDim = treestuff.nodes.dimension(function(d) {return d.date; });
+
         treestuff.taxa = crossfilter();
         treestuff.nameDim = treestuff.taxa.dimension(function(d) {return d.name; });
         treestuff.locDim = treestuff.taxa.dimension(function(d) {return d.location; });

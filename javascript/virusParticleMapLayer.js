@@ -24,6 +24,8 @@
 
         color: undefined,
 
+        radius: undefined,
+
         initialize: function (args) {
             var that = this;
             that.map = args.map;
@@ -42,13 +44,6 @@
             that.svg = d3.select(that.el).append("svg");
             that.svg.on("mousedown", function() {event.preventDefault(); });
             that.g = that.svg.append("g");
-
-            for (c in that.centroids) {
-                if (that.centroids.hasOwnProperty(c)) {
-                    that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1]});
-                }
-            }
-
 
             var sizing = that.reset(); //set svg's size and return the size
             that.nodes = [];
@@ -102,7 +97,7 @@
                   .attr("class", "virusParticle")
                   .attr("cx", function(d) { return d.x; })
                   .attr("cy", function(d) { return d.y; })
-                  .attr("r", that.map.getZoom())
+                  .attr("r", that.radius)
                   .style("fill", that.fill(that.color)) //fill(d.id);
                   .style("stroke", 1)//function(d) { return d3.rgb(fill(d.id)).darker(2); })
                   //.style("stroke-width", 1.5)
@@ -116,6 +111,7 @@
             var that = this;
             map.getPanes().overlayPane.appendChild(that.el);
             map.on('viewreset', that.reset, that);
+            that.reset();
         },
 
         onRemove: function (map) {
@@ -142,6 +138,17 @@
                 .style("margin-top", topRight[1] + "px");
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
+
+            that.radius = that.map.getZoom();
+
+            that.g.selectAll("circle.virusParticle").attr("r", that.radius);
+
+            that.foci = [];
+            for (c in that.centroids) {
+                if (that.centroids.hasOwnProperty(c)) {
+                    that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1]});
+                }
+            }
 
             
             return [w, h];

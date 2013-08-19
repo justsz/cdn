@@ -26,7 +26,6 @@
                 that.g = that.svg.append("g");
 
                 processData(args.mapData);
-                that.reset();
 
                 function processData(dat) {
                     //TODO: add that check for latitude as well if needed
@@ -52,7 +51,7 @@
                                     });                    
                 }
 				
-				var st = [-130, 36];//args.centroids["Russia"];
+				/*var st = [-130, 36];//args.centroids["Russia"];
 				var nd = args.centroids["Russia"];
 				
 				var steps = 100;
@@ -72,7 +71,7 @@
 				var tst = that.g.append("path").datum(geoJSONChord).attr("d", that.path).attr("class", "chord");
 				console.log(tst);
 				
-                that.reset();
+                that.reset();*/
 
 
             },
@@ -81,6 +80,7 @@
                 var that = this;
                 that.map.getPanes().overlayPane.appendChild(that.el);
                 that.map.on('viewreset', that.reset, that);
+                that.reset();
             },
 
             onRemove: function() {

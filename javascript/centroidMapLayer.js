@@ -45,6 +45,7 @@
                 map.getPanes().overlayPane.appendChild(that.el);
                 // add a viewreset event listener for updating layer's position, do the latter
                 map.on('viewreset', that.reset, that);
+                that.reset();
             },
 
             onRemove: function (map) {

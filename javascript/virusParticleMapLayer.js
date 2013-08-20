@@ -129,7 +129,7 @@
                 .links([])
                 .gravity(0)
                 .size(sizing)
-                .charge(-1)
+                .charge(-0.5)
                 .friction(0.85); 
 
 
@@ -154,8 +154,18 @@
 
             var day = (31557600000 / 365.25);
 
-            var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day) ];
+            var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day * 10) ];
             
+
+            //place root node.. not great solution at the moment
+            for (a = 0; a < that.foci.length; a += 1) {
+                if (that.foci[a].name === that.tree.location) {
+                    initLoc = that.project(that.centroids[that.tree.location]);
+                    that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, node: that.tree});
+                    that.virNum += 1;
+                    break;
+                }
+            }
 
             that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
 
@@ -220,6 +230,15 @@ that.force.start();
 
             newNodes = [];
 
+            if (filteredNodes.length > 0) {
+                //console.log(period);
+                //console.log(filteredNodes);
+                //console.log(that.nodes.slice(0));
+                //console.log(selectedNodes);
+                //console.log("---------");
+
+            }
+
 
             selectedNodes.forEach(function(nd) {
                 var parent = nd.parent;
@@ -227,31 +246,30 @@ that.force.start();
                 var initLoc = [];
 
                 that.nodes.forEach(function(n, i) {
-                    parentFound = true;
-                    initLoc.push(n.x);
-                    initLoc.push(n.y);
-                    if (n === parent) {
-                        console.log("splcing");
-                        this.nodes.splice(i, 1);
+                    if (n.node === parent) {
+                        parentFound = true;
+                        initLoc.push(n.x);
+                        initLoc.push(n.y);
+                        that.nodes.splice(i, 1); //removes all inner nodes eventually
                     }
                     //break;
                 });
 
 
                 if (nd.children) {
-                    nd.children.forEach(function(ruk) {
+                    nd.children.forEach(function(child) {
                         for (a = 0; a < that.foci.length; a += 1) {
-                            if (that.foci[a].name === ruk.location) {
+                            if (that.foci[a].name === child.location) {
                                 if (!parentFound) {
-                                    initLoc = that.project(that.centroids[ruk.location]);
+                                    initLoc = that.project(that.centroids[child.location]);
                                 }
-                                that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, children: ruk.children});
+                                that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, node: child});
                                 that.virNum += 1;
                                 break;
                             }
                         }
                     });
-                }
+                } 
             });
 
             // that.nodes.forEach(function(o) {
@@ -278,7 +296,9 @@ that.force.start();
             var nodeSel = that.g.selectAll("circle.virusParticle")
                                 .data(that.nodes, function(d) {return d.virNum});
 
-            nodeSel.exit().transition().attr("r", 0).remove();                                    
+
+
+            nodeSel.exit().remove(); //.transition().attr("r", 0)
 
             nodeSel.enter()
                    .append("svg:circle")
@@ -287,9 +307,13 @@ that.force.start();
                    .attr("cy", function(d) {return d.y; })
                    .style("fill", that.fill(that.color)) 
                    .style("stroke", 1)
-                   .attr("r", 0)
-                   .transition()
+                   // .attr("r", 0)
+                   // .transition()
                    .attr("r", function(d) {return d.r; });
+
+
+            treestuff.selectedPeriod = period;
+            treestuff.callUpdate("timeSelectionUpdate");
 
         },
 

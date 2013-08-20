@@ -78,8 +78,8 @@ body {
 }
 
 .timeSelection {
-    fill: green;
-    fill-opacity: 0.2;
+    fill: red;
+    fill-opacity: 1;/*0.2;*/
 }
 
 .axis path,

@@ -1,6 +1,6 @@
 (function() {
 
-    treestuff.MapPanel = function() {
+    pandemix.MapPanel = function() {
         var map,
             bounds = undefined,
             layers = [],
@@ -70,7 +70,7 @@
             addLayer: function(layer, args) {
                 var that = this;
                 var args = args || {};
-                treestuff.when(function() {return contoursLoaded; },
+                pandemix.when(function() {return contoursLoaded; },
                                function() {
                                    args.map = map;
                                    args.project = that.project;
@@ -108,9 +108,9 @@
                 var selectedRegions = [],
                     i;
 
-                for (i = 0; i < treestuff.selectedLeaves.length; i += 1) {
-                    if (!treestuff.contains(selectedRegions, treestuff.selectedLeaves[i].location)) {
-                        selectedRegions.push(treestuff.selectedLeaves[i].location);
+                for (i = 0; i < pandemix.selectedLeaves.length; i += 1) {
+                    if (!pandemix.contains(selectedRegions, pandemix.selectedLeaves[i].location)) {
+                        selectedRegions.push(pandemix.selectedLeaves[i].location);
                     }
                 }
 

@@ -1,12 +1,12 @@
 (function() {
 
-    treestuff.TraitPanel = function() {
+    pandemix.TraitPanel = function() {
         var width = 300, //div initial sizing. Later used to specify SVG size
             height = 80, 
             div,
             svg,
             rowCount = 0,
-            panelID = 0 + treestuff.counter,
+            panelID = 0 + pandemix.counter,
             traits = {"No trait" : []},
             legendSize = 10,
             rowPadding = 1,
@@ -15,7 +15,7 @@
             maxRowWidth = width,
             tableHeight = height;
             
-            treestuff.counter += 1;
+            pandemix.counter += 1;
 
         function drawPanel() {
             var traitTypes = [];
@@ -38,16 +38,16 @@
                                         d3.select(this).select(".traitRowBackground")
                                           .style("fill-opacity", 0.125);
 
-                                        treestuff.traitType = d;
-                                        treestuff.traitValues = [];
+                                        pandemix.traitType = d;
+                                        pandemix.traitValues = [];
                                         d3.select(this)
                                           .selectAll(".traitValue")
                                           .each(function(d) {
                                               if (d.selected) {
-                                                  treestuff.traitValues.push(d);
+                                                  pandemix.traitValues.push(d);
                                               }
                                           });
-                                       treestuff.callUpdate("traitSelectionUpdate");
+                                       pandemix.callUpdate("traitSelectionUpdate");
                                     });
 
             rowEnter.append("rect")
@@ -179,7 +179,7 @@
                     if (newTraits.hasOwnProperty(trait)) {
                         if (traits.hasOwnProperty(trait)) {
                             for (i = 0; i < newTraits[trait].length; i += 1) {
-                                if (!treestuff.contains(traits[trait], newTraits[trait][i])) {
+                                if (!pandemix.contains(traits[trait], newTraits[trait][i])) {
                                     traits[trait].push(newTraits[trait][i]);
                                     dirty = true;
                                 }

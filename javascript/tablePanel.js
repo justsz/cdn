@@ -1,22 +1,22 @@
 (function() {
 
-    treestuff.TablePanel = function() {
+    pandemix.TablePanel = function() {
         var width = 200,
             height = 300,
             div,
             svg,
             rowCount = 0,
-            panelID = 0 + treestuff.counter;
+            panelID = 0 + pandemix.counter;
             
-            treestuff.counter += 1;
+            pandemix.counter += 1;
 
         return {
             panelType : "tablePanel",
             
             leafSelectionUpdate : function() {
-                var nodes = treestuff.selectedLeaves;
+                var nodes = pandemix.selectedLeaves;
                 var rows = svg.selectAll(".tableRow")
-                              .data(nodes, treestuff.getNodeKey);
+                              .data(nodes, pandemix.getNodeKey);
 
                 rows.exit().remove();
                 

@@ -1,5 +1,5 @@
 (function() {
-    treestuff.map.centroidLayer = L.Class.extend({
+    pandemix.map.centroidLayer = L.Class.extend({
             svg: undefined,
 
             g: undefined,

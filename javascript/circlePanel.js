@@ -1,6 +1,6 @@
 (function() {
 
-    treestuff.CirclePanel = function() {
+    pandemix.CirclePanel = function() {
         var width = 400;
         var height = 30;
         var circScale = d3.scale.linear()
@@ -11,10 +11,10 @@
             panelType : "circlePanel",
             
             selectionUpdate : function() {
-                var nodes = treestuff.focusedLeaves;
+                var nodes = pandemix.focusedLeaves;
                 var circles = d3.selectAll("svg.circlePanel")
                                 .selectAll("circle")
-                                .data(nodes, treestuff.getNodeKey);
+                                .data(nodes, pandemix.getNodeKey);
 
                 circles.enter()
                        .append("circle")

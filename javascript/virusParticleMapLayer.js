@@ -71,7 +71,7 @@
                 }
     };
 
-    treestuff.map.virusParticleLayer = L.Class.extend({
+    pandemix.map.virusParticleLayer = L.Class.extend({
         svg: undefined,
 
         g: undefined,
@@ -193,11 +193,11 @@
 
                         clump.forEach(function(c) {
                             //remove from that.nodes; remove from focus.occupants
-                            var ind = treestuff.indexOf(that.nodes, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
+                            var ind = pandemix.indexOf(that.nodes, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
                             if (ind > -1) {
                                 that.nodes.splice(ind);
                             }
-                            ind = treestuff.indexOf(occs, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
+                            ind = pandemix.indexOf(occs, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
                             if (ind > -1) {
                                 occs.splice(ind);
                             }
@@ -215,7 +215,7 @@ that.force.start();
 
         showPeriod: function(period) {
             var that = this;
-            var filteredNodes = treestuff.nodeDateDim.filterRange(period).top(Infinity);
+            var filteredNodes = pandemix.nodeDateDim.filterRange(period).top(Infinity);
             var selectedNodes = [];
 
             filteredNodes.forEach(function(d) {
@@ -291,8 +291,8 @@ that.force.start();
                    .attr("r", function(d) {return d.r; });
 
 
-            treestuff.selectedPeriod = period;
-            treestuff.callUpdate("timeSelectionUpdate");
+            pandemix.selectedPeriod = period;
+            pandemix.callUpdate("timeSelectionUpdate");
 
         },
 
@@ -373,11 +373,11 @@ that.force.start();
 
                 //         clump.forEach(function(c) {
                 //             //remove from that.nodes; remove from focus.occupants
-                //             var ind = treestuff.indexOf(that.nodes, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
+                //             var ind = pandemix.indexOf(that.nodes, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
                 //             if (ind > -1) {
                 //                 that.nodes.splice(ind);
                 //             }
-                //             /*ind = treestuff.indexOf(occs, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
+                //             /*ind = pandemix.indexOf(occs, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
                 //             if (ind > -1) {
                 //                 occs.splice(ind);
                 //             }*/

@@ -1,6 +1,6 @@
 (function() {
     "use strict";
-    treestuff.TreePanel = function() {
+    pandemix.TreePanel = function() {
         var panelID,
             cluster,
             div,
@@ -91,14 +91,14 @@
         Zero point year corresponds to node height of 0.
         Javascript dates appear to start from 1970.
         */
-        treestuff.nodeHeightToDate = function(nodeHeight, zeroPointYear) {
+        pandemix.nodeHeightToDate = function(nodeHeight, zeroPointYear) {
             return new Date((zeroPointYear - 1970 - nodeHeight) * 31557600000);
         };
         
         /*
         Reverse function of nodeHeightToDate.
         */
-        treestuff.dateToNodeHeight = function(date, zeroPointYear) {
+        pandemix.dateToNodeHeight = function(date, zeroPointYear) {
             return zeroPointYear - 1970 - date / 31557600000;
         };
         
@@ -208,24 +208,24 @@
               .attr("height", 0);
             
             //clear active time and leaf selections
-            if (treestuff.brushHighlight) {
-                treestuff.selectedLeaves = [];
-                treestuff.selectedPeriod = [0,0];
-                d3.select(".axis").call(treestuff.globalTimeBrush.clear());
-                treestuff.brushHighlight.remove();
-                treestuff.brushHighlight = null;
-                treestuff.callUpdate("leafSelectionUpdate");
-                treestuff.callUpdate("timeSelectionUpdate");
+            if (pandemix.brushHighlight) {
+                pandemix.selectedLeaves = [];
+                pandemix.selectedPeriod = [0,0];
+                d3.select(".axis").call(pandemix.globalTimeBrush.clear());
+                pandemix.brushHighlight.remove();
+                pandemix.brushHighlight = null;
+                pandemix.callUpdate("leafSelectionUpdate");
+                pandemix.callUpdate("timeSelectionUpdate");
             }
 
             if (!d3.event.shiftKey) {
                 //clears previously highlighted links
-                treestuff.selectedNodes = [];
-                treestuff.callUpdate("nodeSelectionUpdate");
+                pandemix.selectedNodes = [];
+                pandemix.callUpdate("nodeSelectionUpdate");
 
                 //clears previously highlighted leaves
-                treestuff.selectedLeaves = [];
-                treestuff.callUpdate("leafSelectionUpdate");
+                pandemix.selectedLeaves = [];
+                pandemix.callUpdate("leafSelectionUpdate");
             }
 
             //this line needed to make selection not move like a slug!
@@ -301,15 +301,15 @@
 
 				//focus only on leaf nodes
                 if (!d3.event.shiftKey) {
-				    treestuff.selectedLeaves = selectedLeaves.slice(0);
+				    pandemix.selectedLeaves = selectedLeaves.slice(0);
                 } else {
                     for (i = 0; i < selectedLeaves.length; i += 1) {
-                        if (!treestuff.containsLeaf(treestuff.selectedLeaves, selectedLeaves[i])) {
-                            treestuff.selectedLeaves.push(selectedLeaves[i]);
+                        if (!pandemix.containsLeaf(pandemix.selectedLeaves, selectedLeaves[i])) {
+                            pandemix.selectedLeaves.push(selectedLeaves[i]);
                         }
                     }
                 }
-				treestuff.callUpdate("leafSelectionUpdate");
+				pandemix.callUpdate("leafSelectionUpdate");
 				
 				//continue this function with inner nodes as well
                 innerLinks = getNodeLinks(selectedLeaves)
@@ -386,9 +386,9 @@
             Create and place a container for the tree.
             */
             placePanel : function(targ) {
-                panelID = 0 + treestuff.counter; //get value, not reference
+                panelID = 0 + pandemix.counter; //get value, not reference
                 this.panelID = panelID;
-                treestuff.focusedPanel = panelID;
+                pandemix.focusedPanel = panelID;
                 
                 var outerDiv = targ
                                  .append("div")
@@ -434,7 +434,7 @@
                          .attr("width", width + marginForLabels)
                          .attr("height", height + 2 * verticalPadding);
                              
-                treestuff.counter += 1;
+                pandemix.counter += 1;
             },
 
             
@@ -477,8 +477,8 @@
                     linkArray = cluster.links(nodeArray);
 
                     //populate node crossfilter
-                    treestuff.nodes.add(nodeArray.map(function(n) {
-                       return {node: n, date: treestuff.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
+                    pandemix.nodes.add(nodeArray.map(function(n) {
+                       return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
                     }));
                     
                     //nameLengths = [];
@@ -511,7 +511,7 @@
                            .attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");                
 
                     links = g.selectAll("path.link")
-                             .data(linkArray, treestuff.getLinkKey)
+                             .data(linkArray, pandemix.getLinkKey)
                              .enter().append("path")
                              .attr("class", "link")
                              .attr("d", elbow);
@@ -521,7 +521,7 @@
 
                     //assign node classification and position it
                     g.selectAll(".node")
-                     .data(nodeArray, treestuff.getNodeKey)
+                     .data(nodeArray, pandemix.getNodeKey)
                      .enter().append("g")
                      .attr("class", function(d) {
                          if (d.children) {
@@ -568,19 +568,19 @@
 							//no keys pressed - select clicked node, deselect everything else
 							//ctrl/cmd pressed - select multiple, nonadjacent or adjacent nodes
 							//shift pressed - select a range to clicked node from last clicked (ctrl or otherwise) node. deselect the rest
-                              treestuff.focusedPanel = panelID;
+                              pandemix.focusedPanel = panelID;
                               var node = d3.select(this.parentNode);
                               links.classed("highlighted", false);
 							  if (d3.event.metaKey || d3.event.ctrlKey) { //meta key is apple's command key
 								  lastClickedLeaf = node;
 							      var addNodeToSelection = !node.classed("highlighted");
                                   node.classed("highlighted", addNodeToSelection);
-                                  addNodeToSelection ? treestuff.selectedLeaves.push(node.datum()) : removeElement(node.datum(), treestuff.selectedLeaves);
+                                  addNodeToSelection ? pandemix.selectedLeaves.push(node.datum()) : removeElement(node.datum(), pandemix.selectedLeaves);
                                   if (addNodeToSelection) {
-                                      treestuff.callUpdate("focusUpdate", node);
+                                      pandemix.callUpdate("focusUpdate", node);
                                   }
 							  } else if (d3.event.shiftKey) {
-								  //var startNode = treestuff.selectedLeaves[treestuff.selectedLeaves.length - 1];
+								  //var startNode = pandemix.selectedLeaves[pandemix.selectedLeaves.length - 1];
 								  var startPos = lastClickedLeaf ? lastClickedLeaf.datum().x : 0;
 								  var endPos = node.datum().x;
 								  if (startPos > endPos) {
@@ -588,18 +588,18 @@
 									  endPos = startPos;
 									  startPos = temp;
 								  }
-							      treestuff.selectedLeaves = [];
+							      pandemix.selectedLeaves = [];
 								  leaves.each(function(d) {
 								      if (startPos <= d.x && d.x <= endPos) {
-									      treestuff.selectedLeaves.push(d);
+									      pandemix.selectedLeaves.push(d);
 									  }
 								  });
 							  } else {
 							      lastClickedLeaf = node;
-							      treestuff.selectedLeaves = [node.datum()];
-								  treestuff.callUpdate("focusUpdate", node);
+							      pandemix.selectedLeaves = [node.datum()];
+								  pandemix.callUpdate("focusUpdate", node);
 							  }
-							  treestuff.callUpdate("leafSelectionUpdate"); //possible to make this more incremental for better performance
+							  pandemix.callUpdate("leafSelectionUpdate"); //possible to make this more incremental for better performance
                           });
 
 
@@ -610,25 +610,25 @@
                     //add data to crossfilter
                     leaves.each(function (d) {
                         //tips with the same name should contain the same data
-                        if (!treestuff.globalData.hasOwnProperty(d.name)) {
-                            treestuff.globalData[d.name] = {"height" : d.height};
-                            treestuff.taxa.add([{"name": d.name,
-                                                 "date": treestuff.nodeHeightToDate(d.height, timeOrigin),
+                        if (!pandemix.globalData.hasOwnProperty(d.name)) {
+                            pandemix.globalData[d.name] = {"height" : d.height};
+                            pandemix.taxa.add([{"name": d.name,
+                                                 "date": pandemix.nodeHeightToDate(d.height, timeOrigin),
                                                  "location": d.location || ""}]);
                         }
                     });
 
                     //add data to traitPanel
-                    for (i = 0; i < treestuff.panels.length; i += 1) {
+                    for (i = 0; i < pandemix.panels.length; i += 1) {
                         //lookup the trait panel
-                        if (treestuff.panels[i].panelType === "traitPanel" || treestuff.panels[i].panelType === "legendPanel") {
+                        if (pandemix.panels[i].panelType === "traitPanel" || pandemix.panels[i].panelType === "legendPanel") {
                             for (prop in json) {
                                 if (json.hasOwnProperty(prop)) {
                                     var match = propRegex.exec(prop);
                                     if (match) {
                                        var traitDict = {};
                                        traitDict[match[1]] = json[prop];
-                                       treestuff.panels[i].addTraits(traitDict);
+                                       pandemix.panels[i].addTraits(traitDict);
                                     }
                                 }
                             }
@@ -650,7 +650,7 @@
                     
                     //add time axis and aim line              
                     timeScale = d3.time.scale()
-                                       .domain([treestuff.nodeHeightToDate(maxHeight, timeOrigin), treestuff.nodeHeightToDate(minHeight, timeOrigin)])
+                                       .domain([pandemix.nodeHeightToDate(maxHeight, timeOrigin), pandemix.nodeHeightToDate(minHeight, timeOrigin)])
                                        .range([0, width])
                                        .clamp(true);
 
@@ -684,7 +684,7 @@
                                      }
                                  });
 
-                    treestuff.updateGlobalTimeAxis(maxHeight, minHeight);
+                    pandemix.updateGlobalTimeAxis(maxHeight, minHeight);
 
                     that.finishedLoading = true;
                 }); 
@@ -696,7 +696,7 @@
             */
             leafSelectionUpdate : function() {
                 thisLeafSelection = leaves.filter(function(d) {                    
-                    return treestuff.containsLeaf(treestuff.selectedLeaves, d);
+                    return pandemix.containsLeaf(pandemix.selectedLeaves, d);
                 });
                 leaves.classed("highlighted", false);
                 thisLeafSelection.classed("highlighted", true);
@@ -707,7 +707,7 @@
                 /*if (args[1]) {
                     leaves.select("text")
                           .style("fill", function(d) {
-                              if (treestuff.containsLeaf(treestuff.selectedLeaves, d)) {
+                              if (pandemix.containsLeaf(pandemix.selectedLeaves, d)) {
                                   return args[1]; //return the color
                               }
                               return null; //remove the style
@@ -721,19 +721,19 @@
 
             
             timeSelectionUpdate : function() {
-                // var start = treestuff.dateToNodeHeight(treestuff.selectedPeriod[0], timeOrigin);
-                // var end = treestuff.dateToNodeHeight(treestuff.selectedPeriod[1], timeOrigin);
+                // var start = pandemix.dateToNodeHeight(pandemix.selectedPeriod[0], timeOrigin);
+                // var end = pandemix.dateToNodeHeight(pandemix.selectedPeriod[1], timeOrigin);
                 if (periodHighlight) {
                     //console.log(start + " " + end);
-                    periodHighlight.attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding)
-                                   .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
+                    periodHighlight.attr("x", timeScale(pandemix.selectedPeriod[0]) + horizontalPadding)
+                                   .attr("width", timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0]));
                 } else {
                     periodHighlight = svg.append("rect")
                                          .attr("class", "timeSelection")
-                                         .attr("x", timeScale(treestuff.selectedPeriod[0]) + horizontalPadding) 
+                                         .attr("x", timeScale(pandemix.selectedPeriod[0]) + horizontalPadding) 
                                          .attr("y", verticalPadding)
                                          .attr("height", "100%")
-                                         .attr("width", timeScale(treestuff.selectedPeriod[1]) - timeScale(treestuff.selectedPeriod[0]));
+                                         .attr("width", timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0]));
                 }                
             },
 
@@ -741,18 +741,18 @@
             //highlights the link going up from the selected nodes
             nodeSelectionUpdate : function() {
                 links.classed("highlighted", false);
-                for (var i = 0; i < treestuff.selectedNodes.length; i += 1) {
-                    treestuff.selectedNodes[i].uplink.classed("highlighted", true);
+                for (var i = 0; i < pandemix.selectedNodes.length; i += 1) {
+                    pandemix.selectedNodes[i].uplink.classed("highlighted", true);
                 }
             },
 
 
             traitSelectionUpdate : function() {
-                if (treestuff.traitType && treestuff.traitValues) {
+                if (pandemix.traitType && pandemix.traitValues) {
                    links.style("stroke", function(d) {
-                       for (var i = 0; i < treestuff.traitValues.length; i += 1) {
-                           if (d.target[treestuff.traitType] === treestuff.traitValues[i].name) {
-                               return treestuff.traitValues[i].color;
+                       for (var i = 0; i < pandemix.traitValues.length; i += 1) {
+                           if (d.target[pandemix.traitType] === pandemix.traitValues[i].name) {
+                               return pandemix.traitValues[i].color;
                            }
                         }
                         return null;
@@ -762,9 +762,9 @@
 
         
             zoomUpdate : function() {
-                yScale.range([0, height * treestuff.scale]);
+                yScale.range([0, height * pandemix.scale]);
 
-                if (treestuff.scale === 1) {
+                if (pandemix.scale === 1) {
                     div.style("overflow", "hidden");
                 } else {
                     div.style("overflow", "auto");
@@ -788,7 +788,7 @@
             Scrolls viewport to the selected node.
             */
             focusUpdate : function(args) {
-                if (panelID !== treestuff.focusedPanel) {
+                if (panelID !== pandemix.focusedPanel) {
                     var nodeSelection =  leaves.filter(function(d) {return args[1].datum().name === d.name; });
 
                     if (!nodeSelection.empty()) {

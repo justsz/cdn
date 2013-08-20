@@ -1,16 +1,16 @@
-treestuff = (function() {
+pandemix = (function() {
     "use strict";
 
-    var treestuff = {};
+    var pandemix = {};
 
-    treestuff.counter = 0; //panel count and doubles as panel ID
-    treestuff.focusedPanel = 0; //ID of focused panel
-    treestuff.scale = 1; //zoom level
-    treestuff.panels = []; //array of all added panels
-    treestuff.selectedLeaves = [];
-    treestuff.selectedNodes = [];
-    treestuff.globalData = {}; //keeps track of data added to crossfilter
-    treestuff.map = {}; //store map related things, like layers
+    pandemix.counter = 0; //panel count and doubles as panel ID
+    pandemix.focusedPanel = 0; //ID of focused panel
+    pandemix.scale = 1; //zoom level
+    pandemix.panels = []; //array of all added panels
+    pandemix.selectedLeaves = [];
+    pandemix.selectedNodes = [];
+    pandemix.globalData = {}; //keeps track of data added to crossfilter
+    pandemix.map = {}; //store map related things, like layers
     
 
     /*
@@ -24,7 +24,7 @@ treestuff = (function() {
     };
 
 
-    treestuff.addGlobalZoomButton = function() {
+    pandemix.addGlobalZoomButton = function() {
         var zoomButton = d3.select("body")
                            .append("div")
                            .style("display", "inline-block")
@@ -49,7 +49,7 @@ treestuff = (function() {
     };
 
 
-    treestuff.addSearchBox = function() {
+    pandemix.addSearchBox = function() {
         d3.select("body").append("div")
           .attr("class", "searchBox")
           .append("input")
@@ -60,7 +60,7 @@ treestuff = (function() {
     };
 
 
-    treestuff.addColorPicker = function() {
+    pandemix.addColorPicker = function() {
         d3.select("body")
           .append("div")
           .attr("class", "colorBox")
@@ -72,7 +72,7 @@ treestuff = (function() {
     };
     
     
-    treestuff.addTraitBox = function() {
+    pandemix.addTraitBox = function() {
         d3.select("body").append("div")
           .attr("class", "traitBox")
           .append("input")
@@ -83,7 +83,7 @@ treestuff = (function() {
     };
     
     
-    treestuff.addGlobalTimeAxis = function() {
+    pandemix.addGlobalTimeAxis = function() {
         timeScale = d3.time.scale()
                             .domain([0, 0])
                             .range([0, 700]);
@@ -97,7 +97,7 @@ treestuff = (function() {
           .on("brush", brushmove)
           .on("brushend", brushend);
           
-        treestuff.globalTimeBrush = brush;
+        pandemix.globalTimeBrush = brush;
         
         var div = d3.select("body").append("div");
 
@@ -121,8 +121,8 @@ treestuff = (function() {
 
     function brushmove() {
         var e = brush.extent();
-        treestuff.selectedPeriod = e;
-        if (treestuff.brushHighlight) {
+        pandemix.selectedPeriod = e;
+        if (pandemix.brushHighlight) {
             brushHighlight.attr("x", timeScale(e[0]))
                           .attr("width", timeScale(e[1]) - timeScale(e[0]));
         } else {
@@ -132,12 +132,12 @@ treestuff = (function() {
                                           .attr("y", 0)
                                           .attr("width", timeScale(e[1]) - timeScale(e[0]))
                                           .attr("height", 20);
-            treestuff.brushHighlight = brushHighlight;
+            pandemix.brushHighlight = brushHighlight;
         }
-        treestuff.locDim.filter(null);
-        treestuff.selectedLeaves = treestuff.dateDim.filterRange(e).top(Infinity);
-        treestuff.callUpdate("timeSelectionUpdate");
-        treestuff.callUpdate("leafSelectionUpdate");
+        pandemix.locDim.filter(null);
+        pandemix.selectedLeaves = pandemix.dateDim.filterRange(e).top(Infinity);
+        pandemix.callUpdate("timeSelectionUpdate");
+        pandemix.callUpdate("leafSelectionUpdate");
     };
 
 
@@ -146,12 +146,12 @@ treestuff = (function() {
             if (brushHighlight) {
                 brushHighlight.remove();
                 brushHighlight = null;
-                treestuff.brushHighlight = null;
+                pandemix.brushHighlight = null;
             }
         }
     };
     
-    treestuff.selectedPeriod;
+    pandemix.selectedPeriod;
     
     var axisSelection;
     var timeScale;
@@ -165,11 +165,11 @@ treestuff = (function() {
     /*
     As data is being added, update the global time axis with new min/max taxon dates.
     */
-    treestuff.updateGlobalTimeAxis = function(rootHeight, minLeafHeight) {
+    pandemix.updateGlobalTimeAxis = function(rootHeight, minLeafHeight) {
         rootHeights.push(rootHeight);
         leafHeights.push(minLeafHeight);
         
-        timeScale.domain([treestuff.nodeHeightToDate(d3.max(rootHeights), 2014), treestuff.nodeHeightToDate(d3.min(leafHeights), 2014)]);
+        timeScale.domain([pandemix.nodeHeightToDate(d3.max(rootHeights), 2014), pandemix.nodeHeightToDate(d3.min(leafHeights), 2014)]);
 
         axisSelection.call(timeAxis);
     };
@@ -190,8 +190,8 @@ treestuff = (function() {
               });
         }
     
-        treestuff.selectedLeaves = selectedNodes;
-        treestuff.callUpdate("leafSelectionUpdate");
+        pandemix.selectedLeaves = selectedNodes;
+        pandemix.callUpdate("leafSelectionUpdate");
     };
     
     
@@ -214,8 +214,8 @@ treestuff = (function() {
               });
         }
     
-        treestuff.selectedLeaves = selectedNodes;
-        treestuff.callUpdate("leafSelectionUpdate");
+        pandemix.selectedLeaves = selectedNodes;
+        pandemix.callUpdate("leafSelectionUpdate");
     };
 
 
@@ -224,17 +224,17 @@ treestuff = (function() {
         if (color === "") {
           color = null;
         }
-        treestuff.callUpdate("leafColorUpdate", color);
+        pandemix.callUpdate("leafColorUpdate", color);
     };
 
 
     function incrementZoom(dir) {
-        var newScale = treestuff.scale + 0.5 * dir;
+        var newScale = pandemix.scale + 0.5 * dir;
         if (newScale < 1) {
           newScale = 1;
         }
-        treestuff.scale = newScale;
-        treestuff.callUpdate("zoomUpdate"); 
+        pandemix.scale = newScale;
+        pandemix.callUpdate("zoomUpdate"); 
     }; 
 
 
@@ -242,29 +242,29 @@ treestuff = (function() {
     Create the crossfilter. Data can be added to it as it becomes available
     when trees are being loaded.
     */
-    treestuff.initializeCrossfilter = function() {        
-        treestuff.nodes = crossfilter();
-        treestuff.nodeDateDim = treestuff.nodes.dimension(function(d) {return d.date; });
+    pandemix.initializeCrossfilter = function() {        
+        pandemix.nodes = crossfilter();
+        pandemix.nodeDateDim = pandemix.nodes.dimension(function(d) {return d.date; });
 
-        treestuff.taxa = crossfilter();
-        treestuff.nameDim = treestuff.taxa.dimension(function(d) {return d.name; });
-        treestuff.locDim = treestuff.taxa.dimension(function(d) {return d.location; });
-        treestuff.dateDim = treestuff.taxa.dimension(function(d) {return d.date; });
+        pandemix.taxa = crossfilter();
+        pandemix.nameDim = pandemix.taxa.dimension(function(d) {return d.name; });
+        pandemix.locDim = pandemix.taxa.dimension(function(d) {return d.location; });
+        pandemix.dateDim = pandemix.taxa.dimension(function(d) {return d.date; });
         
     };
 
 
-    treestuff.getNodeKey = function(d, i) {
+    pandemix.getNodeKey = function(d, i) {
         return (d.name || i);
     };
 
 
-    treestuff.getLinkKey = function(d, i) {
+    pandemix.getLinkKey = function(d, i) {
         return (d.target.name || i);
     };
 
 
-    treestuff.contains = function(a, obj) {
+    pandemix.contains = function(a, obj) {
         var i;
         for (i = 0; i < a.length; i += 1) {
             if (a[i] === obj) {
@@ -275,7 +275,7 @@ treestuff = (function() {
     };
 
 
-    treestuff.accContains = function(a, obj, aAcc, objAcc) {
+    pandemix.accContains = function(a, obj, aAcc, objAcc) {
         var i;
         for (i = 0; i < a.length; i += 1) {
             if (aAcc(a[i]) === objAcc(obj)) {
@@ -286,7 +286,7 @@ treestuff = (function() {
     };
 
 
-    treestuff.indexOf = function(a, obj, aAcc, objAcc) {
+    pandemix.indexOf = function(a, obj, aAcc, objAcc) {
         var i;
         for (i = 0; i < a.length; i += 1) {
             if (aAcc(a[i]) === objAcc(obj)) {
@@ -297,7 +297,7 @@ treestuff = (function() {
     };
 
 
-    treestuff.containsLeaf = function(a, obj) {
+    pandemix.containsLeaf = function(a, obj) {
         if (a.length === 0) {
             return false;
         }
@@ -315,22 +315,22 @@ treestuff = (function() {
     Iterates through all registered panels and attempts
     to call the specified update type.
     */
-    treestuff.callUpdate = function(updateType) {
+    pandemix.callUpdate = function(updateType) {
         var i;
-        for (i = 0; i < treestuff.panels.length; i += 1) {
-            if (treestuff.panels[i].hasOwnProperty(updateType)) {
-                treestuff.panels[i][updateType](arguments); //pass arguments given to this function to the update function
+        for (i = 0; i < pandemix.panels.length; i += 1) {
+            if (pandemix.panels[i].hasOwnProperty(updateType)) {
+                pandemix.panels[i][updateType](arguments); //pass arguments given to this function to the update function
             }
         }
     };
 
 
-    treestuff.panelsLoaded = function(panelType) {
+    pandemix.panelsLoaded = function(panelType) {
       var out = true,
           i;
-      for (i = 0; i < treestuff.panels.length; i += 1) {
-            if (treestuff.panels[i].panelType === panelType && treestuff.panels[i].hasOwnProperty("finishedLoading")) {
-                out = out && treestuff.panels[i].finishedLoading();
+      for (i = 0; i < pandemix.panels.length; i += 1) {
+            if (pandemix.panels[i].panelType === panelType && pandemix.panels[i].hasOwnProperty("finishedLoading")) {
+                out = out && pandemix.panels[i].finishedLoading();
             }
         }
       return out;
@@ -341,7 +341,7 @@ treestuff = (function() {
     When that happens, runs the "callback" function.
     Checks "test" every "interval" milliseconds.
     */
-    treestuff.when = function(test, callback, interval) {
+    pandemix.when = function(test, callback, interval) {
         var interval = interval || 100;
             window.setTimeout(function loopFunc() {
                 if (test()) {
@@ -353,7 +353,7 @@ treestuff = (function() {
         };
 
 
-    return treestuff
+    return pandemix
 }());
 
 

@@ -1,5 +1,5 @@
 (function() {
-	 treestuff.map.regionOutlineLayer = L.Class.extend({
+	 pandemix.map.regionOutlineLayer = L.Class.extend({
             svg: undefined,
 
             g: undefined,
@@ -41,10 +41,10 @@
                                     .enter().append("path")
                                     .on("click", function(d) {
                                         //find names via crossfilter
-                                        treestuff.dateDim.filter(null);
-                                        treestuff.selectedLeaves = 
-                                        treestuff.locDim.filter(d.properties.name).top(Infinity);
-                                        treestuff.callUpdate("leafSelectionUpdate");
+                                        pandemix.dateDim.filter(null);
+                                        pandemix.selectedLeaves = 
+                                        pandemix.locDim.filter(d.properties.name).top(Infinity);
+                                        pandemix.callUpdate("leafSelectionUpdate");
                                         //if no taxa are in that location, the clicked province won't highlight 
                                         //from the selection update so highlight manually
                                         d3.select(this).classed("highlighted", true);
@@ -108,7 +108,7 @@
 
             leafSelectionUpdate: function(selectedRegions) {
             	this.feature.classed("highlighted", function(d) {
-                    return treestuff.contains(selectedRegions, d.properties.name);
+                    return pandemix.contains(selectedRegions, d.properties.name);
                 });
             }
 

@@ -13,8 +13,8 @@
         var panel = {
             panelType: "mapPanel",
 
-            placePanel: function(target) {
-                map = new L.Map(target, {
+            placePanel: function(targ) {
+                map = new L.Map(targ, {
                     center: [34, 104],
                     zoom: 4,
                     maxBounds: [[-90, -180], [90, 180]]
@@ -44,20 +44,6 @@
                 return panel;
             },
 
-            initializePanelData: function() {
-                tileLayer = new L.TileLayer("http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png", {
-                                 noWrap: true
-                             });
-                provLayer = new provinceLayer(map)
-                centroidLayer = new centroidLayer(map);
-
-                map.addLayer(tileLayer)
-                   .addLayer(centroidLayer)
-                   .addLayer(provLayer);
-
-                
-            },
-
             addTileLayer: function(source) {
                 var l = new L.TileLayer(source, {
                                  noWrap: true
@@ -84,20 +70,6 @@
                                },
                                100);
                 return panel;
-            },
-
-            drawTree: function(tree) {
-                /*var trLayer = new treeLayer(map, tree["root"]);
-                overlayLayers[tree.name] = trLayer;
-                layerControl.addOverlay(trLayer, tree.name);
-                map.addLayer(trLayer);*/
-            },
-
-            drawForce: function(tree, color) {
-                // var frLayer = new forceLayer(map, tree["root"], color);
-                // overlayLayers[tree.name] = frLayer;
-                // layerControl.addOverlay(frLayer, tree.name);
-                // map.addLayer(frLayer);
             },
 
             getMap: function() {

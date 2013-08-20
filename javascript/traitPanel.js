@@ -157,8 +157,8 @@
             panelType : "traitPanel",
 
 
-            placePanel : function() {
-            div = d3.select("body").append("div")
+            placePanel : function(targ) {
+            div = d3.select(targ)
                     .attr("class", "traitBox")
                     .style("width", width + "px")
                     .style("height", height + "px")

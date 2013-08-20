@@ -24,9 +24,8 @@ pandemix = (function() {
     };
 
 
-    pandemix.addGlobalZoomButton = function() {
-        var zoomButton = d3.select("body")
-                           .append("div")
+    pandemix.addGlobalZoomButton = function(targ) {
+        var zoomButton = d3.select(targ)
                            .style("display", "inline-block")
                            .style("margin", "10px")
                            .append("svg")
@@ -49,8 +48,8 @@ pandemix = (function() {
     };
 
 
-    pandemix.addSearchBox = function() {
-        d3.select("body").append("div")
+    pandemix.addSearchBox = function(targ) {
+        d3.select(targ)
           .attr("class", "searchBox")
           .append("input")
           .attr("type", "text")
@@ -60,9 +59,8 @@ pandemix = (function() {
     };
 
 
-    pandemix.addColorPicker = function() {
-        d3.select("body")
-          .append("div")
+    pandemix.addColorPicker = function(targ) {
+        d3.select(targ)
           .attr("class", "colorBox")
           .append("input")
           .attr("type", "text")
@@ -72,18 +70,7 @@ pandemix = (function() {
     };
     
     
-    pandemix.addTraitBox = function() {
-        d3.select("body").append("div")
-          .attr("class", "traitBox")
-          .append("input")
-          .attr("type", "text")
-          .attr("id", "trait")
-          .attr("value", "trait")
-          .on("keyup", lookupTrait);       
-    };
-    
-    
-    pandemix.addGlobalTimeAxis = function() {
+    pandemix.addGlobalTimeAxis = function(targ) {
         timeScale = d3.time.scale()
                             .domain([0, 0])
                             .range([0, 700]);
@@ -91,15 +78,16 @@ pandemix = (function() {
                             .scale(timeScale)
                             .orient("bottom");
                             
-        brush = d3.svg.brush()
-          .x(timeScale)
-          .on("brushstart", brushstart)
-          .on("brush", brushmove)
-          .on("brushend", brushend);
+        brush = d3.svg
+                  .brush()
+                  .x(timeScale)
+                  .on("brushstart", brushstart)
+                  .on("brush", brushmove)
+                  .on("brushend", brushend);
           
         pandemix.globalTimeBrush = brush;
         
-        var div = d3.select("body").append("div");
+        var div = d3.select(targ);
 
         axisSelection = div.append("svg")
                           .attr("width", 750)
@@ -222,7 +210,7 @@ pandemix = (function() {
     function applyColor() {
         var color = document.getElementById("color").value;
         if (color === "") {
-          color = null;
+            color = null;
         }
         pandemix.callUpdate("leafColorUpdate", color);
     };
@@ -231,7 +219,7 @@ pandemix = (function() {
     function incrementZoom(dir) {
         var newScale = pandemix.scale + 0.5 * dir;
         if (newScale < 1) {
-          newScale = 1;
+            newScale = 1;
         }
         pandemix.scale = newScale;
         pandemix.callUpdate("zoomUpdate"); 
@@ -326,14 +314,14 @@ pandemix = (function() {
 
 
     pandemix.panelsLoaded = function(panelType) {
-      var out = true,
-          i;
-      for (i = 0; i < pandemix.panels.length; i += 1) {
+        var out = true,
+            i;
+        for (i = 0; i < pandemix.panels.length; i += 1) {
             if (pandemix.panels[i].panelType === panelType && pandemix.panels[i].hasOwnProperty("finishedLoading")) {
                 out = out && pandemix.panels[i].finishedLoading();
             }
         }
-      return out;
+    return out;
     };
 
     /*

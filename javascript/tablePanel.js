@@ -41,8 +41,8 @@
                 svg.attr("height", rowCount * 10);
             },
                 
-            placePanel : function() {
-            div = d3.select("body").append("div")
+            placePanel : function(targ) {
+            div = d3.select(targ)
                     .attr("class", "tableBox")
                     .style("width", width + "px")
                     .style("height", height + "px")

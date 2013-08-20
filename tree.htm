@@ -6,6 +6,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
 		<title>pandemix</title>
         <!-- <link rel="stylesheet" href="css/bootstrap-responsive.css"> -->
+        <link rel="stylesheet" type="text/css" href="css/page.css">
 		<link rel="stylesheet" type="text/css" href="css/treeStyles.css">
         <link rel="stylesheet" type="text/css" href="css/mapStyles.css">
         <link rel="stylesheet" type="text/css" href="css/leaflet.css" />
@@ -34,6 +35,17 @@
 <body>
 
 <div id="map"></div>
+<div id="search"></div>
+<div id="color"></div>
+<div id="zoom"></div>
+<div id="traits"></div>
+<div id="globalTime"></div>
+<div id="tree1"></div>
+<div id="tree2"></div>
+<div id="tree3"></div>
+<div id="tree4"></div>
+<div id="tree5"></div>
+<div id="tree6"></div>
 
 
 <script>
@@ -45,14 +57,13 @@
         var i,
             contourFile = "data/reducedGeography.json",
             tileSource = "http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png",
-//            inputFiles = ["data/tree1.json", "data/tree2.json"];
             //inputFiles = ["data/MERS-CoV.json"];
               inputFiles = ["data/H9N2 Trees/H9N2.PA.json",
-                              "data/H9N2 Trees/H9N2.MP.json",
+                            "data/H9N2 Trees/H9N2.MP.json",
                             "data/H9N2 Trees/H9N2.NS.json",
-                          "data/H9N2 Trees/H9N2.PB2.json",
-                          "data/H9N2 Trees/H9N2.NP.json",
-                          "data/H9N2 Trees/H9N2.PB1.json"];
+                            "data/H9N2 Trees/H9N2.PB2.json",
+                            "data/H9N2 Trees/H9N2.NP.json",
+                            "data/H9N2 Trees/H9N2.PB1.json"];
 
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map")
@@ -61,24 +72,22 @@
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
                 .addLayer(pandemix.map.centroidLayer, {name: "Centroids"});
 
-        //mapPanel.initializePanelData();
         pandemix.panels.push(mapPanel);                          
 
-        pandemix.addSearchBox();
-        pandemix.addColorPicker();
+        pandemix.addSearchBox("#search");
+        pandemix.addColorPicker("#color");
         //pandemix.addTraitBox();
-        pandemix.addGlobalZoomButton();
+        pandemix.addGlobalZoomButton("#zoom");
 
         var traitPanel = new pandemix.TraitPanel;
-        traitPanel.placePanel();
+        traitPanel.placePanel("#traits");
         pandemix.panels.push(traitPanel);
-        
 
         /*var legendPanel = new pandemix.LegendPanel;
         legendPanel.placePanel();
         pandemix.panels.push(legendPanel);*/
 
-        pandemix.addGlobalTimeAxis();
+        pandemix.addGlobalTimeAxis("#globalTime");
         
         var tablePanel = new pandemix.TablePanel;
         tablePanel.placePanel();
@@ -86,50 +95,27 @@
         
         pandemix.initializeCrossfilter();
 
-        var row = d3.select("body").append("div").attr("class", "treePanels");
         //read each input file and draw the tree in its own div
         for (i = 0; i < inputFiles.length; i += 1) {
-            // if (i % 2 === 0) {
-            //     row = d3.select("body").append("div").attr("class", "row");
-            // }
-            var f = inputFiles[i];
-            //var treePanel;
+            var f = inputFiles[i];                
 
-            //>>>>>>all of this extra logic doesn't work because the json isn't loaded here...
-            if (f.trees) { //there are many trees in file
-                // for (var e = 0; e < f.trees.length; e += 1) {
-                //     console.log("ch 1");
-                //     treePanel = new pandemix.TreePanel;
-                //     treePanel.placePanel(row);
-                //     treePanel.initializePanelData(f.trees[e]);
-                //     pandemix.panels.push(treePanel);
-                // }
-            } else if (f.tree) { //one tree named tree
-                // console.log("ch 2");
-                // treePanel = new pandemix.TreePanel;
-                // treePanel.placePanel(row);
-                // treePanel.initializePanelData(f.tree);
-                // pandemix.panels.push(treePanel);
-            } else { //one tree without a name, the whole file is a tree
-                // console.log("ch 3");
-                
-
-                (function() {
-                    var treePanel = new pandemix.TreePanel;
-                treePanel.placePanel(row);
+            (function() {
+                //this call is wrappend in a closure so that each call to "when"
+                //would receive the correct reference to the tree panel created
+                var treePanel = new pandemix.TreePanel;
+                treePanel.placePanel("#tree" + (i + 1));
                 treePanel.initializePanelData(f);
                 pandemix.panels.push(treePanel);
                     pandemix.when(function() {return treePanel.finishedLoading; },
                            function() {
                                mapPanel.addLayer(pandemix.map.virusParticleLayer,
-                               {name: treePanel.treeData.name, tree: treePanel.treeData.root, color: treePanel.panelID}
+                               {name: treePanel.treeData.name,
+                                tree: treePanel.treeData.root,
+                                color: treePanel.panelID}
                                )
                            },
                            100);
-                })();
-
-            }
-            
+            })();            
         }
 
 	})();

@@ -390,7 +390,7 @@
                 this.panelID = panelID;
                 pandemix.focusedPanel = panelID;
                 
-                var outerDiv = targ
+                var outerDiv = d3.select(targ)
                                  .append("div")
                                  //.attr("class", "span1")
                                  .style("min-height", "20px")

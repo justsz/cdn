@@ -1,4 +1,15 @@
 (function() {
+    /*
+    When moving forward in time there are a couple of decisions to make 
+    about how to deal with nodes as they are being passed.
+    "removingInnerNodes" sets whether an inner node particle is removed
+    once it splits into children nodes
+    "removePassedLeaves" sets whether leaf nodes are removed when the 
+    time scrobbler moves past their sampling date
+    */
+    var removeInnerNodes = true;
+    var removePassedLeaves = true;
+
     var climbNodes = function(that) {
                 /*
                 Start with root at its initial location.
@@ -146,12 +157,6 @@
                   .attr("cy", function(d) { return d.y; });
             });
 
-
-            //this function, without regards to the time in the tree,
-            //climbs down a level in the tree every 3 seconds and 
-            //adds all the new virus particles to the layer
-            //that.intervalID = setInterval(function() {return climbNodes(that); }, 3000);
-
             var day = (31557600000 / 365.25);
 
             var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day * 10) ]; //2000
@@ -169,47 +174,6 @@
             // }
 
             that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
-
-
-            /*setInterval(function() {
-                                                  //calculate any needed clumping
-                //console.log(that.nodes.length);
-                that.foci.forEach(function(o) {
-                    var occs = o.occupants;
-                    var clump = [];
-                    for (var i = 0; i < occs.length - 1; i += 1) {
-                        for (var j = i + 1; j < occs.length; j += 1) {
-                            //console.log(((occs[i].x - occs[j].x) * (occs[i].x - occs[j].x) + (occs[i].y - occs[j].y) * (occs[i].y - occs[j].y)));
-                            if (((occs[i].x - occs[j].x) * (occs[i].x - occs[j].x) + (occs[i].y - occs[j].y) * (occs[i].y - occs[j].y)) < 4) {
-                                clump.push(occs[i]);
-                                clump.push(occs[j]);
-                            }
-                        }
-                    }
-                    if (clump.length > 0) {
-                        that.nodes.push({virNum: that.virNum, clumpid: clump[0].id, x: clump[0].x, y: clump[0].y, r: (clump[0].r + 3)});
-                        that.virnum += 1;
-                        occs.push(that.nodes[that.nodes.length - 1]);
-
-                        clump.forEach(function(c) {
-                            //remove from that.nodes; remove from focus.occupants
-                            var ind = pandemix.indexOf(that.nodes, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
-                            if (ind > -1) {
-                                that.nodes.splice(ind);
-                            }
-                            ind = pandemix.indexOf(occs, c, function(x) {return x.virNum; }, function(x) {return x.virNum; });
-                            if (ind > -1) {
-                                occs.splice(ind);
-                            }
-                        });
-                    }
-                      
-                });
-that.force.start();
-
-            }, 333);*/
-
-
 
         },
 
@@ -241,7 +205,9 @@ that.force.start();
                         parentFound = true;
                         initLoc.push(n.x);
                         initLoc.push(n.y);
-                        that.nodes.splice(a, 1); //removes all inner nodes eventually
+                        if (removeInnerNodes) {
+                            that.nodes.splice(a, 1);
+                        }
                         break;
                     }
                 };
@@ -261,11 +227,13 @@ that.force.start();
                         }
                     });
                 } else {
-                    for (a = 0; a < that.nodes.length; a += 1) {   
-                        var n = that.nodes[a];
-                        if (n.node === nd) {
-                            that.nodes.splice(a, 1);
-                            break;
+                    if (removePassedLeaves) {
+                        for (a = 0; a < that.nodes.length; a += 1) {   
+                            var n = that.nodes[a];
+                            if (n.node === nd) {
+                                that.nodes.splice(a, 1);
+                                break;
+                            }
                         }
                     }
                 }
@@ -321,6 +289,8 @@ that.force.start();
             w = topRight[0] - bottomLeft[0];
             h = bottomLeft[1] - topRight[1];
 
+            console.log(bottomLeft, topRight);
+
             that.svg .attr("width", w)
                 .attr("height", h)
                 .style("margin-left", bottomLeft[0] + "px")
@@ -351,7 +321,7 @@ that.force.start();
 })();
 
 
-
+//some misc clumping code...
 
 // that.foci.forEach(function(o) {
                 //     var occs = o.occupants;

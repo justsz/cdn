@@ -154,18 +154,19 @@
 
             var day = (31557600000 / 365.25);
 
-            var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day * 10) ];
+            var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day * 10) ]; //2000
+            // var prd = [new Date(44 * 31557600000), new Date(44 * 31557600000 + day * 10) ]; //2014
             
 
             //place root node.. not great solution at the moment
-            for (a = 0; a < that.foci.length; a += 1) {
-                if (that.foci[a].name === that.tree.location) {
-                    initLoc = that.project(that.centroids[that.tree.location]);
-                    that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, node: that.tree});
-                    that.virNum += 1;
-                    break;
-                }
-            }
+            // for (a = 0; a < that.foci.length; a += 1) {
+            //     if (that.foci[a].name === that.tree.location) {
+            //         initLoc = that.project(that.centroids[that.tree.location]);
+            //         that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y:initLoc[1], r: that.radius, node: that.tree});
+            //         that.virNum += 1;
+            //         break;
+            //     }
+            // }
 
             that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
 
@@ -223,37 +224,27 @@ that.force.start();
                 }
             });
 
-
             var a,
                 initLoc,
                 newNodes;
 
             newNodes = [];
 
-            if (filteredNodes.length > 0) {
-                //console.log(period);
-                //console.log(filteredNodes);
-                //console.log(that.nodes.slice(0));
-                //console.log(selectedNodes);
-                //console.log("---------");
-
-            }
-
-
             selectedNodes.forEach(function(nd) {
                 var parent = nd.parent;
                 var parentFound = false;
                 var initLoc = [];
 
-                that.nodes.forEach(function(n, i) {
+                for (a = 0; a < that.nodes.length; a += 1) {   
+                    var n = that.nodes[a];
                     if (n.node === parent) {
                         parentFound = true;
                         initLoc.push(n.x);
                         initLoc.push(n.y);
-                        that.nodes.splice(i, 1); //removes all inner nodes eventually
+                        that.nodes.splice(a, 1); //removes all inner nodes eventually
+                        break;
                     }
-                    //break;
-                });
+                };
 
 
                 if (nd.children) {
@@ -269,34 +260,22 @@ that.force.start();
                             }
                         }
                     });
-                } 
+                } else {
+                    for (a = 0; a < that.nodes.length; a += 1) {   
+                        var n = that.nodes[a];
+                        if (n.node === nd) {
+                            that.nodes.splice(a, 1);
+                            break;
+                        }
+                    }
+                }
             });
-
-            // that.nodes.forEach(function(o) {
-            //     if (o.children) {
-            //         o.children.forEach(function(c) {
-            //             if () {
-            //                 newNodes.push({virNum: that.virNum, id: a, x: o.x, y: o.y, r: that.radius, children: c.children});
-            //                 that.virNum += 1;
-            //                 break;
-            //             }
-            //         });
-            //     }
-            // });
-
-            // that.nodes = newNodes;
-            // that.force.nodes(newNodes);
-            
-            //console.log(that.nodes.length);
-
 
             that.force.start();
 
 
             var nodeSel = that.g.selectAll("circle.virusParticle")
                                 .data(that.nodes, function(d) {return d.virNum});
-
-
 
             nodeSel.exit().remove(); //.transition().attr("r", 0)
 
@@ -360,7 +339,7 @@ that.force.start();
                 }
             }
             if (that.force) {
-               // that.force.start();
+               that.force.charge(- that.radius / 8).start();
             }
 
             

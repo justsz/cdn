@@ -161,6 +161,8 @@
 
             var prd = [new Date(30 * 31557600000), new Date(30 * 31557600000 + day * 10) ]; //2000
             // var prd = [new Date(44 * 31557600000), new Date(44 * 31557600000 + day * 10) ]; //2014
+
+            //pandemix.showPeriod = that.showPeriod;
             
 
             //place root node.. not great solution at the moment
@@ -173,11 +175,12 @@
             //     }
             // }
 
-            that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
+            //that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
 
         },
 
-        showPeriod: function(period) {
+        timeSelectionUpdate: function(period) {
+            var period = period || pandemix.selectedPeriod;
             var that = this;
             var filteredNodes = pandemix.nodeDateDim.filterRange(period).top(Infinity);
             var selectedNodes = [];
@@ -259,8 +262,8 @@
                    .attr("r", function(d) {return d.r; });
 
 
-            pandemix.selectedPeriod = period;
-            pandemix.callUpdate("timeSelectionUpdate");
+            //pandemix.selectedPeriod = period;
+            //pandemix.callUpdate("timeSelectionUpdate");
 
         },
 

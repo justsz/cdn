@@ -94,6 +94,15 @@
                 }
             },
 
+            timeSelectionUpdate: function() {
+                for (i = 0; i < layers.length; i += 1) {
+                    //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet
+                    if ("timeSelectionUpdate" in layers[i]) {
+                        layers[i].timeSelectionUpdate();
+                    }
+                }
+            },
+
             project: function(x) {
                 var point = map.latLngToLayerPoint(new L.LatLng(x[1], x[0]));
                 return [point.x, point.y];

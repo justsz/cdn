@@ -80,16 +80,39 @@
 	fill-opacity: 1;
 }
 
+.zoomControl {
+    display: inline-block;
+}
 
 /*Zoom button styling*/
 .zoom.increase {
-    /*background-image: url('../img/glyphicons-halflings.png');
-    background-position: 0px 0px;*/
-    fill: green;
+    background-image: url("../img/glyphicons-halflings.png");
+    background-position: -397px -87px; 
+    background-color: green;
+    width: 34px;
+    height: 34px;
 }
 
 .zoom.decrease {
-    fill: red;
+    background-image: url("../img/glyphicons-halflings.png");
+    background-position: -422px -87px; 
+    background-color: red;
+    width: 34px;
+    height: 34px;
+}
+
+.timeScrobbler {
+    background-image: url("../img/glyphicons-halflings.png");
+    background-position: -308px -90px; 
+    cursor: move;
+    position: relative;
+    width: 20px;
+    height: 20px;  
+}
+
+.scrobblerBackground {
+    width: 700px;
+    height: 25px;
 }
 
 

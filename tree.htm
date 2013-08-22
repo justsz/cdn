@@ -21,6 +21,7 @@
 		<script src="javascript/pandemix.js"></script>
 
     	<script src="javascript/circlePanel.js"></script>
+        <script src="javascript/timePanel.js"></script>
         <script src="javascript/mapPanel.js"></script>
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
@@ -87,7 +88,9 @@
         legendPanel.placePanel();
         pandemix.panels.push(legendPanel);*/
 
-        pandemix.addGlobalTimeAxis("#globalTime");
+        var timePanel = new pandemix.TimePanel;
+        timePanel.placePanel("#globalTime");
+        pandemix.panels.push(timePanel);
         
         var tablePanel = new pandemix.TablePanel;
         tablePanel.placePanel();

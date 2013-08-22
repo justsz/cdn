@@ -26,24 +26,14 @@ pandemix = (function() {
 
     pandemix.addGlobalZoomButton = function(targ) {
         var zoomButton = d3.select(targ)
-                           .style("display", "inline-block")
-                           .style("margin", "10px")
-                           .append("svg")
-                           .attr("width", 40)
-                           .attr("height", 80)
-                           .append("g");
+                           .attr("class", "zoomControl");
 
-            zoomButton.append("rect")
+            zoomButton.append("div")
                        .attr("class", "zoom increase")
-                       .attr("width", 40)
-                       .attr("height", 40)
                        .on("click", function() {incrementZoom(1); });
                    
-            zoomButton.append("rect")
+            zoomButton.append("div")
                        .attr("class", "zoom decrease")
-                       .attr("y", 40)
-                       .attr("width", 40)
-                       .attr("height", 40)
                        .on("click", function() {incrementZoom(-1); });
     };
 
@@ -67,99 +57,6 @@ pandemix = (function() {
           .attr("id", "color")
           .attr("value", "color")
           .on("keyup", applyColor);
-    };
-    
-    
-    pandemix.addGlobalTimeAxis = function(targ) {
-        timeScale = d3.time.scale()
-                            .domain([0, 0])
-                            .range([0, 700]);
-        timeAxis = d3.svg.axis()
-                            .scale(timeScale)
-                            .orient("bottom");
-                            
-        brush = d3.svg
-                  .brush()
-                  .x(timeScale)
-                  .on("brushstart", brushstart)
-                  .on("brush", brushmove)
-                  .on("brushend", brushend);
-          
-        pandemix.globalTimeBrush = brush;
-        
-        var div = d3.select(targ);
-
-        axisSelection = div.append("svg")
-                          .attr("width", 750)
-                          .attr("height", 20)
-                          .append("g")
-                          .attr("class", "axis")
-                          .style("cursor", "crosshair")
-                          //.attr("transform", "translate(0," + (height) + ")")
-                          .call(timeAxis)
-                          .call(brush);
-    };
-
-
-    function brushstart() {
-        //brush.clear();
-        //d3.selectAll(".link").classed("highlighted", false);
-    };
-
-
-    function brushmove() {
-        var e = brush.extent();
-        pandemix.selectedPeriod = e;
-        if (pandemix.brushHighlight) {
-            brushHighlight.attr("x", timeScale(e[0]))
-                          .attr("width", timeScale(e[1]) - timeScale(e[0]));
-        } else {
-            brushHighlight = axisSelection.append("rect")
-                                          .attr("class", "timeSelection")
-                                          .attr("x", timeScale(e[0]))
-                                          .attr("y", 0)
-                                          .attr("width", timeScale(e[1]) - timeScale(e[0]))
-                                          .attr("height", 20);
-            pandemix.brushHighlight = brushHighlight;
-        }
-        pandemix.locDim.filter(null);
-        pandemix.selectedLeaves = pandemix.dateDim.filterRange(e).top(Infinity);
-        pandemix.callUpdate("timeSelectionUpdate");
-        pandemix.callUpdate("leafSelectionUpdate");
-    };
-
-
-    function brushend() {
-        if (brush.empty()) {
-            if (brushHighlight) {
-                brushHighlight.remove();
-                brushHighlight = null;
-                pandemix.brushHighlight = null;
-            }
-        }
-    };
-    
-    pandemix.selectedPeriod;
-    
-    var axisSelection;
-    var timeScale;
-    var timeAxis;
-    var rootHeights = [];
-    var leafHeights = [];
-    var brush;
-    var brushHighlight;
-    
-
-    /*
-    As data is being added, update the global time axis with new min/max taxon dates.
-    */
-    pandemix.updateGlobalTimeAxis = function(rootHeight, minLeafHeight) {
-        rootHeights.push(rootHeight);
-        leafHeights.push(minLeafHeight);
-        
-        timeScale.domain([pandemix.nodeHeightToDate(d3.max(rootHeights), 2014), pandemix.nodeHeightToDate(d3.min(leafHeights), 2014)]);
-
-        axisSelection.call(timeAxis);
     };
 
 
@@ -331,14 +228,16 @@ pandemix = (function() {
     */
     pandemix.when = function(test, callback, interval) {
         var interval = interval || 100;
-            window.setTimeout(function loopFunc() {
-                if (test()) {
-                    callback();
-                } else {
-                    window.setTimeout(loopFunc, interval);
-                }
-            }, interval);
-        };
+        window.setTimeout(function loopFunc() {
+            if (test()) {
+                callback();
+            } else {
+                window.setTimeout(loopFunc, interval);
+            }
+        }, interval);
+    };
+
+
 
 
     return pandemix

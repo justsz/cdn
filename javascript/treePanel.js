@@ -684,7 +684,14 @@
                                      }
                                  });
 
-                    pandemix.updateGlobalTimeAxis(maxHeight, minHeight);
+                    //pandemix.updateGlobalTimeAxis(maxHeight, minHeight);
+                    //pandemix.callUpdate("updateGlobalTimeAxis", maxHeight, minHeight);
+
+                    pandemix.panels.forEach(function(p) {
+                        if (p.panelType === "timePanel") {
+                            p.updateGlobalTimeAxis(maxHeight, minHeight);      
+                        }
+                    });
 
                     that.finishedLoading = true;
                 }); 

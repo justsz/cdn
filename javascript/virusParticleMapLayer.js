@@ -175,14 +175,42 @@
             //     }
             // }
 
-            //that.intervalID = setInterval(function() {that.showPeriod(prd); prd[0].setDate(prd[0].getDate() + 10); prd[1].setDate(prd[1].getDate() + 10);}, 100);
+
+             var start;
+             var times = [];
+
+            // that.intervalID = setInterval(function() {
+            //     start = new Date().getTime();
+            //     that.timeSelectionUpdate(prd); 
+            //     prd[0].setDate(prd[0].getDate() + 10); 
+            //     prd[1].setDate(prd[1].getDate() + 10);
+            //     times.push(new Date().getTime() - start);
+            //     if (times.length === 100)  {
+            //         console.log("avg execution time: ", d3.mean(times));
+            //         times = [];
+            //     }
+            // }, 100);
+
+            // that.intervalID = setInterval(function() {
+            //     start = new Date().getTime();
+            //     that.timeLinks(prd[0]); 
+            //     prd[0].setDate(prd[0].getDate() + 10); 
+            //     times.push(new Date().getTime() - start);
+            //     if (times.length === 100)  {
+            //         console.log("avg execution time: ", d3.mean(times));
+            //         times = [];
+            //     }
+            // }, 100);
+
+
+            //that.intervalID = setInterval(function() {that.timeLinks(prd[0]); prd[0].setDate(prd[0].getDate() + 10); }, 100);
 
         },
 
-        timeSelectionUpdate: function(period) {
-            var period = period || pandemix.selectedPeriod;
+        timeSelectionUpdate: function(filteredNodes) {
+            //var period = period || pandemix.selectedPeriod;
             var that = this;
-            var filteredNodes = pandemix.nodeDateDim.filterRange(period).top(Infinity);
+            //var filteredNodes = pandemix.nodeDateDim.filterRange(period).top(Infinity);
             var selectedNodes = [];
 
             filteredNodes.forEach(function(d) {
@@ -264,6 +292,116 @@
 
             //pandemix.selectedPeriod = period;
             //pandemix.callUpdate("timeSelectionUpdate");
+
+        },
+
+        timeScrobbleUpdate: function(filteredLinks, movingForward) {
+            //console.log(date);
+            var that = this;
+            
+            //var filteredLinks = pandemix.linkPeriodDim.filter(function(d) {return d[0] < date && date < d[1] ;}).top(Infinity);
+            // var selectedLinks = pandemix.treeIdDim.filter(that.color).top(Infinity);
+            var selectedLinks = [];
+            var a;
+
+            filteredLinks.forEach(function(d) {
+                if (d.treeID === that.color) {
+                    selectedLinks.push(d.link);
+                }
+            });
+
+            
+            var newNodes = [];
+
+            selectedLinks.forEach(function(l) {
+                // var l = l.link;
+                var nodeFound = false;
+                var initLoc = undefined;
+                var srcNode = undefined;
+                for (a = 0; a < that.nodes.length; a += 1) {
+                    if (that.nodes[a].node === l.target) {
+                        nodeFound = true;
+                        newNodes.push(that.nodes[a]);
+                        break;
+                    }
+                    if (movingForward && that.nodes[a].node === l.source) {
+                        initLoc = [that.nodes[a].x, that.nodes[a].y];
+                        srcNode = a;
+                    }
+                    
+                }
+
+                if (!nodeFound) {
+                    for (a = 0; a < that.foci.length; a += 1) {
+                        if (that.foci[a].name === l.target.location) {
+                            if (movingForward && !initLoc) {
+                                initLoc = that.project(that.centroids[l.source.location]);
+                            } else if (!movingForward) {
+                                initLoc = that.project(that.centroids[l.target.location]);
+                            }
+                            newNodes.push({virNum: that.virNum, id: a, x: initLoc[0], y: initLoc[1], r: that.radius, node: l.target});
+                            that.virNum += 1;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // selectedLinks.forEach(function(l) {
+            //     // var l = l.link;
+            //     var nodeFound = false;
+            //     var initLoc = undefined;
+            //     var srcNode = undefined;
+            //     for (a = 0; a < that.nodes.length; a += 1) {
+            //         if (that.nodes[a].node === l.target) {
+            //             nodeFound = true;
+            //             break;
+            //         }
+            //         if (that.nodes[a].node === l.source) {
+            //             initLoc = [that.nodes[a].x, that.nodes[a].y];
+            //             srcNode = a;
+            //         }
+            //     }
+
+            //     if (!nodeFound) {
+            //         if (srcNode) {
+            //             that.nodes.splice(srcNode, 1);
+            //         }
+            //         for (a = 0; a < that.foci.length; a += 1) {
+            //             if (that.foci[a].name === l.target.location) {
+            //                 if (!initLoc) {
+            //                     initLoc = that.project(that.centroids[l.source.location]);
+            //                 }
+            //                 that.nodes.push({virNum: that.virNum, id: a, x: initLoc[0], y: initLoc[1], r: that.radius, node: l.target});
+            //                 that.virNum += 1;
+            //                 break;
+            //             }
+            //         }
+            //     }
+            // });
+
+            that.nodes = newNodes;
+            that.force.nodes(newNodes);
+
+            that.force.start();
+
+            var nodeSel = that.g.selectAll("circle.virusParticle")
+                                .data(that.nodes, function(d) {return d.virNum});
+
+            nodeSel.exit().remove(); //.transition().attr("r", 0)
+
+            nodeSel.enter()
+                   .append("svg:circle")
+                   .attr("class", "virusParticle")
+                   .attr("cx", function(d) {return d.x; })
+                   .attr("cy", function(d) {return d.y; })
+                   .style("fill", that.fill(that.color)) 
+                   .style("stroke", 1)
+                   // .attr("r", 0)
+                   // .transition()
+                   .attr("r", function(d) {return d.r; });
+
+            // console.log(that.nodes);
 
         },
 

@@ -66,20 +66,17 @@
             }
 
 	    };
-
+		var postn;
 	    function mMove() {
 	    	if (scrobClicked) {
-	    		var pos = d3.mouse(scrobblerBackground[0][0])[0];
-	    		//select a 1 pixel wide period on the timescale
-	    		var prd = [timeScale.invert(pos), timeScale.invert(pos + 1)];
-	    		//pandemix.showPeriod(prd);
-	    		pandemix.selectedPeriod = prd;
-            	pandemix.callUpdate("timeSelectionUpdate");
-	    		//move scrobbler along the time axis by changing its displacement from the left side
-	    		scrobbler.style("left", (pos - scrobblerWidth / 2) + "px");
-
-
-	    		
+	    		postn = d3.mouse(scrobblerBackground[0][0])[0];
+	    		// //select a 1 pixel wide period on the timescale
+	    		// var prd = [timeScale.invert(pos), timeScale.invert(pos + 1)];
+	    		// pandemix.selectedPeriod = prd;
+       //      	pandemix.callUpdate("timeSelectionUpdate");
+       			scrobbler.style("left", (postn - scrobblerWidth / 2) + "px");
+	       		pandemix.selectedDate = timeScale.invert(postn);
+	            pandemix.callUpdate("timeScrobbleUpdate");
 	    	}
 	    };
 

@@ -7,7 +7,8 @@
             layerControl,
             mapData = undefined,
             centroids = {"Tibet": [87, 31.7], "HongKong": [114, 22]},
-            contoursLoaded = false;
+            contoursLoaded = false,
+            previousSelectedDate = undefined;
 
 
         var panel = {
@@ -76,6 +77,8 @@
                 return map;
             },
 
+            times: [],
+
             leafSelectionUpdate: function() {
                 var selectedRegions = [],
                     i;
@@ -95,11 +98,56 @@
             },
 
             timeSelectionUpdate: function() {
+                // var start = new Date().getTime();
+                // var filteredNodes = undefined;
+                // for (i = 0; i < layers.length; i += 1) {
+                //     //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet
+                //     if ("timeSelectionUpdate" in layers[i]) {
+                //         if (!filteredNodes) {
+                //             filteredNodes = pandemix.nodeDateDim.filterRange(pandemix.selectedPeriod).top(Infinity);
+                //         }
+                //         layers[i].timeSelectionUpdate(filteredNodes);
+                //     }
+                // }
+
+                // this.times.push(new Date().getTime() - start);
+                // if (this.times.length === 100)  {
+                //     console.log("avg execution time: ", d3.mean(this.times));
+                //     this.times = [];
+                // }
+            },
+
+            timeScrobbleUpdate: function() {
+                console.log("update");
+                var start = new Date().getTime();
+                var date = pandemix.selectedDate;
+                var filteredNodes = undefined;
+                var movingForward = undefined;
+
+                //decide if scrobbler is moving forward or backward in time
+                if (!previousSelectedDate) {
+                    movingForward = true;
+
+                } else {
+                    movingForward = previousSelectedDate < date;
+                }
+                previousSelectedDate = date;
+
                 for (i = 0; i < layers.length; i += 1) {
                     //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet
-                    if ("timeSelectionUpdate" in layers[i]) {
-                        layers[i].timeSelectionUpdate();
+                    if ("timeScrobbleUpdate" in layers[i]) {
+                        if (!filteredNodes) {
+                            pandemix.linkStartDateDim.filter(function(d) {return d < date; });
+                            var filteredLinks = pandemix.linkEndDateDim.filter(function(d) {return d > date; }).top(Infinity);
+                        }
+                        layers[i].timeScrobbleUpdate(filteredLinks, movingForward);
                     }
+                }
+
+                this.times.push(new Date().getTime() - start);
+                if (this.times.length === 100)  {
+                    console.log("avg execution time: ", d3.mean(this.times));
+                    this.times = [];
                 }
             },
 

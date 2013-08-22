@@ -131,6 +131,11 @@ pandemix = (function() {
         pandemix.nodes = crossfilter();
         pandemix.nodeDateDim = pandemix.nodes.dimension(function(d) {return d.date; });
 
+        pandemix.links = crossfilter();
+        pandemix.linkStartDateDim = pandemix.links.dimension(function(d) {return d.startDate; });
+        pandemix.linkEndDateDim = pandemix.links.dimension(function(d) {return d.endDate; });
+        pandemix.treeIdDim = pandemix.links.dimension(function(d) {return d.treeID; });
+
         pandemix.taxa = crossfilter();
         pandemix.nameDim = pandemix.taxa.dimension(function(d) {return d.name; });
         pandemix.locDim = pandemix.taxa.dimension(function(d) {return d.location; });

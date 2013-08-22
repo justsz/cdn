@@ -106,12 +106,12 @@
         Used in drawing the vertical line coming from the time axis.
         */
         function drawAimLine(coords) {
-            prevCoords = coords || prevCoords;
-            aimLine = svg.append("line")
-                         .attr("x1", prevCoords[0] + horizontalPadding)
+            //prevCoords = coords || prevCoords;
+            svg.select(".aimLine")
+                         .attr("x1", coords + horizontalPadding)
                          .attr("y1", yScale(height) + verticalPadding)
-                         .attr("x2", prevCoords[0] + horizontalPadding)
-                         .attr("y2", "0")
+                         .attr("x2", coords + horizontalPadding)
+                         .attr("y2", 0)
                          .style("stroke", "red");
         };
 
@@ -433,6 +433,8 @@
                          .attr("class", "treePanel")
                          .attr("width", width + marginForLabels)
                          .attr("height", height + 2 * verticalPadding);
+
+                aimLine = svg.append("line").attr("class", "aimLine");
                              
                 pandemix.counter += 1;
             },
@@ -479,6 +481,11 @@
                     //populate node crossfilter
                     pandemix.nodes.add(nodeArray.map(function(n) {
                        return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
+                    }));
+
+                    //populate link crossfilter
+                    pandemix.links.add(linkArray.map(function(l) {
+                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID};
                     }));
                     
                     //nameLengths = [];
@@ -672,7 +679,7 @@
                                      if (placeAimLine) {
                                          aimLine.remove();
                                      } else {
-                                         drawAimLine(d3.mouse(this));
+                                         drawAimLine(d3.mouse(this)[0]);
                                      }
                                      placeAimLine = !placeAimLine;
                                  })
@@ -680,7 +687,7 @@
                                      if (placeAimLine) {
                                          var coords = d3.mouse(this);
                                          if (aimLine) {aimLine.remove(); };
-                                         drawAimLine(coords);
+                                         drawAimLine(coords)[0];
                                      }
                                  });
 
@@ -803,6 +810,11 @@
                     }
                 }
             },
+
+
+            timeScrobbleUpdate : function() {
+                drawAimLine(timeScale(pandemix.selectedDate));
+            }
 
 
         } //end returnable object

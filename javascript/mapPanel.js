@@ -31,6 +31,12 @@
                     var path = d3.geo.path().projection(that.project);
                     mapData = json; //save a reference to the parsed contour file for use with layers
                     bounds = d3.geo.bounds(mapData);
+                    //TODO: add that check for latitude as well if needed
+                    if (bounds[1][0] < bounds[0][0]) { //if true, the area has crossed the antimeridian
+                        //set the bounds to span the entire map
+                        bounds[0][0] = -180;
+                        bounds[1][0] = 180;
+                    }
                     
 
                     for (var i = 0; i < mapData.features.length; i++) {
@@ -152,7 +158,7 @@
             },
 
             project: function(x) {
-                var point = map.latLngToLayerPoint(new L.LatLng(x[1], x[0]));
+                var point = map.latLngToLayerPoint([x[1], x[0]]); //new L.LatLng(x[1], x[0])
                 return [point.x, point.y];
             }
         };

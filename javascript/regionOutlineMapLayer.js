@@ -28,12 +28,7 @@
                 processData(args.mapData);
 
                 function processData(dat) {
-                    //TODO: add that check for latitude as well if needed
-                    if (that.bounds[1][0] < that.bounds[0][0]) { //if true, the area has crossed the antimeridian
-                        //set the bounds to span the entire map
-                        that.bounds[0][0] = -180;
-                        that.bounds[1][0] = 180;
-                    }
+                    
                     that.path = d3.geo.path().projection(that.project);
 
                     that.feature = that.g.selectAll("path")

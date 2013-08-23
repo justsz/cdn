@@ -696,7 +696,7 @@
 
                     pandemix.panels.forEach(function(p) {
                         if (p.panelType === "timePanel") {
-                            p.updateGlobalTimeAxis(maxHeight, minHeight);      
+                            p.updateGlobalTimeAxis(pandemix.nodeHeightToDate(maxHeight, timeOrigin), pandemix.nodeHeightToDate(minHeight, timeOrigin));      
                         }
                     });
 

@@ -430,8 +430,6 @@
             w = topRight[0] - bottomLeft[0];
             h = bottomLeft[1] - topRight[1];
 
-            console.log(bottomLeft, topRight);
-
             that.svg .attr("width", w)
                 .attr("height", h)
                 .style("margin-left", bottomLeft[0] + "px")

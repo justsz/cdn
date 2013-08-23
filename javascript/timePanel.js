@@ -4,8 +4,8 @@
     var axisSelection,
         timeScale,
     	timeAxis,
-    	rootHeights = [],
-    	leafHeights = [],
+    	startDates = [],
+    	endDates = [],
     	brush,
     	brushHighlight,
     	panel,
@@ -89,11 +89,11 @@
 		    /*
 		    As data is being added, update the global time axis with new min/max taxon dates.
 		    */
-		    updateGlobalTimeAxis : function(rootHeight, minLeafHeight) {
-		        rootHeights.push(rootHeight);
-		        leafHeights.push(minLeafHeight);
+		    updateGlobalTimeAxis : function(startDate, endDate) {
+		        startDates.push(startDate);
+		        endDates.push(endDate);
 		        
-		        timeScale.domain([pandemix.nodeHeightToDate(d3.max(rootHeights), 2014), pandemix.nodeHeightToDate(d3.min(leafHeights), 2014)]);
+		        timeScale.domain([d3.min(startDates), d3.max(endDates)]);
 
 		        axisSelection.call(timeAxis);
 		    },

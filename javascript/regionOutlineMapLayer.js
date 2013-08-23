@@ -18,7 +18,8 @@
                 that.project = args.project;
                 that.bounds = args.bounds;
 
-                // create a DOM element and put it into one of the map panes
+                that.anchor = that.map.getPanes().overlayPane.appendChild(L.DomUtil.create("div", "layerAnchor"));
+
                 that.el = L.DomUtil.create('div', 'provinceLayer leaflet-zoom-hide');
                 that.svg = d3.select(that.el).append("svg");
 
@@ -37,8 +38,7 @@
                                     .on("click", function(d) {
                                         //find names via crossfilter
                                         pandemix.dateDim.filter(null);
-                                        pandemix.selectedLeaves = 
-                                        pandemix.locDim.filter(d.properties.name).top(Infinity);
+                                        pandemix.selectedLeaves = pandemix.locDim.filter(d.properties.name).top(Infinity);
                                         pandemix.callUpdate("leafSelectionUpdate");
                                         //if no taxa are in that location, the clicked province won't highlight 
                                         //from the selection update so highlight manually
@@ -73,7 +73,7 @@
 
             onAdd: function() {
                 var that = this;
-                that.map.getPanes().overlayPane.appendChild(that.el);
+                that.anchor.appendChild(that.el);
                 that.map.on('viewreset', that.reset, that);
                 that.reset();
             },
@@ -81,7 +81,7 @@
             onRemove: function() {
                 // remove layer's DOM elements and listeners
                 var that = this;
-                that.map.getPanes().overlayPane.removeChild(that.el);
+                that.anchor.removeChild(that.el);
                 that.map.off('viewreset', that.reset, that);
             },
 

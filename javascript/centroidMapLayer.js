@@ -19,6 +19,8 @@
                 that.bounds = args.bounds;
                 that.centroids = args.centroids;
 
+                that.anchor = that.map.getPanes().overlayPane.appendChild(L.DomUtil.create("div", "layerAnchor"));
+
                 // create a DOM element and put it into one of the map panes
                 that.el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
 
@@ -42,7 +44,7 @@
 
             onAdd: function (map) {
                 var that = this;
-                map.getPanes().overlayPane.appendChild(that.el);
+                that.anchor.appendChild(that.el);
                 // add a viewreset event listener for updating layer's position, do the latter
                 map.on('viewreset', that.reset, that);
                 that.reset();
@@ -51,7 +53,7 @@
             onRemove: function (map) {
                 // remove layer's DOM elements and listeners
                 var that = this;
-                map.getPanes().overlayPane.removeChild(that.el);
+                that.anchor.removeChild(that.el);
                 map.off('viewreset', that.reset, that);
             },
 

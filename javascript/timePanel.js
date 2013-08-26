@@ -81,7 +81,9 @@
 	    };
 
 	    function mUp() {
-	    	scrobClicked = false;
+	    	if (scrobClicked) {
+	    		scrobClicked = false;
+	    	}
 	    };
 
 	    panel = {
@@ -100,7 +102,7 @@
 
 			placePanel : function(targ) {
 		        timeScale = d3.time.scale()
-		                            .domain([0, 0])
+		                            .domain([0, 1])
 		                            .range([0, 700]);
 		        timeAxis = d3.svg.axis()
 		                            .scale(timeScale)
@@ -119,9 +121,9 @@
 		        		.attr("class", "timePanel");
 
 		        scrobblerBackground = div.append("div")
-		        			   .attr("class", "scrobblerBackground")
-		        			   .on("mousemove", mMove)
-		        			   .on("mouseup", mUp);
+		        			   .attr("class", "scrobblerBackground");
+		        d3.select(document).on("mousemove.time", mMove)
+		              			   .on("mouseup.time", mUp);
 
 				scrobbler = scrobblerBackground.append("div")
 									           .attr("class", "timeScrobbler")

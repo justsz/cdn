@@ -31,6 +31,8 @@
         <script src="javascript/regionOutlineMapLayer.js"></script>        
         <script src="javascript/centroidMapLayer.js"></script> 
         <script src="javascript/virusParticleMapLayer.js"></script> 
+        <script src="javascript/bubbleChartMapLayer.js"></script> 
+        <script src="javascript/bubbleTransMapLayer.js"></script>
 
 	</head>
 <body>
@@ -71,7 +73,9 @@
                 .loadContours(contourFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"});
+                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
+                .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
+                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 
         pandemix.panels.push(mapPanel);                          
 
@@ -109,15 +113,15 @@
                 treePanel.placePanel("#tree" + (i + 1));
                 treePanel.initializePanelData(f);
                 pandemix.panels.push(treePanel);
-                    pandemix.when(function() {return treePanel.finishedLoading; },
-                           function() {
-                               mapPanel.addLayer(pandemix.map.virusParticleLayer,
-                               {name: treePanel.treeData.name,
-                                tree: treePanel.treeData.root,
-                                color: treePanel.panelID}
-                               )
-                           },
-                           100);
+                    // pandemix.when(function() {return treePanel.finishedLoading; },
+                    //        function() {
+                    //            mapPanel.addLayer(pandemix.map.virusParticleLayer,
+                    //            {name: treePanel.treeData.name,
+                    //             tree: treePanel.treeData.root,
+                    //             color: treePanel.panelID}
+                    //            )
+                    //        },
+                    //        100);
             })();            
         }
 

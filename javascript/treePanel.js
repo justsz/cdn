@@ -651,8 +651,8 @@
                                 //.on("mousemove", mMove)
                                 //.on("mouseup", mUp);
                                                     
-                    svg.on("mousemove", mMove)
-                       .on("mouseup", mUp);                       
+                    d3.select(document).on("mousemove.treeSelect" + panelID, mMove)
+                                       .on("mouseup.treeSelect" + panelID, mUp);                       
                     
                     
                     //add time axis and aim line              
@@ -786,10 +786,13 @@
     
                 svg.attr("height", yScale(height) + 2 * verticalPadding);
                 axisSelection.attr("transform", "translate(0," + yScale(height) + ")");
-                if (placeAimLine) {
-                    aimLine.remove(); 
-                    drawAimLine();
-                };
+                // if (placeAimLine) {
+                //     aimLine.remove(); 
+                //     drawAimLine();
+                // };
+
+                drawAimLine(timeScale(pandemix.selectedDate)); 
+
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });

@@ -477,16 +477,6 @@
                     //(ignoring branch lengths)
                     nodeArray = cluster.nodes(json.root);
                     linkArray = cluster.links(nodeArray);
-
-                    //populate node crossfilter
-                    pandemix.nodes.add(nodeArray.map(function(n) {
-                       return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
-                    }));
-
-                    //populate link crossfilter
-                    pandemix.links.add(linkArray.map(function(l) {
-                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID};
-                    }));
                     
                     //nameLengths = [];
                     leafHeights = [];
@@ -507,7 +497,6 @@
                     xScale = d3.scale.linear()
                                .domain([maxHeight, minHeight])
                                .range([0, width]);
-
 
 
                     yScale = d3.scale.linear()
@@ -699,6 +688,19 @@
                             p.updateGlobalTimeAxis(pandemix.nodeHeightToDate(maxHeight, timeOrigin), pandemix.nodeHeightToDate(minHeight, timeOrigin));      
                         }
                     });
+
+
+                    // linkArray.push({source: {height: maxHeight * 1.01, location: json.root.location}, target: json.root});
+                    //populate node crossfilter
+                    pandemix.nodes.add(nodeArray.map(function(n) {
+                       return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
+                    }));
+
+                    //populate link crossfilter
+                    pandemix.links.add(linkArray.map(function(l) {
+                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID};
+                    }));
+                    //pandemix.links.add([{link: {source: undefined, target: json.root}, startDate, endDate, treeID: panelID}]);
 
                     that.finishedLoading = true;
                 }); 

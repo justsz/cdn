@@ -83,7 +83,6 @@
                 return map;
             },
 
-            times: [],
 
             leafSelectionUpdate: function() {
                 var selectedRegions = [],
@@ -124,8 +123,6 @@
             },
 
             timeScrobbleUpdate: function() {
-                console.log("update");
-                var start = new Date().getTime();
                 var date = pandemix.selectedDate;
                 var filteredNodes = undefined;
                 var movingForward = undefined;
@@ -150,11 +147,6 @@
                     }
                 }
 
-                this.times.push(new Date().getTime() - start);
-                if (this.times.length === 100)  {
-                    console.log("avg execution time: ", d3.mean(this.times));
-                    this.times = [];
-                }
             },
 
             project: function(x) {

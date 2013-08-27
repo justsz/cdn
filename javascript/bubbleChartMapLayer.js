@@ -1,7 +1,4 @@
 (function() {
-    var testB = true;
-    var prevWidth;
-    var prevHeight;
 
     pandemix.map.bubbleChartLayer = L.Class.extend({
         svg: undefined,
@@ -82,7 +79,6 @@
         },
 
         timeScrobbleUpdate: function(filteredLinks) {
-                              testB = true;
             var that = this;
             var a;
             
@@ -173,6 +169,10 @@
                 w,
                 h;
 
+            if (that.force) {
+                that.force.stop();
+            }
+
             var bottomLeft = that.project(that.bounds[0]),
             topRight = that.project(that.bounds[1]);
 
@@ -186,13 +186,24 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
-            if (prevWidth && prevHeight) {
-                var xRatio = w / prevWidth;
-                var yRatio = h / prevHeight;
+            var prevFoci = that.foci.slice(0);
+            //var prevFoci = [];
 
+            that.foci = [];
+            for (c in that.centroids) {
+                if (that.centroids.hasOwnProperty(c)) {
+                    that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1]});
+                    //prevFoci.push({x: that.map.latLngToContainerPoint([that.centroids(c)[1],that.centroids(c)[0]])[0], y: that.map.latLngToContainerPoint([that.centroids(c)[1],that.centroids(c)[0]])[1]});
+
+                }
+            }
+            console.log(prevFoci);
+            console.log(that.foci);
+
+            if (that.nodes) {
                 that.nodes.forEach(function(n) {
-                    // n.x *= xRatio;
-                    // n.y *= yRatio;
+                    n.x += that.foci[n.id].x - prevFoci[n.id].x;
+                    n.y += that.foci[n.id].y - prevFoci[n.id].y;
                 });
             }
 
@@ -202,22 +213,6 @@
                                 .attr("cx", function(d) {return d.x; })
                                 .attr("cy", function(d) {return d.y; })
                                 .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
-
-            //console.log(that.foci.slice(0));
-
-            that.foci = [];
-            for (c in that.centroids) {
-                if (that.centroids.hasOwnProperty(c)) {
-                    that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1]});
-                }
-            }
-            //console.log(that.foci);
-            if (that.force) {
-               that.force.start();
-            }
-
-            prevWidth = w;
-            prevHeight = h;
             
             return [w, h];
         }

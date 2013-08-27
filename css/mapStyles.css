@@ -33,3 +33,11 @@ path:hover {
 .virusParticleLayer {
   pointer-events: none;
 }
+
+.bubbleChartLayer {
+  pointer-events: none;
+}
+
+.bubbleTransLayer {
+  pointer-events: none;
+}

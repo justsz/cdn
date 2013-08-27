@@ -58,25 +58,40 @@
 	    function mDown() {
 	    	event.preventDefault();
 	    	scrobClicked = true;
-
             if (brushHighlight) {
                 brushHighlight.remove();
                 brushHighlight = null;
                 pandemix.brushHighlight = null;
             }
+            var postn = d3.mouse(scrobblerBackground[0][0])[0];
+            if (postn > 700 - 1) {
+    			postn = 700 - 1;
+    		} else if (postn < 1) {
+    			postn = 1;
+    		}
+
+
+       		scrobbler.style("left", (postn - scrobblerWidth / 2) + "px");
+	       	pandemix.selectedDate = timeScale.invert(postn);
+	        pandemix.callUpdate("timeScrobbleUpdate");
+
+	        d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
 
 	    };
-		var postn;
+		
 	    function mMove() {
 	    	if (scrobClicked) {
-	    		postn = d3.mouse(scrobblerBackground[0][0])[0];
-	    		// //select a 1 pixel wide period on the timescale
-	    		// var prd = [timeScale.invert(pos), timeScale.invert(pos + 1)];
-	    		// pandemix.selectedPeriod = prd;
-       //      	pandemix.callUpdate("timeSelectionUpdate");
+	    		var postn = d3.mouse(scrobblerBackground[0][0])[0];
+	    		if (postn > 700 - 1) {
+	    			postn = 700 - 1;
+	    		} else if (postn < 1) {
+	    			postn = 1;
+	    		}
+
        			scrobbler.style("left", (postn - scrobblerWidth / 2) + "px");
 	       		pandemix.selectedDate = timeScale.invert(postn);
 	            pandemix.callUpdate("timeScrobbleUpdate");
+	            d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
 	    	}
 	    };
 
@@ -121,13 +136,15 @@
 		        		.attr("class", "timePanel");
 
 		        scrobblerBackground = div.append("div")
-		        			   .attr("class", "scrobblerBackground");
+		        			   .attr("class", "scrobblerBackground")
+		        			   .on("mousedown", mDown);
+
 		        d3.select(document).on("mousemove.time", mMove)
 		              			   .on("mouseup.time", mUp);
 
 				scrobbler = scrobblerBackground.append("div")
-									           .attr("class", "timeScrobbler")
-									           .on("mousedown", mDown);
+											   .attr("class", "timeScrobbler");
+				
 
 				scrobblerWidth = scrobbler[0][0].offsetWidth || 0;
 

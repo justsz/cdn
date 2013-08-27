@@ -104,13 +104,14 @@
 .timeScrobbler {
     background-image: url("../img/glyphicons-halflings.png");
     background-position: -308px -90px; 
-    cursor: move;
     position: relative;
+    cursor: col-resize;
     width: 20px;
     height: 20px;  
 }
 
 .scrobblerBackground {
+    cursor: col-resize;
     width: 700px;
     height: 25px;
 }

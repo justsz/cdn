@@ -1,5 +1,7 @@
 (function() {
     var testB = true;
+    var prevWidth;
+    var prevHeight;
 
     pandemix.map.bubbleChartLayer = L.Class.extend({
         svg: undefined,
@@ -184,9 +186,24 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
+            if (prevWidth && prevHeight) {
+                var xRatio = w / prevWidth;
+                var yRatio = h / prevHeight;
+
+                that.nodes.forEach(function(n) {
+                    // n.x *= xRatio;
+                    // n.y *= yRatio;
+                });
+            }
+
             that.sizeModifier = that.map.getZoom() * that.map.getZoom();
 
-            that.g.selectAll("circle.bubble").attr("r", function(d) {console.log(Math.sqrt(that.sizeModifier * d.size));return Math.sqrt(that.sizeModifier * d.size); });
+            var bubbles = that.g.selectAll("circle.bubble")
+                                .attr("cx", function(d) {return d.x; })
+                                .attr("cy", function(d) {return d.y; })
+                                .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
+
+            //console.log(that.foci.slice(0));
 
             that.foci = [];
             for (c in that.centroids) {
@@ -194,10 +211,13 @@
                     that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1]});
                 }
             }
+            //console.log(that.foci);
             if (that.force) {
                that.force.start();
             }
 
+            prevWidth = w;
+            prevHeight = h;
             
             return [w, h];
         }

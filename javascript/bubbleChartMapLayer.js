@@ -49,14 +49,12 @@
             that.svg.on("mousedown", function() {event.preventDefault(); });
             that.g = that.svg.append("g");
 
-            var sizing = that.reset(); //set svg's size and return the size
             that.nodes = [];
 
             that.force = d3.layout.force()
                 .nodes(that.nodes)
                 .links([])
                 .gravity(0)
-                //.size(sizing)
                 .charge(function(d) {return -1 * Math.floor(Math.sqrt(d.size * that.sizeModifier)); });
                 //.friction(0.5); 
 
@@ -213,6 +211,10 @@
                                 .attr("cx", function(d) {return d.x; })
                                 .attr("cy", function(d) {return d.y; })
                                 .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
+
+            if (pandemix.selectedDate) {
+                pandemix.callUpdate("timeScrobbleUpdate");
+            }
             
             return [w, h];
         }

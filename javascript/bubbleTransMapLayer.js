@@ -77,7 +77,7 @@
         },
 
 
-        timeScrobbleUpdate: function(filteredLinks, movingForward) {
+        timeSlideUpdate: function(filteredLinks, movingForward) {
             var that = this;
             var a;            
 

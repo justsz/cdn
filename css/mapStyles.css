@@ -3,21 +3,21 @@
   height: 500px;
 }
 
-path {
+.mapPath {
   fill: #000;
   fill-opacity: .2;
   stroke: #fff;
   stroke-width: 1.5px;
 }
 
-path .highlighted {
+.mapHighlighted {
   fill: orange;
   fill-opacity: .2;
   stroke: #fff;
   stroke-width: 1.5px;
 }
 
-path:hover {
+.mapPath:hover {
   fill: brown;
   fill-opacity: .7;
 }

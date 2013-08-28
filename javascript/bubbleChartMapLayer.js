@@ -76,7 +76,7 @@
 
         },
 
-        timeScrobbleUpdate: function(filteredLinks) {
+        timeSlideUpdate: function(filteredLinks) {
             var that = this;
             var a;
             
@@ -195,8 +195,6 @@
 
                 }
             }
-            console.log(prevFoci);
-            console.log(that.foci);
 
             if (that.nodes) {
                 that.nodes.forEach(function(n) {
@@ -213,7 +211,7 @@
                                 .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
 
             if (pandemix.selectedDate) {
-                pandemix.callUpdate("timeScrobbleUpdate");
+                pandemix.callUpdate("timeSlideUpdate");
             }
             
             return [w, h];

@@ -43,7 +43,7 @@ pandemix = (function() {
           .attr("class", "searchBox")
           .append("input")
           .attr("type", "text")
-          .attr("id", "search")
+          .attr("id", "searchInput")
           .attr("value", "search")
           .on("keyup", search);       
     };
@@ -54,14 +54,14 @@ pandemix = (function() {
           .attr("class", "colorBox")
           .append("input")
           .attr("type", "text")
-          .attr("id", "color")
+          .attr("id", "colorInput")
           .attr("value", "color")
           .on("keyup", applyColor);
     };
 
 
     function search(searchTerm) {
-        var searchTerm = searchTerm || document.getElementById("search").value;
+        var searchTerm = searchTerm || d3.select("input#searchInput").node().value//document.getElementById("search").value;
         var searchRegex = new RegExp(searchTerm);
         var selectedNodes = [];
     
@@ -105,7 +105,7 @@ pandemix = (function() {
 
 
     function applyColor() {
-        var color = document.getElementById("color").value;
+        var color = d3.select("input#colorInput").node().value;
         if (color === "") {
             color = null;
         }

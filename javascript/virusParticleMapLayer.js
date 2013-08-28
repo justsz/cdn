@@ -295,7 +295,7 @@
 
         },
 
-        timeScrobbleUpdate: function(filteredLinks, movingForward) {
+        timeSlideUpdate: function(filteredLinks, movingForward) {
             //console.log(date);
             var that = this;
             

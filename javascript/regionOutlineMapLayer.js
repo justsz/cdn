@@ -32,9 +32,10 @@
                     
                     that.path = d3.geo.path().projection(that.project);
 
-                    that.feature = that.g.selectAll("path")
+                    that.feature = that.g.selectAll(".mapPath")
                                     .data(dat.features)
                                     .enter().append("path")
+                                    .attr("class", "mapPath")
                                     .on("click", function(d) {
                                         //find names via crossfilter
                                         pandemix.dateDim.filter(null);
@@ -42,7 +43,7 @@
                                         pandemix.callUpdate("leafSelectionUpdate");
                                         //if no taxa are in that location, the clicked province won't highlight 
                                         //from the selection update so highlight manually
-                                        d3.select(this).classed("highlighted", true);
+                                        d3.select(this).classed("mapHighlighted", true);
                                     });                    
                 }
 				
@@ -102,7 +103,7 @@
             },
 
             leafSelectionUpdate: function(selectedRegions) {
-            	this.feature.classed("highlighted", function(d) {
+            	this.feature.classed("mapHighlighted", function(d) {
                     return pandemix.contains(selectedRegions, d.properties.name);
                 });
             }

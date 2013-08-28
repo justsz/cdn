@@ -51,13 +51,6 @@
     fill-opacity: 0.125;
 }
 
-
-.svgBox {
-	line-height: 0;
-	/*overflow: auto;*/
-}
-
-
 .brushBox {
 	fill-opacity: 0;
 	cursor: crosshair;
@@ -101,7 +94,7 @@
     height: 34px;
 }
 
-.timeScrobbler {
+.timeSlider {
     background-image: url("../img/glyphicons-halflings.png");
     background-position: -308px -90px; 
     position: relative;
@@ -110,16 +103,73 @@
     height: 20px;  
 }
 
-.scrobblerBackground {
+.sliderBackground {
     cursor: col-resize;
     width: 700px;
     height: 25px;
 }
 
+.panelControl {
+    position: relative;
+    top: 12px;
+}
+
+.panelControl.collapseButton {
+    position: relative;
+    top: 3px;
+    left: 3px;
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    display: inline-block;
+}
+
+.panelControl.name {
+    position: relative;
+    top: 3px;
+    left: 5px;
+    display: inline-block;
+}
+
+div.treePanel {
+    min-height: 20px;
+    min-width: 100px;
+    clear:both;   
+    /*display: inline-block;*/
+}
+
+div.svgBox {
+    line-height: 0;
+    width: 750px;
+    height: 545px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.treeTopology {
+    width: 400px;
+    height: 500px;
+    padding-bottom: 20px;
+    padding-left: 35px;
+    padding-top: 20px;
+}
 
 
 
+/*Time panel*/
+.timeLine {
+    width: 750px;
+    height: 25px;
+    padding-right: 5px;
+    cursor: crosshair;
+}
 
+.timeLine path,
+.timeLine line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
 
 
 

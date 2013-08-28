@@ -122,7 +122,7 @@
                 // }
             },
 
-            timeScrobbleUpdate: function() {
+            timeSlideUpdate: function() {
                 var date = pandemix.selectedDate;
                 var filteredNodes = undefined;
                 var movingForward = undefined;
@@ -138,12 +138,12 @@
 
                 for (i = 0; i < layers.length; i += 1) {
                     //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet
-                    if ("timeScrobbleUpdate" in layers[i]) {
+                    if ("timeSlideUpdate" in layers[i]) {
                         if (!filteredNodes) {
                             pandemix.linkStartDateDim.filter(function(d) {return d < date; });
                             var filteredLinks = pandemix.linkEndDateDim.filter(function(d) {return d > date; }).top(Infinity);
                         }
-                        layers[i].timeScrobbleUpdate(filteredLinks, movingForward);
+                        layers[i].timeSlideUpdate(filteredLinks, movingForward);
                     }
                 }
 

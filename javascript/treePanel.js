@@ -26,11 +26,9 @@
             extent,
             placeAimLine,
             prevCoords, //previous coordinates of aim line, used when zooming
-            width = 400, //width of tree display
-            height = 500, //height of tree display
-            verticalPadding = 20,
-            horizontalPadding = 35,
-            marginForLabels = 300; //additional space for labels
+            width, //width of tree topology
+            height, //height of tree topology
+            marginForLabels; //additional space for labels
             
             
         function attachLinkReferences(nodes, linkData) {
@@ -108,9 +106,9 @@
         function drawAimLine(coords) {
             //prevCoords = coords || prevCoords;
             svg.select(".aimLine")
-                         .attr("x1", coords + horizontalPadding)
-                         .attr("y1", yScale(height) + verticalPadding)
-                         .attr("x2", coords + horizontalPadding)
+                         .attr("x1", coords)
+                         .attr("y1", yScale(height))
+                         .attr("x2", coords)
                          .attr("y2", 0)
                          .style("stroke", "red");
         };
@@ -249,7 +247,6 @@
                 var temp,
                     selectionRoot;
 
-                //remove visible extent first. It feels a bit snappier that way...
                 d3.select("#extent").remove();
 
                 //transpose the two points so that extent[0] is top left
@@ -282,6 +279,18 @@
                             selectionRoot = d;
                         }
                     });
+
+
+//>>>>>>>>>>>>>> decent solution to tip selection? <<<<<<<<<<<<<<<<
+                if (selectionRoot.depth === Infinity) {
+                    leaves.each(function(d) {
+                        if (extent[0][1] < yScale(d.x) && yScale(d.x) < extent[1][1] &&
+                            extent[0][0] < xScale(d.height) && xScale(d.height) < extent[1][0] &&
+                            d.depth < selectionRoot.depth) {
+                            selectionRoot = d;
+                        }
+                    });                    
+                }
                     
                 
                 doNodeSelection(selectionRoot);
@@ -389,50 +398,40 @@
                 panelID = 0 + pandemix.counter; //get value, not reference
                 this.panelID = panelID;
                 pandemix.focusedPanel = panelID;
-                
-                var outerDiv = d3.select(targ)
-                                 .append("div")
-                                 //.attr("class", "span1")
-                                 .style("min-height", "20px")
-                                 .style("min-width", "100px")
-                                 .style("display", "inline-block");
-                                 //.style("width", "100px")
-                                 //.style("height", "20px");
-                                // .attr("position", "relative");
-                                 //.style("height", (height + 2 * verticalPadding + 3 + 15) + "px");
-                                 //.attr("width", "900px");
-                                 
-                controlPanel = outerDiv.append("svg")
-                                  .style("position", "absolute")
-                                  //.attr("width", width + marginForLabels)
-                                  .attr("height", 15);                
-                                  
-                div = outerDiv.append("div")
-                        .attr("class", "svgBox")
-                        //.style("position", "relative")
-                        //.style("top", "15px")
-                        //.style("width", width + "px")
-                        .style("height", (height + 2 * verticalPadding + 3) + "px");
-                
-                controlPanel.append("rect")
-                            .attr("x", 3)
-                            .attr("y", 3)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "gray")
+
+                var parent = d3.select(targ).classed("treePanel", true);
+
+                if (parent.classed("collapsible")) { //add control panel for collapsing the panel
+                    controlPanel = parent.append("div").attr("class", "panelControl");
+                    controlPanel.append("div")
+                            .attr("class", "panelControl collapseButton")
                             .on("click", function() {
                                 if (minimize) {
                                     div.style("display", "none");
                                 } else {
-                                    div.style("display", "inline-block");
+                                    div.style("display", null);
                                 }
                                 minimize = !minimize;
                             });
+                }
+                                  
+                div = parent.append("div")
+                        .attr("class", "treePanel svgBox");
 
                 svg = div.append("svg")
-                         .attr("class", "treePanel")
-                         .attr("width", width + marginForLabels)
-                         .attr("height", height + 2 * verticalPadding);
+                         .attr("class", "treeTopology");
+
+                //get size info from styling of panel
+                width = parseInt(svg.style("width").replace( /\D+/, ''), 10);
+                height = parseInt(svg.style("height").replace( /\D+/, ''), 10);
+                marginForLabels = parseInt(div.style("width").replace( /\D+/, ''), 10) - width -
+                                  parseInt(svg.style("padding-right").replace( /\D+/, ''), 10) -
+                                  parseInt(svg.style("padding-left").replace( /\D+/, ''), 10);
+
+                svg.style("width", width + marginForLabels);
+
+
+                // svg.style("width", width + marginForLabels).style("height", height);
 
                 aimLine = svg.append("line").attr("class", "aimLine");
                              
@@ -457,12 +456,12 @@
                         propRegex = /(.+)\.fullSet/;
 
                     that.treeData = json;
-                        
-                    controlPanel.append("text")
-                                .attr("x", 15)
-                                .attr("y", 12)
-                                .attr("text-anchor", "start")
-                                .text(json.name);
+
+                    if (controlPanel) {
+                        controlPanel.append("div")
+                                    .attr("class", "panelControl name")
+                                    .text(json.name);
+                    }
                 
                 
                     timeOrigin = parseFloat(json.origin);
@@ -478,19 +477,13 @@
                     nodeArray = cluster.nodes(json.root);
                     linkArray = cluster.links(nodeArray);
                     
-                    //nameLengths = [];
                     leafHeights = [];
                     
                     for (i = 0; i < nodeArray.length; i += 1) {
                         if (!nodeArray[i].children) { //if leaf
                             leafHeights.push(nodeArray[i].height);
-                            //nameLengths.push(nodeArray[i].getComputedTextLength());
                         }
                     };
-                    //marginForLabels = d3.max(nameLengths) * 6 + 8 + 35;
-                    svg.attr("width", width + marginForLabels);
-                    div.style("width", (width + marginForLabels + 15) + "px")
-                       .style("height", (height + 2 * verticalPadding) + "px");
                     
                     minHeight = d3.min(leafHeights);
                     maxHeight = json.root.height;
@@ -503,20 +496,20 @@
                                .domain([0, height])
                                .range([0, height]);
 
-                    g = svg.append("g")
-                           .attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");                
+                    //g = svg.append("g");
+                           //.attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");                
 
-                    links = g.selectAll("path.link")
-                             .data(linkArray, pandemix.getLinkKey)
-                             .enter().append("path")
-                             .attr("class", "link")
-                             .attr("d", elbow);
+                    links = svg.selectAll("path.link")
+                               .data(linkArray, pandemix.getLinkKey)
+                               .enter().append("path")
+                               .attr("class", "link")
+                               .attr("d", elbow);
                              
                     //give nodes a reference to the link leading to it
                     attachLinkReferences(nodeArray, links);
 
                     //assign node classification and position it
-                    g.selectAll(".node")
+                    svg.selectAll(".node")
                      .data(nodeArray, pandemix.getNodeKey)
                      .enter().append("g")
                      .attr("class", function(d) {
@@ -529,8 +522,8 @@
                          return "leaf node";
                      });
                      
-                    innerNodes = g.selectAll(".inner")
-                                  .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
+                    innerNodes = svg.selectAll(".inner")
+                                    .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
 					/*innerNodes.append("circle")
 							  .attr("r", 3)
 							  .on("click", function() {
@@ -538,7 +531,7 @@
 							  });
 */
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
-                    g.select(".root")
+                    svg.select(".root")
                        .append("path")
                        .attr("class", "rootLink")
                        .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
@@ -558,7 +551,7 @@
                           .attr("y", -7)
                           .attr("x", 5)
                           .attr("width", marginForLabels)
-                          .attr("height", 12)
+                          .attr("height", height / leaves.size())
                           .on("click", function() {
 							//three modes of click-selection:
 							//no keys pressed - select clicked node, deselect everything else
@@ -599,6 +592,7 @@
                           });
 
 
+
                     leaves.append("path")
                        .attr("class", "dashedLink")
                        .attr("d", dashedElbow);
@@ -632,7 +626,7 @@
                     }                    
                     
 
-                    brushBox = g.append("rect")
+                    brushBox = svg.append("rect")
                                 .attr("width", width)
                                 .attr("height", height)
                                 .attr("class", "brushBox")
@@ -655,12 +649,12 @@
                                     .orient("bottom");
 
                     placeAimLine = false;
-                    axisSelection = g.append("g")
-                                     .attr("class", "axis")
-                                     .attr("transform", "translate(0," + (height) + ")")
-                                     .call(timeAxis);
+                    axisSelection = svg.append("g")
+                                       .attr("class", "axis")
+                                       .attr("transform", "translate(0," + (height) + ")")
+                                       .call(timeAxis);
                                      
-                    axisSelection.append("rect")
+                    /*axisSelection.append("rect")
                                  .attr("width", width)
                                  .attr("height", verticalPadding)
                                  .style("fill-opacity", 0)
@@ -678,7 +672,7 @@
                                          if (aimLine) {aimLine.remove(); };
                                          drawAimLine(coords)[0];
                                      }
-                                 });
+                                 });*/
 
                     //pandemix.updateGlobalTimeAxis(maxHeight, minHeight);
                     //pandemix.callUpdate("updateGlobalTimeAxis", maxHeight, minHeight);
@@ -741,13 +735,13 @@
                 // var end = pandemix.dateToNodeHeight(pandemix.selectedPeriod[1], timeOrigin);
                 if (periodHighlight) {
                     //console.log(start + " " + end);
-                    periodHighlight.attr("x", timeScale(pandemix.selectedPeriod[0]) + horizontalPadding)
+                    periodHighlight.attr("x", timeScale(pandemix.selectedPeriod[0]))
                                    .attr("width", timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0]));
                 } else {
                     periodHighlight = svg.append("rect")
                                          .attr("class", "timeSelection")
-                                         .attr("x", timeScale(pandemix.selectedPeriod[0]) + horizontalPadding) 
-                                         .attr("y", verticalPadding)
+                                         .attr("x", timeScale(pandemix.selectedPeriod[0])) 
+                                         .attr("y", 0)
                                          .attr("height", "100%")
                                          .attr("width", timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0]));
                 }                
@@ -780,25 +774,25 @@
             zoomUpdate : function() {
                 yScale.range([0, height * pandemix.scale]);
 
-                if (pandemix.scale === 1) {
-                    div.style("overflow", "hidden");
-                } else {
-                    div.style("overflow", "auto");
-                }
+                // if (pandemix.scale === 1) {
+                //     div.style("overflow-y", "hidden");
+                // } else {
+                //     div.style("overflow-y", "auto");
+                // }
     
-                svg.attr("height", yScale(height) + 2 * verticalPadding);
+                svg.style("height", yScale(height));
                 axisSelection.attr("transform", "translate(0," + yScale(height) + ")");
-                // if (placeAimLine) {
-                //     aimLine.remove(); 
-                //     drawAimLine();
-                // };
 
-                drawAimLine(timeScale(pandemix.selectedDate)); 
+                if (pandemix.selectedDate) {
+                    drawAimLine(timeScale(pandemix.selectedDate)); 
+                }
 
                 brushBox.attr("height", yScale(height));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
+
+                svg.selectAll(".leafBack").attr("height", yScale(height) / leaves.size())
 
             },
         

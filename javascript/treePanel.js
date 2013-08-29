@@ -811,7 +811,7 @@
             },
 
 
-            timeScrobbleUpdate : function() {
+            timeSlideUpdate : function() {
                 drawAimLine(timeScale(pandemix.selectedDate));
             }
 

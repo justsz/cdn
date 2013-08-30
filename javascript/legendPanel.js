@@ -1,17 +1,16 @@
 (function() {
 
     pandemix.LegendPanel = function() {
-        var width = 100, //div initial sizing. Later used to specify SVG size
-            height = 200, 
+        var width,
+            height, 
             div,
             svg,
             rowCount = 0,
             panelID = 0 + pandemix.counter,
             traits = {"No trait" : []},
-            legendSize = 10,
+            legendSize,
             rowPadding = 1,
             legendTextGap = 2,
-            maxTraitNameSize = 30,
             maxRowWidth = width,
             tableHeight = height;
             
@@ -70,22 +69,18 @@
                     
 
             rowEnter.append("rect")
-                    .attr("y", "-10")
+                    .attr("y", -legendSize)
                     .attr("height", legendSize)
                     .attr("width", legendSize)
                     .style("fill", function(d) {return d.color; });
 
             rowEnter.append("text")
                     .attr("x", (legendSize + legendTextGap))
-                    .attr("dy", -1)
                     .text(function(d) {return d.name; });
 
-            maxTraitNameSize = d3.max(traitRows.select("text")[0], function(d) {return d.getComputedTextLength(); });
-
-            traitRows.attr("transform", function(d, i) {return "translate(0," + ((i + 1) * (legendSize + rowPadding)) + ")"; });
+            traitRows.attr("transform", function(d, i) {return "translate(0," + ((i+1) * (legendSize + rowPadding)) + ")"; });
 
             traitRows.exit().remove();
-
 
             tableHeight = traitRows.size() * (legendSize + rowPadding);
 
@@ -120,14 +115,14 @@
 
             placePanel : function(targ) {
             div = d3.select(targ)
-                    .attr("class", "traitBox")
-                    .style("width", width + "px")
-                    .style("height", height + "px")
-                    .style("display", "inline-block")
-                    .style("border", "1px solid");
+                    .classed("legendPanel", true);
+
+            width = parseInt(div.style("width").replace( /\D+/, ''), 10);
+            height = parseInt(div.style("height").replace( /\D+/, ''), 10);
+            legendSize = parseInt(div.style("font-size").replace( /\D+/, ''), 10);
 
             svg = div.append("svg")
-                     .attr("class", "traitPanel")
+                     .attr("class", "legendSvg")
                      .attr("width", width)
                      .attr("height", height);
             },

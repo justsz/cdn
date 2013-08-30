@@ -43,6 +43,7 @@
 <div id="color"></div>
 <div id="zoom"></div>
 <div id="traits"></div>
+<div id="legend"></div>
 <div id="globalTime"></div>
 <div id="tree1" class="collapsible"></div>
 <div id="tree2" class="collapsible"></div>
@@ -82,16 +83,15 @@
 
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");
-        //pandemix.addTraitBox();
         pandemix.addGlobalZoomButton("#zoom");
 
         var traitPanel = new pandemix.TraitPanel;
         traitPanel.placePanel("#traits");
         pandemix.panels.push(traitPanel);
 
-        /*var legendPanel = new pandemix.LegendPanel;
-        legendPanel.placePanel();
-        pandemix.panels.push(legendPanel);*/
+        // var legendPanel = new pandemix.LegendPanel;
+        // legendPanel.placePanel("#legend");
+        // pandemix.panels.push(legendPanel);
 
         var timePanel = new pandemix.TimePanel;
         timePanel.placePanel("#globalTime");

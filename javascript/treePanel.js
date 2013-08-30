@@ -524,12 +524,7 @@
                      
                     innerNodes = svg.selectAll(".inner")
                                     .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
-					/*innerNodes.append("circle")
-							  .attr("r", 3)
-							  .on("click", function() {
-							      doNodeSelection(this.__data__);
-							  });
-*/
+
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
                     svg.select(".root")
                        .append("path")
@@ -539,19 +534,19 @@
                     leaves = svg.selectAll(".leaf")
                                 .attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
 
+                    var leafHeight = height / leaves.size();
                     leaves.append("text")
                           .attr("class", "leafText")
                           .attr("dx", 8)
-                          .attr("dy", 3)
                           .attr("text-anchor", "start")
                           .text(function(d) { return d.name; });
         
                     leaves.append("rect")
                           .attr("class", "leafBack")
-                          .attr("y", -7)
+                          .attr("y", -leafHeight / 2)//.attr("y", -7)
                           .attr("x", 5)
                           .attr("width", marginForLabels)
-                          .attr("height", height / leaves.size())
+                          .attr("height", leafHeight)
                           .on("click", function() {
 							//three modes of click-selection:
 							//no keys pressed - select clicked node, deselect everything else
@@ -792,8 +787,8 @@
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
 
-                svg.selectAll(".leafBack").attr("height", yScale(height) / leaves.size())
-
+                var leafHeight = yScale(height) / leaves.size();
+                svg.selectAll(".leafBack").attr("y", -leafHeight / 2).attr("height", leafHeight)
             },
         
 

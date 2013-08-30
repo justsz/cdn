@@ -1,14 +1,14 @@
 (function() {
 
     pandemix.TraitPanel = function() {
-        var width = 300, //div initial sizing. Later used to specify SVG size
-            height = 80, 
+        var width, //div initial sizing. Later used to specify SVG size
+            height, 
             div,
             svg,
             rowCount = 0,
             panelID = 0 + pandemix.counter,
             traits = {"No trait" : []},
-            legendSize = 10,
+            legendSize,
             rowPadding = 1,
             legendTextGap = 2,
             maxTraitNameSize = 30,
@@ -55,7 +55,6 @@
                     .attr("y", -legendSize)
                     .attr("height", legendSize)
                     .attr("width", "100%")
-                    .style("fill", "blue")
                     .style("fill-opacity", 0);
 
             rowEnter.append("text")
@@ -98,13 +97,13 @@
                                         });
 
             traitEnter.append("rect")
-                      .attr("y", "-10")
+                      .attr("y", -legendSize)
                       .attr("height", legendSize)
                       .attr("width", legendSize);
 
             traitEnter.append("text")
                       .attr("x", (legendSize + legendTextGap))
-                      .attr("dy", -1) //move text up 1 pixel
+                      //.attr("dy", -1) //move text up 1 pixel
                       .text(function(d) {return d.name; });
 
 
@@ -159,14 +158,14 @@
 
             placePanel : function(targ) {
             div = d3.select(targ)
-                    .attr("class", "traitBox")
-                    .style("width", width + "px")
-                    .style("height", height + "px")
-                    .style("display", "inline-block")
-                    .style("border", "1px solid");
+                    .classed("traitPanel", true);
+
+            width = parseInt(div.style("width").replace( /\D+/, ''), 10);
+            height = parseInt(div.style("height").replace( /\D+/, ''), 10);
+            legendSize = parseInt(div.style("font-size").replace( /\D+/, ''), 10);
 
             svg = div.append("svg")
-                     .attr("class", "traitPanel")
+                     .attr("class", "traitSvg")
                      .attr("width", width)
                      .attr("height", height);
             },

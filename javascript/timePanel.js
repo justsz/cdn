@@ -12,7 +12,10 @@
     	div,
     	sliderWidth,
     	timeLineWidth,
-    	timeLineHeight;
+    	timeLineHeight,
+    	panelID = 0 + pandemix.counter;
+
+    pandemix.counter += 1;
     
 	pandemix.TimePanel = function() {
 	    function brushstart() {

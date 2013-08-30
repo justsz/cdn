@@ -8,7 +8,10 @@
             mapData = undefined,
             centroids = {"Tibet": [87, 31.7], "HongKong": [114, 22]},
             contoursLoaded = false,
-            previousSelectedDate = undefined;
+            previousSelectedDate = undefined,
+            panelID = 0 + pandemix.counter;
+
+        pandemix.counter += 1;
 
 
         var panel = {

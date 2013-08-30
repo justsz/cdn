@@ -117,14 +117,14 @@ div.treePanel {
 
 div.svgBox {
     line-height: 0;
-    width: 750px;
+    width: 950px;
     height: 545px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .treeTopology {
-    width: 400px;
+    width: 600px;
     height: 500px;
     padding-bottom: 20px;
     padding-left: 35px;

@@ -81,6 +81,46 @@
                 }
             }
         };
+
+        /*
+        Returns first common ancestor node of input list of nodes
+        */
+        function findCommonAncestor(_nodes) {
+            var i;
+            //create copy of nodes so that the input list wouldn't be altered
+            var nodes = _nodes.slice(0);
+            //find the smallest depth among the selected nodes
+            var minDepth = Infinity;
+            nodes.forEach(function(n) {
+                if (n.depth < minDepth) {
+                    minDepth = n.depth;
+                }
+            });
+
+            //climb each node up to minDepth
+            for (i = 0; i < nodes.length; i += 1) {
+                while (nodes[i].depth > minDepth) {
+                    nodes[i] = nodes[i].parent;
+                }
+            };
+
+            //check if all nodes are the same (by comaring to first node)
+            var nodesEqual = false;
+            while (!nodesEqual) {
+                nodesEqual = true;
+                for (i = 1; i < nodes.length; i += 1) {
+                    if (nodes[i] !== nodes[0]) { //climb all nodes up a level and repeat until common ancestor is found
+                        for (i = 0; i < nodes.length; i += 1) {
+                            nodes[i] = nodes[i].parent;
+                        };
+                        nodesEqual = false;
+                        break;
+                    }
+                }
+            }
+
+            return nodes[0];
+        }
         
         
         /*
@@ -195,7 +235,19 @@
         /*
         Topological selection mouse events.
         */
-        function mDown() {            
+        function mDown() {
+            if (pandemix.focusedPanel != panelID) {
+                //clears previously highlighted links
+                pandemix.selectedNodes = [];
+                pandemix.callUpdate("nodeSelectionUpdate");
+
+                //clears previously highlighted leaves
+                pandemix.selectedLeaves = [];
+                pandemix.callUpdate("leafSelectionUpdate");
+                doNodeSelection();
+            }
+            pandemix.focusedPanel = panelID;
+
             extent = [d3.mouse(this), []];
             d3.select(this.parentNode)
               .append("rect")
@@ -214,16 +266,6 @@
                 pandemix.brushHighlight = null;
                 pandemix.callUpdate("leafSelectionUpdate");
                 pandemix.callUpdate("timeSelectionUpdate");
-            }
-
-            if (!d3.event.shiftKey) {
-                //clears previously highlighted links
-                pandemix.selectedNodes = [];
-                pandemix.callUpdate("nodeSelectionUpdate");
-
-                //clears previously highlighted leaves
-                pandemix.selectedLeaves = [];
-                pandemix.callUpdate("leafSelectionUpdate");
             }
 
             //this line needed to make selection not move like a slug!
@@ -245,7 +287,7 @@
         function mUp() {
             if (extent) {
                 var temp,
-                    selectionRoot;
+                    selectedNodes;
 
                 d3.select("#extent").remove();
 
@@ -262,39 +304,32 @@
                     extent[0][1] = extent[1][1];
                     extent[1][1] = temp;
                 }
-                   
-                selectionRoot = {"depth": Infinity};
-                    /*links.each(function(d) {
-                        if (extent[0][1] < yScale(d.target.x) && yScale(d.target.x) < extent[1][1] &&
-                            extent[0][0] < xScale(d.target.height) && xScale(d.source.height) < extent[1][0] &&
-                            d.target.depth < selectionRoot.depth) {
-                            selectionRoot = d.target;
+                selectedNodes = [];
+                links.each(function(d) {
+                    if (extent[1][0] > xScale(d.source.height)) { //if extent's right side is more than link's leftmost part
+                        //check if any part of the link is covered in the selection extent
+                        if (d.target.x > d.source.x) { //targ BELOW source
+                            if (extent[0][1] < yScale(d.target.x) && 
+                                (extent[1][1] > yScale(d.target.x) && extent[0][0] < xScale(d.target.height) || extent[0][0] < xScale(d.source.height) && extent[1][1] > yScale(d.source.x))) {
+                                selectedNodes.push(d.target);
+                            }
+                        } else { //targ ABOVE source
+                            if (extent[1][1] > yScale(d.target.x) &&
+                                (extent[0][1] < yScale(d.target.x) && extent[0][0] < xScale(d.target.height) || extent[0][0] < xScale(d.source.height) && extent[0][1] < yScale(d.source.x))) {
+                                selectedNodes.push(d.target);
+                            }
                         }
-                    });*/
-                    
-                    innerNodes.each(function(d) {
-                        if (extent[0][1] < yScale(d.x) && yScale(d.x) < extent[1][1] &&
-                            extent[0][0] < xScale(d.height) && xScale(d.height) < extent[1][0] &&
-                            d.depth < selectionRoot.depth) {
-                            selectionRoot = d;
-                        }
-                    });
+                    }
+                });
+console.log(selectedNodes);
 
-
-//>>>>>>>>>>>>>> decent solution to tip selection? <<<<<<<<<<<<<<<<
-                if (selectionRoot.depth === Infinity) {
-                    leaves.each(function(d) {
-                        if (extent[0][1] < yScale(d.x) && yScale(d.x) < extent[1][1] &&
-                            extent[0][0] < xScale(d.height) && xScale(d.height) < extent[1][0] &&
-                            d.depth < selectionRoot.depth) {
-                            selectionRoot = d;
-                        }
-                    });                    
-                }
-                    
-                
-                doNodeSelection(selectionRoot);
-        
+                if (selectedNodes.length > 1) {
+                    doNodeSelection(findCommonAncestor(selectedNodes));
+                } else if (selectedNodes.length === 1) {
+                    doNodeSelection(selectedNodes[0]);
+                } else {
+                    doNodeSelection();
+                }              
         
                 extent = undefined;
                 event.preventDefault();
@@ -303,36 +338,49 @@
 		
 		
 		function doNodeSelection(node) {
-			if (node !== lastSelectionRoot) {
-				var selectedLeaves = getDescendingLeaves(node),
-				    innerLinks,
-                    i;
-
-				//focus only on leaf nodes
+            console.log(node);
+            if (!node) {
                 if (!d3.event.shiftKey) {
-				    pandemix.selectedLeaves = selectedLeaves.slice(0);
-                } else {
-                    for (i = 0; i < selectedLeaves.length; i += 1) {
-                        if (!pandemix.containsLeaf(pandemix.selectedLeaves, selectedLeaves[i])) {
-                            pandemix.selectedLeaves.push(selectedLeaves[i]);
+                    //clears previously highlighted links
+                    pandemix.selectedNodes = [];
+                    pandemix.callUpdate("nodeSelectionUpdate");
+
+                    //clears previously highlighted leaves
+                    pandemix.selectedLeaves = [];
+                    pandemix.callUpdate("leafSelectionUpdate");
+                }
+            } else {
+    			if (node !== lastSelectionRoot) {
+    				var selectedLeaves = getDescendingLeaves(node),
+    				    innerLinks,
+                        i;
+
+    				//focus only on leaf nodes
+                    if (!d3.event.shiftKey) {
+    				    pandemix.selectedLeaves = selectedLeaves.slice(0);
+                    } else {
+                        for (i = 0; i < selectedLeaves.length; i += 1) {
+                            if (!pandemix.containsLeaf(pandemix.selectedLeaves, selectedLeaves[i])) {
+                                pandemix.selectedLeaves.push(selectedLeaves[i]);
+                            }
                         }
                     }
-                }
-				pandemix.callUpdate("leafSelectionUpdate");
-				
-				//continue this function with inner nodes as well
-                innerLinks = getNodeLinks(selectedLeaves)
-                            .concat(getNodeLinks(getDescendingInnerNodes(node)));
-                
-                if (!d3.event.shiftKey) {
-                   links.classed("highlighted", false);
-                }
-                if (node.depth !== Infinity) {
-                    for (i = 0; i < innerLinks.length; i += 1) {
-                        innerLinks[i].classed("highlighted", true);
+    				pandemix.callUpdate("leafSelectionUpdate");
+    				
+    				//continue this function with inner nodes as well
+                    innerLinks = getNodeLinks(selectedLeaves)
+                                .concat(getNodeLinks(getDescendingInnerNodes(node)));
+                    
+                    if (!d3.event.shiftKey) {
+                       links.classed("highlighted", false);
                     }
-                }
-			}
+                    if (node.depth !== Infinity) {
+                        for (i = 0; i < innerLinks.length; i += 1) {
+                            innerLinks[i].classed("highlighted", true);
+                        }
+                    }
+    			}
+            }
 			lastSelectionRoot = node;
 		};
 		

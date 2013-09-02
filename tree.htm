@@ -26,6 +26,7 @@
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
         <script src="javascript/traitPanel.js"></script>
+        <script src="javascript/traitSelectionPanel.js"></script>
         <script src="javascript/legendPanel.js"></script>
 
         <script src="javascript/regionOutlineMapLayer.js"></script>        
@@ -42,7 +43,8 @@
 <div id="search"></div>
 <div id="color"></div>
 <div id="zoom"></div>
-<div id="traits"></div>
+<!-- <div id="traits"></div> -->
+<div id="traitSelection"></div>
 <div id="legend"></div>
 <div id="globalTime"></div>
 <div id="tree1" class="collapsible"></div>
@@ -62,7 +64,6 @@
         var i,
             contourFile = "data/reducedGeography.json",
             tileSource = "http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png",
-            //inputFiles = ["data/MERS-CoV.json"];
               inputFiles = ["data/H9N2 Trees/H9N2.PA.json",
                             "data/H9N2 Trees/H9N2.MP.json",
                             "data/H9N2 Trees/H9N2.NS.json",
@@ -71,7 +72,7 @@
                             "data/H9N2 Trees/H9N2.PB1.json"];
 
         var mapPanel = new pandemix.MapPanel;
-        /*mapPanel.placePanel("map")
+        mapPanel.placePanel("map")
                 .loadContours(contourFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
@@ -79,19 +80,23 @@
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 
-        pandemix.panels.push(mapPanel);              */            
+        pandemix.panels.push(mapPanel);                          
 
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");
         pandemix.addGlobalZoomButton("#zoom");
 
-        var traitPanel = new pandemix.TraitPanel;
-        traitPanel.placePanel("#traits");
-        pandemix.panels.push(traitPanel);
+        // var traitPanel = new pandemix.TraitPanel;
+        // traitPanel.placePanel("#traits");
+        // pandemix.panels.push(traitPanel);
 
-        // var legendPanel = new pandemix.LegendPanel;
-        // legendPanel.placePanel("#legend");
-        // pandemix.panels.push(legendPanel);
+        var traitSelectionPanel = new pandemix.TraitSelectionPanel;
+        traitSelectionPanel.placePanel("#traitSelection");
+        pandemix.panels.push(traitSelectionPanel);
+
+        var legendPanel = new pandemix.LegendPanel;
+        legendPanel.placePanel("#legend");
+        pandemix.panels.push(legendPanel);
 
         var timePanel = new pandemix.TimePanel;
         timePanel.placePanel("#globalTime");

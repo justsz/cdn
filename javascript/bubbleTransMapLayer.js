@@ -101,9 +101,12 @@
                     if (movingForward) {
                         //don't need an animation if target and source are the same
                         if (l.source.location !== l.target.location) {
-
-                                initLoc = that.project(that.centroids[l.source.location]);
                                 targLoc = that.project(that.centroids[l.target.location]);
+                                //if (l.source.location) {
+                                initLoc = that.project(that.centroids[l.source.location]);
+                                // } else {
+                                //     initLoc = targLoc;
+                                // }
                                 newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID});
                         }
                     } else {

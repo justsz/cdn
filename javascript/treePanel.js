@@ -13,7 +13,6 @@
             innerNodes, //the d3 selection
             leaves,
 			lastClickedLeaf,
-			lastSelectionRoot,
             thisLeafSelection,
             maxHeight,
             minHeight,
@@ -275,11 +274,11 @@
         function mMove() {
             if (extent) {
                 extent[1] = d3.mouse(brushBox[0][0]);
-                if (extent[1][0] > width) {
-                    extent[1][0] = width;
+                if (extent[1][0] > xScale(minHeight)) {
+                    extent[1][0] = xScale(minHeight);
                 }
-                if (extent[1][1] > height) {
-                    extent[1][1] = height;
+                if (extent[1][1] > yScale(height)) {
+                    extent[1][1] = yScale(height);
                 }
                 
                 d3.select("#extent")
@@ -355,38 +354,35 @@
                     pandemix.callUpdate("leafSelectionUpdate");
                 }
             } else {
-    			if (node !== lastSelectionRoot) {
-    				var selectedLeaves = getDescendingLeaves(node),
-    				    innerLinks,
-                        i;
+				var selectedLeaves = getDescendingLeaves(node),
+				    innerLinks,
+                    i;
 
-    				//focus only on leaf nodes
-                    if (!d3.event.shiftKey) {
-    				    pandemix.selectedLeaves = selectedLeaves.slice(0);
-                    } else {
-                        for (i = 0; i < selectedLeaves.length; i += 1) {
-                            if (!pandemix.containsLeaf(pandemix.selectedLeaves, selectedLeaves[i])) {
-                                pandemix.selectedLeaves.push(selectedLeaves[i]);
-                            }
+				//focus only on leaf nodes
+                if (!d3.event.shiftKey) {
+				    pandemix.selectedLeaves = selectedLeaves.slice(0);
+                } else {
+                    for (i = 0; i < selectedLeaves.length; i += 1) {
+                        if (!pandemix.containsLeaf(pandemix.selectedLeaves, selectedLeaves[i])) {
+                            pandemix.selectedLeaves.push(selectedLeaves[i]);
                         }
                     }
-    				pandemix.callUpdate("leafSelectionUpdate");
-    				
-    				//continue this function with inner nodes as well
-                    innerLinks = getNodeLinks(selectedLeaves)
-                                .concat(getNodeLinks(getDescendingInnerNodes(node)));
-                    
-                    if (!d3.event.shiftKey) {
-                       links.classed("highlighted", false);
+                }
+				pandemix.callUpdate("leafSelectionUpdate");
+				
+				//continue this function with inner nodes as well
+                innerLinks = getNodeLinks(selectedLeaves)
+                            .concat(getNodeLinks(getDescendingInnerNodes(node)));
+                
+                if (!d3.event.shiftKey) {
+                   links.classed("highlighted", false);
+                }
+                if (node.depth !== Infinity) {
+                    for (i = 0; i < innerLinks.length; i += 1) {
+                        innerLinks[i].classed("highlighted", true);
                     }
-                    if (node.depth !== Infinity) {
-                        for (i = 0; i < innerLinks.length; i += 1) {
-                            innerLinks[i].classed("highlighted", true);
-                        }
-                    }
-    			}
+                }
             }
-			lastSelectionRoot = node;
 		};
 		
 		
@@ -510,6 +506,21 @@
 
                     that.treeData = json;
 
+                    //create artificial node that exists before the root node
+                    // var preRootNode = (function() {
+                    //     var node = {};
+                    //     for (var p in json.root) {
+                    //         if (json.root.hasOwnProperty(p)) {
+                    //             node[p] = undefined;
+                    //         }
+                    //     }
+                    //     node.height = json.root.height * 1.05;
+                    //     node.children = [json.root];
+                    //     console.log(node);
+                    //     return node;
+                    // })();
+
+
                     if (controlPanel) {
                         controlPanel.append("div")
                                     .attr("class", "panelControl name")
@@ -540,6 +551,8 @@
                     
                     minHeight = d3.min(leafHeights);
                     maxHeight = json.root.height;
+
+                    linkArray.push()
                     xScale = d3.scale.linear()
                                .domain([maxHeight, minHeight])
                                .range([0, width]);
@@ -673,7 +686,22 @@
                                 }
                             }
                         }
-                    }                    
+                    }
+
+                    //add data to traitPanel
+                    for (i = 0; i < pandemix.panels.length; i += 1) {
+                        //lookup the trait panel
+                        if (pandemix.panels[i].panelType === "traitSelectionPanel") {
+                            for (prop in json) {
+                                if (json.hasOwnProperty(prop)) {
+                                    var match = propRegex.exec(prop);
+                                    if (match) {
+                                       pandemix.panels[i].addTraits([match[1]]);
+                                    }
+                                }
+                            }
+                        }
+                    }
                     
 
                     brushBox = svg.append("rect")

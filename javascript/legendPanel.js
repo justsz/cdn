@@ -41,23 +41,20 @@
                                     .attr("class", "traitRow")
                                     .on("click", function(d) {
                                         d.selected = !d.selected;
-                                        svg.selectAll(".traitRow").select("rect").style("fill", function(d) {
-                                                                if (d.selected) {
-                                                                    return d.color;
-                                                                }
-                                                                return "gray"; });
-
                                         pandemix.traitType = displayTrait;
                                         pandemix.traitValues = [];
                                         svg.selectAll(".traitRow")
                                            .each(function(d) {
                                                if (d.selected) {
                                                    pandemix.traitValues.push(d);
-                                               } else {
-                                                console.log(d); 
                                                }
                                            });
                                        pandemix.callUpdate("traitSelectionUpdate");
+                                       svg.selectAll(".traitRow").select(".legendIcon").style("fill", function(d) {
+                                                                if (d.selected) {
+                                                                    return d.color;
+                                                                }
+                                                                return "gray"; });
                                     });
 
             rowEnter.append("rect")
@@ -69,12 +66,14 @@
                     
 
             rowEnter.append("rect")
+                    .attr("class", "legendIcon")
                     .attr("y", -legendSize)
                     .attr("height", legendSize)
                     .attr("width", legendSize)
                     .style("fill", function(d) {return d.color; });
 
             rowEnter.append("text")
+                    .attr("class", "legendRowText")
                     .attr("x", (legendSize + legendTextGap))
                     .text(function(d) {return d.name; });
 
@@ -86,12 +85,7 @@
 
             svg.attr("width", width)
                .attr("height", tableHeight);
-
-            // if (maxRowWidth > width) {
-            //     div.style("overflow-x", "scroll");
-            // } else {
-            //     div.style("overflow-x", null);
-            // }
+ 
             if (tableHeight > height) {
                 div.style("overflow-y", "scroll");
             } else {
@@ -99,8 +93,9 @@
             }
 
 
-
-            traitRows.select("rect").style("fill", function(d) {
+            //call coloring routine so that the initial view would display 
+            //the correct computed colors upon adding new elements to the list
+            traitRows.select(".legendIcon").style("fill", function(d) {
                                         if (d.selected) {
                                             return d.color;
                                         }
@@ -147,12 +142,24 @@
                     }
                 }
                 if (dirty) {
-                   drawPanel("location");
+                   drawPanel("No trait");
                 }
             },
 
             getTraits : function() {
                 return traits;
+            },
+
+            traitTypeUpdate : function() {
+                drawPanel(pandemix.traitType);
+                pandemix.traitValues = [];
+                svg.selectAll(".traitRow")
+                   .each(function(d) {
+                       if (d.selected) {
+                           pandemix.traitValues.push(d);
+                       }
+                   });
+               pandemix.callUpdate("traitSelectionUpdate");
             }
         };
 

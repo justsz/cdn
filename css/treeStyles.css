@@ -116,16 +116,16 @@ div.treePanel {
     /*display: inline-block;*/
 }
 
-div.svgBox {
+.treePanel.svgBox {
     line-height: 0;
-    width: 950px;
+    width: 750px;
     height: 545px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .treeTopology {
-    width: 600px;
+    width: 400px;
     height: 500px;
     padding-bottom: 20px;
     padding-left: 35px;
@@ -166,12 +166,27 @@ div.svgBox {
 
 /*Trait and legend stylings*/
 
+.traitSelectionPanel {
+    width: 100px;
+    height: 50px;
+    display: inline-block;
+    border: 1px solid;
+}
+
+.traitRowText {
+    pointer-events: none;
+}
+
 .legendPanel {
     width: 100px;
     height: 200px;
     overflow-x: hidden; 
     display: inline-block;
     border: 1px solid;
+}
+
+.legendRowText {
+    pointer-events: none;
 }
 
 .traitPanel {
@@ -182,9 +197,13 @@ div.svgBox {
 }
 
 .traitRowBackground {
-    /*fill: blue;*/
+    fill-opacity: 0;
 }
 
+.traitRowBackground.selected {
+    fill: blue;
+    fill-opacity: 0.125;
+}
 
 
 

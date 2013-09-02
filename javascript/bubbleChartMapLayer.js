@@ -19,7 +19,7 @@
 
         project: undefined,
 
-        fill: d3.scale.category10(),
+        fill: d3.scale.category10(),    //category 20
 
         color: undefined,
 

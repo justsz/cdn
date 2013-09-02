@@ -275,6 +275,12 @@
         function mMove() {
             if (extent) {
                 extent[1] = d3.mouse(brushBox[0][0]);
+                if (extent[1][0] > width) {
+                    extent[1][0] = width;
+                }
+                if (extent[1][1] > height) {
+                    extent[1][1] = height;
+                }
                 
                 d3.select("#extent")
                   .attr("x", d3.min([extent[0][0], extent[1][0]]))
@@ -321,7 +327,7 @@
                         }
                     }
                 });
-console.log(selectedNodes);
+
 
                 if (selectedNodes.length > 1) {
                     doNodeSelection(findCommonAncestor(selectedNodes));
@@ -338,7 +344,6 @@ console.log(selectedNodes);
 		
 		
 		function doNodeSelection(node) {
-            console.log(node);
             if (!node) {
                 if (!d3.event.shiftKey) {
                     //clears previously highlighted links
@@ -588,6 +593,10 @@ console.log(selectedNodes);
                           .attr("dx", 8)
                           .attr("text-anchor", "start")
                           .text(function(d) { return d.name; });
+
+                    leaves.append("path")
+                          .attr("class", "dashedLink")
+                          .attr("d", dashedElbow);
         
                     leaves.append("rect")
                           .attr("class", "leafBack")
@@ -636,9 +645,7 @@ console.log(selectedNodes);
 
 
 
-                    leaves.append("path")
-                       .attr("class", "dashedLink")
-                       .attr("d", dashedElbow);
+
                        
                     //add data to crossfilter
                     leaves.each(function (d) {
@@ -674,8 +681,6 @@ console.log(selectedNodes);
                                 .attr("height", height)
                                 .attr("class", "brushBox")
                                 .on("mousedown", mDown);
-                                //.on("mousemove", mMove)
-                                //.on("mouseup", mUp);
                                                     
                     d3.select(document).on("mousemove.treeSelect" + panelID, mMove)
                                        .on("mouseup.treeSelect" + panelID, mUp);                       
@@ -696,29 +701,6 @@ console.log(selectedNodes);
                                        .attr("class", "axis")
                                        .attr("transform", "translate(0," + (height) + ")")
                                        .call(timeAxis);
-                                     
-                    /*axisSelection.append("rect")
-                                 .attr("width", width)
-                                 .attr("height", verticalPadding)
-                                 .style("fill-opacity", 0)
-                                 .on("click", function() {
-                                     if (placeAimLine) {
-                                         aimLine.remove();
-                                     } else {
-                                         drawAimLine(d3.mouse(this)[0]);
-                                     }
-                                     placeAimLine = !placeAimLine;
-                                 })
-                                 .on("mousemove", function() {
-                                     if (placeAimLine) {
-                                         var coords = d3.mouse(this);
-                                         if (aimLine) {aimLine.remove(); };
-                                         drawAimLine(coords)[0];
-                                     }
-                                 });*/
-
-                    //pandemix.updateGlobalTimeAxis(maxHeight, minHeight);
-                    //pandemix.callUpdate("updateGlobalTimeAxis", maxHeight, minHeight);
 
                     pandemix.panels.forEach(function(p) {
                         if (p.panelType === "timePanel") {
@@ -726,8 +708,6 @@ console.log(selectedNodes);
                         }
                     });
 
-
-                    // linkArray.push({source: {height: maxHeight * 1.01, location: json.root.location}, target: json.root});
                     //populate node crossfilter
                     pandemix.nodes.add(nodeArray.map(function(n) {
                        return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
@@ -737,7 +717,6 @@ console.log(selectedNodes);
                     pandemix.links.add(linkArray.map(function(l) {
                         return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID};
                     }));
-                    //pandemix.links.add([{link: {source: undefined, target: json.root}, startDate, endDate, treeID: panelID}]);
 
                     that.finishedLoading = true;
                 }); 

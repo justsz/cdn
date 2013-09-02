@@ -12,6 +12,7 @@
     fill: black;
     fill-opacity: 1;
     alignment-baseline: middle;
+    pointer-events: none;
 }
 
 .link {

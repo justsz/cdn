@@ -34,6 +34,8 @@
         <script src="javascript/bubbleChartMapLayer.js"></script> 
         <script src="javascript/bubbleTransMapLayer.js"></script>
 
+        <script src="javascript/collabsible.js"></script>
+
 <style>
 
 body {
@@ -41,12 +43,63 @@ body {
   width: 900px;
 }
 
+.panel, .panelcollapsed 
+{
+	border: 1px solid #999;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
+/* panel heading */
+.panel h2, .panelcollapsed h2 
+{
+	font-size: 12px;
+	font-weight: 300;
+	margin: 0px;
+	padding: 4px;
+	background: #EEEEEE;
+/*	background: #CCC url(img/arrow-up.gif) no-repeat; */
+	border-bottom: 1px solid #999;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-top: 1px solid #FFF;
+	border-right: 1px solid #FFF;
+	border-left: 1px solid #FFF;
+}
+
+/* panel heading on rollover */
+.panel h2:hover, .panelcollapsed h2:hover { background-color: #A9BCEF; }
+
+/* heading of a collapsed panel */
+.panelcollapsed h2 
+{
+	background: #DDDDDD;
+/*	background: #CCC url(img/arrow-dn.gif) no-repeat; */
+	border-color: #CCC;
+}
+
+/* panel content - do not set borders or paddings */
+.panelcontent 
+{ 
+	background: #FFFFFF; 
+	overflow: hidden;
+}
+
+/* collapsed panel content */
+.panelcollapsed .panelcontent { display: none; }
+
+
 </style>
 
 	</head>
 <body>
 
-<div id="map"></div>
+<div class="panel">
+  <h2>Map</h2>
+  <div class="panelcontent">
+		<div id="map"></div>
+  </div>
+</div>
 <span class="date-calendar"></span>
 <div id="search"></div>
 <div id="color"></div>
@@ -54,7 +107,12 @@ body {
 <div id="traits"></div>
 <div id="legend"></div>
 <div id="globalTime"></div>
-<div id="tree1" class="collapsible"></div>
+<div class="panel">
+  <h2>Tree</h2>
+  <div class="panelcontent">
+	<div id="tree1" class="collapsible"></div>
+  </div>
+</div>
 
 
 <script>

@@ -39,86 +39,112 @@
 <style>
 
 body {
-  font-family: Helvetica,Arial,sans-serif;
-  width: 900px;
+	font-family: Helvetica,Arial,sans-serif;
+	font-weight: 200;
+  	width: 960px;
 }
-
-.panel, .panelcollapsed 
-{
-	border: 1px solid #999;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-}
-
-/* panel heading */
-.panel h2, .panelcollapsed h2 
-{
-	font-size: 12px;
-	font-weight: 300;
-	margin: 0px;
-	padding: 4px;
-	background: #EEEEEE;
-/*	background: #CCC url(img/arrow-up.gif) no-repeat; */
-	border-bottom: 1px solid #999;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-top: 1px solid #FFF;
-	border-right: 1px solid #FFF;
-	border-left: 1px solid #FFF;
-}
-
-/* panel heading on rollover */
-.panel h2:hover, .panelcollapsed h2:hover { background-color: #A9BCEF; }
-
-/* heading of a collapsed panel */
-.panelcollapsed h2 
-{
-	background: #DDDDDD;
-/*	background: #CCC url(img/arrow-dn.gif) no-repeat; */
-	border-color: #CCC;
-}
-
-/* panel content - do not set borders or paddings */
-.panelcontent 
-{ 
-	background: #FFFFFF; 
-	overflow: hidden;
-}
-
-/* collapsed panel content */
-.panelcollapsed .panelcontent { display: none; }
-
 
 </style>
+
+    <style type="text/css">
+	/* styling for leaflet map */
+		.leaflet-control-zoom {
+			box-shadow: 0 0px;
+            background: white;
+            background: rgba(255,255,255,0.8);
+			border-style: solid;
+            border-width: 1px;
+            border-color: #CCCCCC;
+            border-radius: 5px;
+		}
+		
+	</style>
+
+    <style type="text/css">
+  	/* styling for collapsible panels; */
+  
+		.panel, .panelcollapsed 
+		{
+			margin-top: 5px;
+			/*border: 1px solid #999;
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;*/
+		}
+
+		/* panel heading */
+		.panel h2, .panelcollapsed h2 
+		{
+			font-size: 14px;
+			font-weight: 300;
+			margin: 0px;
+			padding: 4px;
+			padding-left: 20px;
+		/*	background: #EEEEEE; */
+			background-image:url('img/arrow-up.gif');
+			background-repeat:no-repeat;
+			background-position: left center;
+			border-top: 1px solid #CCC;
+		/*	border-bottom: 1px solid #CCC;
+			border-right: 1px solid #CCC;
+			border-left: 1px solid #CCC;
+			-moz-border-radius: 3px;
+			-webkit-border-radius: 3px;
+			*/
+		}
+
+		/* panel heading on rollover */
+		.panel h2:hover, .panelcollapsed h2:hover { background-color: #F5F7F9; }
+
+		/* heading of a collapsed panel */
+		.panelcollapsed h2 
+		{
+		/*	background: #DDDDDD; */
+			background-image:url('img/arrow-dn.gif');
+			background-repeat:no-repeat;
+			background-position: left center;
+			border-color: #CCC;
+		}
+
+		/* panel content - do not set borders or paddings */
+		.panelcontent 
+		{ 
+			background: #FFFFFF; 
+			overflow: hidden;
+		}
+
+		/* collapsed panel content */
+		.panelcollapsed .panelcontent { display: none; }
+
+    </style>
 
 	</head>
 <body>
 
+<h3>MERS-CoV <span class="date-calendar"></span></h3>
+<div id="globalTime"></div>
 <div class="panel">
-  <h2>Map</h2>
+  <h2>Map: <span class="date-calendar"></span></h2>
   <div class="panelcontent">
 		<div id="map"></div>
   </div>
 </div>
-<span class="date-calendar"></span>
 <div class="panel" style="margin-top: 5px">
   <h2>Controls</h2>
   <div class="panelcontent">
-<div id="traits"></div>
-<div id="legend"></div>
-<div id="globalTime"></div>
+	<div id="traits"></div>
+	<div id="legend"></div>
+  	<div>
+		<div id="search" style="display: inline"></div>
+		<div id="color" style="display: inline"></div>
+	</div>
   </div>
 </div>
 <div class="panel" style="margin-top: 5px">
   <h2>Tree</h2>
   <div class="panelcontent">
   	<div>
-		<div id="search" style="display: inline"></div>
-		<div id="color" style="display: inline"></div>
-	</div>
-  	<div>
-		<div id="zoom" style="display: inline"></div>
-		<div id="tree1" style="display: inline"></div>
+		<div id="zoom" style="display: inline-block"></div>
+		<div id="tree1" style="display: inline-block"></div>
 	</div>
   </div>
 </div>

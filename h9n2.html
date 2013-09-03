@@ -63,6 +63,7 @@
 
         var i,
             contourFile = "data/reducedGeography.json",
+            centroidFile = "data/H9N2_locations.csv"
             tileSource = "http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png",
               inputFiles = ["data/H9N2 Trees/H9N2.PA.json",
                             "data/H9N2 Trees/H9N2.MP.json",
@@ -74,7 +75,7 @@
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map")
                 .loadContours(contourFile)
-                .loadCentroids()
+                .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
                 .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})

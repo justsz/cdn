@@ -2,7 +2,7 @@
 
     pandemix.MapPanel = function() {
         var map,
-            bounds = [[-90, -180], [90, 180]],
+            bounds = [[-180, -90], [180, 90]],
             layers = [],
             layerControl,
             mapData = undefined,
@@ -58,6 +58,11 @@
                                         if (centroid) {
                                             centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
                                             centroids[mapData.features[i].properties.name] = [centroid.lng, centroid.lat];
+                                        }
+                                    }
+                                    for (var aaa in centroids) {
+                                        if (centroids.hasOwnProperty(aaa)) {
+                                            console.log(aaa, ",", centroids[aaa][1], ",", centroids[aaa][0]);
                                         }
                                     }
                                     centroidsLoaded = true;

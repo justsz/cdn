@@ -1,22 +1,23 @@
-"Hebei", "China", "Hebei"
-"Shandong", "China", "Shandong"
-"Hong Kong", "China", "Hong Kong"
-"Hunan", "China", "Hunan"
-"Henan", "China", "Henan"
-"Anhui", "China", "Anhui"
-"Jiangsu", "China", "Jiangsu"
-"Shaanxi", "China", "Shaanxi"
-"Shanghai", "China", "Shanghai"
-"Xinjiang", "China", "Xinjiang"
-"Jiangxi", "China", "Jiangxi"
-"Zhejiang", "China", "Zhejiang"
-"Hubei", "China", "Hubei"
-"Vietnam", "Vietnam", ""
-"Tibet", "Tibet", ""
-"Beijing", "China", "Beijing"
-"Guangdong", "China", "Guangdong"
-"Japan", "Japan", ""
-"Guangxi", "China", "Guangxi"
-"Heilongjiang", "China", "Heilongjiang"
-"Russia", "Russia", ""
-"Fujian", "China", "Fujian"
+"location","country","province","city","latitude","longitude"
+"Hebei", "China", "Hebei", "", 39.61600414483058, 116.139827740298
+"Shandong", "China", "Shandong", "", 36.37274054857754, 118.16258503665507
+"HongKong", "China", "Hong Kong", "", 22.39342270232033, 114.13359374999999
+"Hunan", "China", "Hunan", "", 27.63788610628663, 111.69332999170355
+"Henan", "China", "Henan", "", 33.90741513782151, 113.60755404135337 
+"Anhui", "China", "Anhui", "", 31.84824633294297, 117.22394666477413
+"Jiangsu", "China", "Jiangsu", "", 32.999459305874204, 119.42795708249243
+"Shaanxi", "China", "Shaanxi", "", 35.24698228022552, 108.87385969432187
+"Shanghai", "China", "Shanghai", "",31.182353387059166, 121.459716796875
+"Xinjiang", "China", "Xinjiang", "", 41.351847588095325, 85.29357988973877
+"Jiangxi", "China", "Jiangxi", "", 7.64204806936148, 115.71758438334443
+"Zhejiang", "China", "Zhejiang", "", 29.19128882266087, 120.08297651241988
+"Hubei", "China", "Hubei", "", 30.985145209769918, 112.26329607545787
+"Vietnam", "Vietnam", "", "", 16.81184022401603, 106.27541632401316
+"Tibet", "Tibet", "", "", 31.7056, 86.9403
+"Beijing", "China", "Beijing", "", 40.1728704705912, 116.39952557309688
+"Guangdong", "China", "Guangdong", "", 23.3674376250916, 113.43585905481557
+"Japan", "Japan", "", "", 37.86094073402323, 138.16078209172986
+"Guangxi", "China", "Guangxi", "", 23.850132325496737, 108.78011901886237
+"Heilongjiang", "China", "Heilongjiang", "", 48.057661925533935, 127.66226517641056
+"Russia", "Russia", "", "", 64.845268140948, 97.85527304185675
+"Fujian", "China", "Fujian", "", 26.09671077664537, 117.9711609958879

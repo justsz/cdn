@@ -166,16 +166,17 @@ body {
 
         var i,
             contourFile = "data/MERS-CoV/reducedGeography.json",
+            centroidFile = "data/MERS-CoV/locations.csv",
             tileSource = "http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png",
             inputFiles = ["data/MERS-CoV/MERS-CoV_20.json"];
 
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map")
                 .loadContours(contourFile)
-                .loadCentroids()
+                .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
+                //.addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 

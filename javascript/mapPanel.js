@@ -2,11 +2,11 @@
 
     pandemix.MapPanel = function() {
         var map,
-            bounds = undefined,
+            bounds = [[-90, -180], [90, 180]],
             layers = [],
             layerControl,
             mapData = undefined,
-            centroids = {"Tibet": [87, 31.7], "HongKong": [114, 22]},
+            centroids = {};//{"Tibet": [87, 31.7], "HongKong": [114, 22]},
             contoursLoaded = false,
             centroidsLoaded = false,
             previousSelectedDate = undefined,
@@ -34,13 +34,13 @@
                 d3.json(dataFile, function(json) {
                     var path = d3.geo.path().projection(that.project);
                     mapData = json; //save a reference to the parsed contour file for use with layers
-                    bounds = d3.geo.bounds(mapData);
-                    //TODO: add that check for latitude as well if needed
-                    if (bounds[1][0] < bounds[0][0]) { //if true, the area has crossed the antimeridian
-                        //set the bounds to span the entire map
-                        bounds[0][0] = -180;
-                        bounds[1][0] = 180;
-                    }
+                    // bounds = d3.geo.bounds(mapData);
+                    // //TODO: add that check for latitude as well if needed
+                    // if (bounds[1][0] < bounds[0][0]) { //if true, the area has crossed the antimeridian
+                    //     //set the bounds to span the entire map
+                    //     bounds[0][0] = -180;
+                    //     bounds[1][0] = 180;
+                    // }
                     
                     contoursLoaded = true;
                 });
@@ -63,6 +63,14 @@
                                     centroidsLoaded = true;
                                 },
                                 100);
+                } else {
+                    d3.csv(dataFile, function(csv) {
+                        csv.forEach(function(entry) {
+                            centroids[entry.location] = [entry.longitude, entry.latitude];
+                        });
+
+                        centroidsLoaded = true;
+                    });
                 } 
                 return panel;
             },

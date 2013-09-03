@@ -26,6 +26,7 @@
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
         <script src="javascript/traitPanel.js"></script>
+        <script src="javascript/traitSelectionPanel.js"></script>
         <script src="javascript/legendPanel.js"></script>
 
         <script src="javascript/regionOutlineMapLayer.js"></script>        
@@ -34,120 +35,24 @@
         <script src="javascript/bubbleChartMapLayer.js"></script> 
         <script src="javascript/bubbleTransMapLayer.js"></script>
 
-        <script src="javascript/collabsible.js"></script>
-
-<style>
-
-body {
-	font-family: Helvetica,Arial,sans-serif;
-	font-weight: 200;
-  	width: 960px;
-}
-
-</style>
-
-    <style type="text/css">
-	/* styling for leaflet map */
-		.leaflet-control-zoom {
-			box-shadow: 0 0px;
-            background: white;
-            background: rgba(255,255,255,0.8);
-			border-style: solid;
-            border-width: 1px;
-            border-color: #CCCCCC;
-            border-radius: 5px;
-		}
-		
-	</style>
-
-    <style type="text/css">
-  	/* styling for collapsible panels; */
-  
-		.panel, .panelcollapsed 
-		{
-			margin-top: 5px;
-			/*border: 1px solid #999;
-			-moz-border-radius: 4px;
-			-webkit-border-radius: 4px;*/
-		}
-
-		/* panel heading */
-		.panel h2, .panelcollapsed h2 
-		{
-			font-size: 14px;
-			font-weight: 300;
-			margin: 0px;
-			padding: 4px;
-			padding-left: 20px;
-		/*	background: #EEEEEE; */
-			background-image:url('img/arrow-up.gif');
-			background-repeat:no-repeat;
-			background-position: left center;
-			border-top: 1px solid #CCC;
-		/*	border-bottom: 1px solid #CCC;
-			border-right: 1px solid #CCC;
-			border-left: 1px solid #CCC;
-			-moz-border-radius: 3px;
-			-webkit-border-radius: 3px;
-			*/
-		}
-
-		/* panel heading on rollover */
-		.panel h2:hover, .panelcollapsed h2:hover { background-color: #F5F7F9; }
-
-		/* heading of a collapsed panel */
-		.panelcollapsed h2 
-		{
-		/*	background: #DDDDDD; */
-			background-image:url('img/arrow-dn.gif');
-			background-repeat:no-repeat;
-			background-position: left center;
-			border-color: #CCC;
-		}
-
-		/* panel content - do not set borders or paddings */
-		.panelcontent 
-		{ 
-			background: #FFFFFF; 
-			overflow: hidden;
-		}
-
-		/* collapsed panel content */
-		.panelcollapsed .panelcontent { display: none; }
-
-    </style>
-
 	</head>
 <body>
 
-<h3>MERS-CoV <span class="date-calendar"></span></h3>
+<div id="map"></div>
+<span class="date-calendar"></span>
+<div id="search"></div>
+<div id="color"></div>
+<div id="zoom"></div>
+<!-- <div id="traits"></div> -->
+<div id="traitSelection"></div>
+<div id="legend"></div>
 <div id="globalTime"></div>
-<div class="panel">
-  <h2>Map: <span class="date-calendar"></span></h2>
-  <div class="panelcontent">
-		<div id="map"></div>
-  </div>
-</div>
-<div class="panel" style="margin-top: 5px">
-  <h2>Controls</h2>
-  <div class="panelcontent">
-	<div id="traits"></div>
-	<div id="legend"></div>
-  	<div>
-		<div id="search" style="display: inline"></div>
-		<div id="color" style="display: inline"></div>
-	</div>
-  </div>
-</div>
-<div class="panel" style="margin-top: 5px">
-  <h2>Tree</h2>
-  <div class="panelcontent">
-  	<div>
-		<div id="zoom" style="display: inline-block"></div>
-		<div id="tree1" style="display: inline-block"></div>
-	</div>
-  </div>
-</div>
+<div id="tree1" class="collapsible"></div>
+<div id="tree2" class="collapsible"></div>
+<div id="tree3" class="collapsible"></div>
+<div id="tree4" class="collapsible"></div>
+<div id="tree5" class="collapsible"></div>
+<div id="tree6" class="collapsible"></div>
 
 
 <script>
@@ -157,9 +62,14 @@ body {
 
 
         var i,
-            contourFile = "data/MERS-CoV/reducedGeography.json",
+            contourFile = "data/reducedGeography.json",
             tileSource = "http://{s}.tile.cloudmade.com/1a1b06b230af4efdbb989ea99e9841af/998/256/{z}/{x}/{y}.png",
-            inputFiles = ["data/MERS-CoV/MERS-CoV_20.json"];
+              inputFiles = ["data/H9N2 Trees/H9N2.PA.json",
+                            "data/H9N2 Trees/H9N2.MP.json",
+                            "data/H9N2 Trees/H9N2.NS.json",
+                            "data/H9N2 Trees/H9N2.PB2.json",
+                            "data/H9N2 Trees/H9N2.NP.json",
+                            "data/H9N2 Trees/H9N2.PB1.json"];
 
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map")
@@ -170,19 +80,23 @@ body {
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 
-        pandemix.panels.push(mapPanel);                       
+        pandemix.panels.push(mapPanel);                          
 
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");
         pandemix.addGlobalZoomButton("#zoom");
 
-        var traitPanel = new pandemix.TraitPanel;
-        traitPanel.placePanel("#traits");
-        pandemix.panels.push(traitPanel);
+        // var traitPanel = new pandemix.TraitPanel;
+        // traitPanel.placePanel("#traits");
+        // pandemix.panels.push(traitPanel);
 
-        // var legendPanel = new pandemix.LegendPanel;
-        // legendPanel.placePanel("#legend");
-        // pandemix.panels.push(legendPanel);
+        var traitSelectionPanel = new pandemix.TraitSelectionPanel;
+        traitSelectionPanel.placePanel("#traitSelection");
+        pandemix.panels.push(traitSelectionPanel);
+
+        var legendPanel = new pandemix.LegendPanel;
+        legendPanel.placePanel("#legend");
+        pandemix.panels.push(legendPanel);
 
         var timePanel = new pandemix.TimePanel;
         timePanel.placePanel("#globalTime");

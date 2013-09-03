@@ -1,5 +1,7 @@
 (function() {
     pandemix.map.centroidLayer = L.Class.extend({
+            needsCentroids: true,
+
             svg: undefined,
 
             g: undefined,
@@ -12,7 +14,11 @@
 
             centroids: undefined,
 
-            initialize: function (args) {
+            initialize: function() {
+                //do nothing
+            },
+
+            initDraw: function (args) {
                 var that = this;
                 that.map = args.map;
                 that.project = args.project;

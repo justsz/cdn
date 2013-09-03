@@ -1,6 +1,8 @@
 (function() {
 
     pandemix.map.bubbleTransLayer = L.Class.extend({
+        needsCentroids: true,
+
         svg: undefined,
 
         g: undefined,
@@ -31,7 +33,11 @@
 
         intervalID: undefined,
 
-        initialize: function (args) {
+        initialize: function() {
+            //do nothing
+        },
+
+        initDraw: function (args) {
             var that = this;
             that.map = args.map;
             that.tree = args.tree;

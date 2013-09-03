@@ -1,5 +1,7 @@
 (function() {
 	 pandemix.map.regionOutlineLayer = L.Class.extend({
+            needsContours: true,
+
             svg: undefined,
 
             g: undefined,
@@ -12,7 +14,11 @@
 
             project: undefined,
 
-            initialize: function(args) {
+            initialize: function() {
+                //do nothing
+            },
+
+            initDraw: function(args) {
                 var that = this;
                 that.map = args.map;
                 that.project = args.project;

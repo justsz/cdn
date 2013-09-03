@@ -8,6 +8,7 @@
             mapData = undefined,
             centroids = {"Tibet": [87, 31.7], "HongKong": [114, 22]},
             contoursLoaded = false,
+            centroidsLoaded = false,
             previousSelectedDate = undefined,
             panelID = 0 + pandemix.counter;
 
@@ -41,16 +42,28 @@
                         bounds[1][0] = 180;
                     }
                     
-
-                    for (var i = 0; i < mapData.features.length; i++) {
-                        var centroid = path.centroid(mapData.features[i]);
-                        if (centroid) {
-                            centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
-                            centroids[mapData.features[i].properties.name] = [centroid.lng, centroid.lat];
-                        }
-                    }
                     contoursLoaded = true;
                 });
+                return panel;
+            },
+
+            loadCentroids: function(dataFile) {
+                var that = this;
+                if (!dataFile) { //then calculate from the contours
+                    pandemix.when(function() {return contoursLoaded; },
+                                function() {
+                                    var path = d3.geo.path().projection(that.project);
+                                    for (var i = 0; i < mapData.features.length; i++) {
+                                        var centroid = path.centroid(mapData.features[i]);
+                                        if (centroid) {
+                                            centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
+                                            centroids[mapData.features[i].properties.name] = [centroid.lng, centroid.lat];
+                                        }
+                                    }
+                                    centroidsLoaded = true;
+                                },
+                                100);
+                } 
                 return panel;
             },
 
@@ -66,14 +79,18 @@
             addLayer: function(layer, args) {
                 var that = this;
                 var args = args || {};
-                pandemix.when(function() {return contoursLoaded; },
+                var l = new layer();
+                pandemix.when(function() {if (l.needsContours) return contoursLoaded;
+                                          else if (l.needsCentroids) return centroidsLoaded;
+                                          else if (l.needsContours && l.needsCentroids) return contoursLoaded && centroidsLoaded;
+                                          else return true; },
                                function() {
                                    args.map = map;
                                    args.project = that.project;
                                    args.bounds = bounds;
                                    args.mapData = mapData;
                                    args.centroids = centroids;
-                                   var l = new layer(args);
+                                   l.initDraw(args);
                                    layerControl.addOverlay(l, args.name || "layer");
                                    map.addLayer(l);
                                    layers.push(l);

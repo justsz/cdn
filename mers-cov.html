@@ -172,6 +172,7 @@ body {
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map")
                 .loadContours(contourFile)
+                .loadCentroids()
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
                 .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})

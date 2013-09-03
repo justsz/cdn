@@ -83,11 +83,10 @@
 
             tableHeight = traitRows.size() * (legendSize + rowPadding);
 
-            svg.attr("width", width)
-               .attr("height", tableHeight);
+            svg.attr("height", d3.max([height, tableHeight]));
  
-            if (tableHeight > height) {
-                div.style("overflow-y", "scroll");
+            if (tableHeight < height) {
+                div.style("overflow-y", "hidden");
             } else {
                 div.style("overflow-y", null);
             }

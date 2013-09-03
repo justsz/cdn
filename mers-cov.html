@@ -25,6 +25,7 @@
     	<script src="javascript/treePanel.js"></script>
     	<script src="javascript/tablePanel.js"></script>
         <script src="javascript/traitPanel.js"></script>
+        <script src="javascript/traitSelectionPanel.js"></script>
         <script src="javascript/legendPanel.js"></script>
 
         <script src="javascript/regionOutlineMapLayer.js"></script>        
@@ -139,7 +140,7 @@ body {
 <div class="panel" style="margin-top: 5px">
   <h2>Controls</h2>
   <div class="panelcontent">
-	<div id="traits"></div>
+	<div id="traitSelection"></div>
 	<div id="legend"></div>
   	<div>
 		<div id="search" style="display: inline"></div>
@@ -171,12 +172,12 @@ body {
             inputFiles = ["data/MERS-CoV/MERS-CoV_20.json"];
 
         var mapPanel = new pandemix.MapPanel;
-        mapPanel.placePanel("map")
+        mapPanel.placePanel("map", [25.3833, 49.5833],4)
                 .loadContours(contourFile)
                 .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                //.addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
+                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 
@@ -186,13 +187,13 @@ body {
         pandemix.addColorPicker("#color");
         pandemix.addGlobalZoomButton("#zoom");
 
-        var traitPanel = new pandemix.TraitPanel;
-        traitPanel.placePanel("#traits");
+        var traitPanel = new pandemix.TraitSelectionPanel;
+        traitPanel.placePanel("#traitSelection");
         pandemix.panels.push(traitPanel);
 
-        // var legendPanel = new pandemix.LegendPanel;
-        // legendPanel.placePanel("#legend");
-        // pandemix.panels.push(legendPanel);
+        var legendPanel = new pandemix.LegendPanel;
+        legendPanel.placePanel("#legend");
+        pandemix.panels.push(legendPanel);
 
         var timePanel = new pandemix.TimePanel;
         timePanel.placePanel("#globalTime");

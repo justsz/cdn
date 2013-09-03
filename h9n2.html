@@ -73,7 +73,7 @@
                             "data/H9N2 Trees/H9N2.PB1.json"];
 
         var mapPanel = new pandemix.MapPanel;
-        mapPanel.placePanel("map")
+        mapPanel.placePanel("map", [34, 104], 4)
                 .loadContours(contourFile)
                 .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
@@ -82,7 +82,7 @@
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 
-        pandemix.panels.push(mapPanel);                          
+        pandemix.panels.push(mapPanel);
 
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");

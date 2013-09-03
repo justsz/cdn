@@ -37,7 +37,7 @@
                 var circleCoords = [];
                 for (c in that.centroids) {
                     if (that.centroids.hasOwnProperty(c)) {
-                        circleCoords.push({center : [that.centroids[c][0], that.centroids[c][1]]});
+                        circleCoords.push({name: c, center : [that.centroids[c][0], that.centroids[c][1]]});
                     }
                 }
 
@@ -82,6 +82,21 @@
                     .attr("cy", function(d) {return that.project(d.center)[1]; })
                     .attr("r", radius);
 
+            },
+
+            traitSelectionUpdate: function() {
+                var that = this;
+                
+                if (pandemix.traitValues) {
+                   that.circles.style("fill", function(d) {
+                       for (var i = 0; i < pandemix.traitValues.length; i += 1) {
+                           if (d.name === pandemix.traitValues[i].name) {
+                               return pandemix.traitValues[i].color;
+                           }
+                        }
+                        return null;
+                   });
+                }
             }
         });
 

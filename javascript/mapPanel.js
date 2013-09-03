@@ -18,10 +18,12 @@
         var panel = {
             panelType: "mapPanel",
 
-            placePanel: function(targ) {
+            placePanel: function(targ, initCoords, initZoom) {
+                var initC = initCoords || [0, 0];
+                var initZ = initZoom || 4;
                 map = new L.Map(targ, {
-                    center: [34, 104],
-                    zoom: 4,
+                    center: initC,
+                    zoom: initZ,
                     maxBounds: [[-90, -180], [90, 180]]
                 });
                 layerControl = L.control.layers(null, null).addTo(map);
@@ -58,11 +60,6 @@
                                         if (centroid) {
                                             centroid = map.layerPointToLatLng(new L.Point(centroid[0], centroid[1]));
                                             centroids[mapData.features[i].properties.name] = [centroid.lng, centroid.lat];
-                                        }
-                                    }
-                                    for (var aaa in centroids) {
-                                        if (centroids.hasOwnProperty(aaa)) {
-                                            console.log(aaa, ",", centroids[aaa][1], ",", centroids[aaa][0]);
                                         }
                                     }
                                     centroidsLoaded = true;
@@ -180,6 +177,14 @@
                     }
                 }
 
+            },
+
+            traitSelectionUpdate: function() {
+                for (var i = 0; i < layers.length; i += 1) {
+                    if ("traitSelectionUpdate" in layers[i]) {
+                        layers[i].traitSelectionUpdate();
+                    }
+                }
             },
 
             project: function(x) {

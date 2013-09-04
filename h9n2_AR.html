@@ -120,14 +120,15 @@
 
     </style>
 
-	</head>
+</head>
 <body>
 
 <div id="globalTime"></div>
 <div class="panel">
   <h2>Map: <span class="date-calendar"></span></h2>
-  <div class="panelcontent">
+  <div class="panelcontent">  		
 		<div id="map"></div>
+		<button id="map-reset">Reset Map</button>
   </div>
 </div>
 <div class="panel" style="margin-top: 5px">
@@ -199,8 +200,6 @@
     //script wrapped in a function to avoid polluting namespace
     (function() {
 
-
-
         var i,
             contourFile = "data/reducedGeography.json",
             centroidFile = "data/H9N2_locations.csv"
@@ -222,6 +221,11 @@
                 .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
+
+		$( "#map-reset" ).click(function() {
+			mapPanel.getMap().setView([34, 104], 4);
+		});
+
 
         pandemix.panels.push(mapPanel);
 

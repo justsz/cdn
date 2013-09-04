@@ -27,6 +27,10 @@
                     maxBounds: [[-90, -180], [90, 180]]
                 });
                 layerControl = L.control.layers(null, null).addTo(map);
+
+                //register panel for updates
+                pandemix.panels.push(panel);
+                
                 return panel;
             },
 

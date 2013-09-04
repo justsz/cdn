@@ -23,11 +23,12 @@
             }
 
             var rowData = function() {
-                            var names = traits[displayTrait];
+                            var elements = traits[displayTrait];
                                 var out = [];
-                                for (var i = 0; i < names.length; i += 1) {
-                                    out.push({name : names[i],
-                                              color : "hsl(" + (i * Math.floor(360 / names.length)) + ",75%,50%)",
+                                for (var i = 0; i < elements.length; i += 1) {
+                                    out.push({name : elements[i].name,
+                                              color : elements[i].color || pandemix.getHSBColor(i, elements.length),
+                                              colorIsStatic : !!elements[i].color, //!! converts the color value into a boolean
                                               selected : true});
                                     }
                                     return out;
@@ -40,21 +41,23 @@
                                     .append("g")
                                     .attr("class", "traitRow")
                                     .on("click", function(d) {
-                                        d.selected = !d.selected;
-                                        pandemix.traitType = displayTrait;
-                                        pandemix.traitValues = [];
-                                        svg.selectAll(".traitRow")
-                                           .each(function(d) {
-                                               if (d.selected) {
-                                                   pandemix.traitValues.push(d);
-                                               }
-                                           });
-                                       pandemix.callUpdate("traitSelectionUpdate");
-                                       svg.selectAll(".traitRow").select(".legendIcon").style("fill", function(d) {
-                                                                if (d.selected) {
-                                                                    return d.color;
-                                                                }
-                                                                return "gray"; });
+                                        if (!d.colorIsStatic) {
+                                            d.selected = !d.selected;
+                                            pandemix.traitType = displayTrait;
+                                            pandemix.traitValues = [];
+                                            svg.selectAll(".traitRow")
+                                               .each(function(d) {
+                                                   if (d.selected) {
+                                                       pandemix.traitValues.push(d);
+                                                   }
+                                               });
+                                            pandemix.callUpdate("traitSelectionUpdate");
+                                            svg.selectAll(".traitRow").select(".legendIcon").style("fill", function(d) {
+                                                                    if (d.selected) {
+                                                                        return d.color;
+                                                                    }
+                                                                    return "gray"; });
+                                        }
                                     });
 
             rowEnter.append("rect")
@@ -119,17 +122,29 @@
                      .attr("class", "legendSvg")
                      .attr("width", width)
                      .attr("height", height);
+
+            //register panel for updates
+            pandemix.panels.push(panel);
             },
 
 
+            /*
+            Populate this panel's database with traits. 
+            If static is true, the data is added as plain legend.
+            Otherwise, the data is considered a trait and color for it is calculated dynamically.
+            */
             addTraits : function(newTraits) {
                 var dirty = false,
                     i;
-                for (trait in newTraits) {
+
+                for (var trait in newTraits) {
                     if (newTraits.hasOwnProperty(trait)) {
                         if (traits.hasOwnProperty(trait)) {
                             for (i = 0; i < newTraits[trait].length; i += 1) {
-                                if (!pandemix.contains(traits[trait], newTraits[trait][i])) {
+                                //match elements by name
+                                var alreadyAdded = pandemix.accContains(traits[trait], newTraits[trait][i], function(elem) {return elem.name; }, function(elem) {return elem.name; });
+
+                                if (!alreadyAdded) {
                                     traits[trait].push(newTraits[trait][i]);
                                     dirty = true;
                                 }

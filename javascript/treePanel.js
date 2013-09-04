@@ -2,6 +2,7 @@
     "use strict";
     pandemix.TreePanel = function() {
         var panelID,
+            treeColor = undefined,
             cluster,
             div,
             controlPanel,
@@ -28,6 +29,8 @@
             width, //width of tree topology
             height, //height of tree topology
             marginForLabels; //additional space for labels
+
+
             
             
         function attachLinkReferences(nodes, linkData) {
@@ -443,7 +446,7 @@
             /*
             Create and place a container for the tree.
             */
-            placePanel : function(targ) {
+            placePanel : function(targ, color) {
                 panelID = 0 + pandemix.counter; //get value, not reference
                 this.panelID = panelID;
                 pandemix.focusedPanel = panelID;
@@ -483,6 +486,9 @@
                 // svg.style("width", width + marginForLabels).style("height", height);
 
                 aimLine = svg.append("line").attr("class", "aimLine");
+
+                //register panel for updates
+                pandemix.panels.push(panel);
                              
                 pandemix.counter += 1;
             },
@@ -491,8 +497,21 @@
             /*
             Fill container with data.
             */
-            initializePanelData : function(filename) {
+            initializePanelData : function(filename, color) {
                 var that = this;
+                treeColor = color || (function() {
+                    var treeCount = 0;
+                    pandemix.panels.forEach(function(p) {
+                        if (p.panelType === "treePanel") {
+                            treeCount += 1;
+                        }
+                    });
+                    //calculate one of 6 evenly spaced colors. If requirede color count is greater than 6
+                    //shift the first 6 colors by 10 degrees on the color wheel and assign those.
+                    //in total this gives 60 colors that can be assigned. That's already probably too much to differentiate by eye
+                    return pandemix.getHSBColor(treeCount, 6, Math.floor(treeCount / 6) * 10); 
+                })();
+
                 d3.json(filename, function(json) { //json is the parsed input object
                     var nodeArray,
                         linkArray,
@@ -671,24 +690,25 @@
                         }
                     });
 
-                    //add data to traitPanel
+                    //add data to traitPanel and legendPanel
                     for (i = 0; i < pandemix.panels.length; i += 1) {
                         //lookup the trait panel
-                        if (pandemix.panels[i].panelType === "traitPanel" || pandemix.panels[i].panelType === "legendPanel") {
+                        if (pandemix.panels[i].panelType === "legendPanel") {
                             for (prop in json) {
                                 if (json.hasOwnProperty(prop)) {
                                     var match = propRegex.exec(prop);
                                     if (match) {
                                        var traitDict = {};
-                                       traitDict[match[1]] = json[prop];
+                                       traitDict[match[1]] = json[prop].map(function(elem) {return {name: elem, color: undefined}});
                                        pandemix.panels[i].addTraits(traitDict);
                                     }
                                 }
                             }
+                            pandemix.panels[i].addTraits({Tree: [{name: json.name, color: treeColor}]});
                         }
                     }
 
-                    //add data to traitPanel
+                    //add data to traitSelectionPanel
                     for (i = 0; i < pandemix.panels.length; i += 1) {
                         //lookup the trait panel
                         if (pandemix.panels[i].panelType === "traitSelectionPanel") {
@@ -700,6 +720,7 @@
                                     }
                                 }
                             }
+                            pandemix.panels[i].addTraits(["Tree"]);
                         }
                     }
                     
@@ -738,12 +759,12 @@
 
                     //populate node crossfilter
                     pandemix.nodes.add(nodeArray.map(function(n) {
-                       return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID}; 
+                       return {node: n, date: pandemix.nodeHeightToDate(n.height, timeOrigin), treeID: panelID, color: treeColor}; 
                     }));
 
                     //populate link crossfilter
                     pandemix.links.add(linkArray.map(function(l) {
-                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID};
+                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID, color: treeColor};
                     }));
 
                     that.finishedLoading = true;

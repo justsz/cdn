@@ -242,6 +242,24 @@ pandemix = (function() {
         }, interval);
     };
 
+    /*
+    Function for calculating an HSB color given how many colors in total should be represented.
+    */
+    pandemix.getHSBColor = function(colorIndex, totalColors, offset, saturation, brightness) {
+        // if (colorIndex > totalColors - 1) {
+        //     throw new Error("Color index larger than (total colors - 1) when calling for HSB Color.");
+        // }
+        if (!(colorIndex && totalColors) && colorIndex !== 0) {
+            throw new Error("Called for HSB color without specifying color index or total colors.");
+        }
+        var off = offset || 0;
+        var sat = saturation || 75;
+        var br = brightness || 50;
+        var ci = colorIndex % totalColors;
+        var hue = (off + ci * 360 / totalColors) % 360;
+        return "hsl(" + hue + "," + sat + "%," + br + "%)";
+    }
+
 
 
 

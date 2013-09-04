@@ -20,7 +20,6 @@
         <script src="javascript/leaflet.js"></script>
 		<script src="javascript/pandemix.js"></script>
 
-    	<script src="javascript/circlePanel.js"></script>
         <script src="javascript/timePanel.js"></script>
         <script src="javascript/mapPanel.js"></script>
     	<script src="javascript/treePanel.js"></script>
@@ -82,31 +81,21 @@
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 
-        pandemix.panels.push(mapPanel);
-
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");
         pandemix.addGlobalZoomButton("#zoom");
 
         // var traitPanel = new pandemix.TraitPanel;
         // traitPanel.placePanel("#traits");
-        // pandemix.panels.push(traitPanel);
 
         var traitSelectionPanel = new pandemix.TraitSelectionPanel;
         traitSelectionPanel.placePanel("#traitSelection");
-        pandemix.panels.push(traitSelectionPanel);
 
         var legendPanel = new pandemix.LegendPanel;
         legendPanel.placePanel("#legend");
-        pandemix.panels.push(legendPanel);
 
         var timePanel = new pandemix.TimePanel;
         timePanel.placePanel("#globalTime");
-        pandemix.panels.push(timePanel);
-        
-        var tablePanel = new pandemix.TablePanel;
-        tablePanel.placePanel();
-        pandemix.panels.push(tablePanel);
         
         pandemix.initializeCrossfilter();
 
@@ -119,8 +108,7 @@
                 //would receive the correct reference to the tree panel created
                 var treePanel = new pandemix.TreePanel;
                 treePanel.placePanel("#tree" + (i + 1));
-                treePanel.initializePanelData(f);
-                pandemix.panels.push(treePanel);
+                treePanel.initializePanelData(f, pandemix.getHSBColor(i, inputFiles.length));
                     // pandemix.when(function() {return treePanel.finishedLoading; },
                     //        function() {
                     //            mapPanel.addLayer(pandemix.map.virusParticleLayer,

@@ -10,7 +10,7 @@
             
             pandemix.counter += 1;
 
-        return {
+        var panel = {
             panelType : "tablePanel",
             
             leafSelectionUpdate : function() {
@@ -54,8 +54,13 @@
                      .attr("class", "tablePanel")
                      .attr("width", width)
                      .attr("height", height);
+
+            //register panel for updates
+            pandemix.panels.push(panel);
             }
         }
+
+        return panel;
 
     };
 

@@ -304,6 +304,7 @@
         timeSlideUpdate: function(filteredLinks, movingForward) {
             //console.log(date);
             var that = this;
+            var treeColor = undefined;
             
             //var filteredLinks = pandemix.linkPeriodDim.filter(function(d) {return d[0] < date && date < d[1] ;}).top(Infinity);
             // var selectedLinks = pandemix.treeIdDim.filter(that.color).top(Infinity);
@@ -313,6 +314,7 @@
             filteredLinks.forEach(function(d) {
                 if (d.treeID === that.color) {
                     selectedLinks.push(d.link);
+                    treeColor = d.color;
                 }
             });
 
@@ -345,7 +347,7 @@
                             } else if (!movingForward) {
                                 initLoc = that.project(that.centroids[l.target.location]);
                             }
-                            newNodes.push({virNum: that.virNum, id: a, x: initLoc[0], y: initLoc[1], r: that.radius, node: l.target});
+                            newNodes.push({virNum: that.virNum, id: a, x: initLoc[0], y: initLoc[1], r: that.radius, node: l.target, color: treeColor});
                             that.virNum += 1;
                             break;
                         }
@@ -401,7 +403,7 @@
                    .attr("class", "virusParticle")
                    .attr("cx", function(d) {return d.x; })
                    .attr("cy", function(d) {return d.y; })
-                   .style("fill", that.fill(that.color)) 
+                   .style("fill", function(d) {return d.color; }) 
                    .style("stroke", 1)
                    // .attr("r", 0)
                    // .transition()

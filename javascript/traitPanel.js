@@ -168,13 +168,16 @@
                      .attr("class", "traitSvg")
                      .attr("width", width)
                      .attr("height", height);
+
+            //register panel for updates
+            pandemix.panels.push(panel);
             },
 
 
             addTraits : function(newTraits) {
                 var dirty = false,
                     i;
-                for (trait in newTraits) {
+                for (var trait in newTraits) {
                     if (newTraits.hasOwnProperty(trait)) {
                         if (traits.hasOwnProperty(trait)) {
                             for (i = 0; i < newTraits[trait].length; i += 1) {

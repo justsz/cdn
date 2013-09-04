@@ -163,6 +163,9 @@
 
 		        axisSelection.call(brush)
 	                          .call(timeAxis);
+
+                //register panel for updates
+                pandemix.panels.push(panel);
 		    }
 		}
 

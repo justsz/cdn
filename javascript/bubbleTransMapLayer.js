@@ -23,8 +23,6 @@
 
         project: undefined,
 
-        fill: d3.scale.category10(),
-
         color: undefined,
 
         radius: undefined,
@@ -113,7 +111,7 @@
                                 // } else {
                                 //     initLoc = targLoc;
                                 // }
-                                newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID});
+                                newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID, color: link.color});
                         }
                     } else {
                         if (l.target.children) {
@@ -121,7 +119,7 @@
                                 if (ch.location !== l.target.location) {
                                     initLoc = that.project(that.centroids[ch.location]);
                                     targLoc = that.project(that.centroids[l.target.location]);
-                                    newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID});
+                                    newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID, color: link.color});
                                 }
                             });
                         }
@@ -144,7 +142,7 @@
                    .attr("class", "bubbleTrans")
                    .attr("cx", function(d) {return d.initX; })
                    .attr("cy", function(d) {return d.initY; })
-                   .style("fill", function(d) {return that.fill(d.treeID); }) 
+                   .style("fill", function(d) {return d.color; }) 
                    .style("stroke", 1)
                    .attr("r", function(d) {return d.r; })
                    .transition().ease("linear").duration(500)
@@ -185,7 +183,7 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
-            that.radius = 3;
+            that.radius = that.map.getZoom() - 1;
 
             that.g.selectAll("circle.bubbleTrans").attr("r", that.radius);
 

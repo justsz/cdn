@@ -66,6 +66,9 @@
                      .attr("class", "traitSvg")
                      .attr("width", width)
                      .attr("height", height);
+
+            //register panel for updates
+            pandemix.panels.push(panel);
             },
 
 

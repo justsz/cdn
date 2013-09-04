@@ -21,7 +21,7 @@
 
         project: undefined,
 
-        fill: d3.scale.category10(),    //category 20
+        //fill: d3.scale.category10(),    //category 20
 
         color: undefined,
 
@@ -110,7 +110,7 @@
                             } else {
                                 initLoc = that.project(that.centroids[l.target.location]);
                             }
-                            data[key] = {key: key, id: a, x: initLoc[0], y: initLoc[1], size: 1, prevSize: prevSize}; //size is number of virus nodes represented by this bubble
+                            data[key] = {key: key, id: a, x: initLoc[0], y: initLoc[1], size: 1, prevSize: prevSize, color: link.color}; //size is number of virus nodes represented by this bubble
                             break;
                         }
                     }
@@ -142,8 +142,7 @@
                    .attr("class", "bubble")
                    .attr("cx", function(d) {return d.x; })
                    .attr("cy", function(d) {return d.y; })
-                   .style("fill", function(d) {return that.fill(d.key[1]); }) 
-                   .style("stroke", 1)
+                   .style("fill", function(d) {return d.color; })
                    .attr("r", 0);
 
             nodeSel.transition()

@@ -38,6 +38,12 @@
   pointer-events: none;
 }
 
+circle.bubble {
+  fill: gray;
+  stroke: black;
+  stroke-width: 1px;
+}
+
 .bubbleTransLayer {
   pointer-events: none;
 }

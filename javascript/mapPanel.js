@@ -99,6 +99,7 @@
                 args.zIndex = zCounter;
                 zCounter += 1;
                 var l = new layer();
+                layerControl.addOverlay(l, args.name || "layer");
                 pandemix.when(function() {if (l.needsContours) return contoursLoaded;
                                           else if (l.needsCentroids) return centroidsLoaded;
                                           else if (l.needsContours && l.needsCentroids) return contoursLoaded && centroidsLoaded;
@@ -110,7 +111,6 @@
                                    args.mapData = mapData;
                                    args.centroids = centroids;
                                    l.initDraw(args);
-                                   layerControl.addOverlay(l, args.name || "layer");
                                    map.addLayer(l);
                                    layers.push(l);
                                },

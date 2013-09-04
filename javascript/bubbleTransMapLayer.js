@@ -49,35 +49,16 @@
 
             // create a DOM element and put it into one of the map panes
             that.el = L.DomUtil.create('div', 'bubbleTransLayer leaflet-zoom-hide');
+            d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
             that.svg = d3.select(that.el).append("svg");
             that.svg.on("mousedown", function() {event.preventDefault(); });
             that.g = that.svg.append("g");
 
-           // var sizing = that.reset(); //set svg's size and return the size
             that.nodes = [];
 
-            // that.force = d3.layout.force()
-            //     .nodes(that.nodes)
-            //     .links([])
-            //     .gravity(0)
-            //     .size(sizing)
-            //     .charge(0)
-            //     .friction(0.85); 
-
-
-            // that.force.on("tick", function(e) {
-            //   // Push nodes toward their designated focus.
-            //   var k = 0.1 * e.alpha;
-            //   that.nodes.forEach(function(o, i) {
-            //     o.y += (that.foci[o.id].y - o.y) * k;
-            //     o.x += (that.foci[o.id].x - o.x) * k;
-            //   });
-
-            //   that.g.selectAll("circle.bubbleTrans")
-            //       .attr("cx", function(d) { return d.x; })
-            //       .attr("cy", function(d) { return d.y; });
-            // });
+            that.map.getPanes().overlayPane.appendChild(that.el);
+            that.svg.style("display", "none");
         },
 
 
@@ -129,9 +110,6 @@
             });
 
             that.nodes = currNodes;
-            //that.force.nodes(newNodes);
-
-            //that.force.start();
 
             var nodeSel = that.g.selectAll("circle.bubbleTrans")
                                 .data(newNodes);
@@ -153,15 +131,14 @@
 
         onAdd: function (map) {
             var that = this;
-            map.getPanes().overlayPane.appendChild(that.el);
+            that.svg.style("display", null);
             map.on('viewreset', that.reset, that);
             that.reset();
         },
 
         onRemove: function (map) {
             var that = this;
-            // remove layer's DOM elements and listeners
-            map.getPanes().overlayPane.removeChild(that.el);
+            that.svg.style("display", "none");
             map.off('viewreset', that.reset, that);
         },
 

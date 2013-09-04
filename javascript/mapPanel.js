@@ -10,7 +10,8 @@
             contoursLoaded = false,
             centroidsLoaded = false,
             previousSelectedDate = undefined,
-            panelID = 0 + pandemix.counter;
+            panelID = 0 + pandemix.counter,
+            zCounter = 1;
 
         pandemix.counter += 1;
 
@@ -83,8 +84,10 @@
 
             addTileLayer: function(source) {
                 var l = new L.TileLayer(source, {
-                                 noWrap: true
+                                 noWrap: true,
+                                 zIndex: zCounter
                 });
+                zCounter += 1;
                 map.addLayer(l);
                 layerControl.addOverlay(l, "Tiles");
                 return panel;
@@ -93,6 +96,8 @@
             addLayer: function(layer, args) {
                 var that = this;
                 var args = args || {};
+                args.zIndex = zCounter;
+                zCounter += 1;
                 var l = new layer();
                 pandemix.when(function() {if (l.needsContours) return contoursLoaded;
                                           else if (l.needsCentroids) return centroidsLoaded;

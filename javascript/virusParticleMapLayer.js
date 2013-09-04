@@ -133,6 +133,7 @@
 
             // create a DOM element and put it into one of the map panes
             that.el = L.DomUtil.create('div', 'virusParticleLayer leaflet-zoom-hide');
+            d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
             that.svg = d3.select(that.el).append("svg");
             that.svg.on("mousedown", function() {event.preventDefault(); });
@@ -210,6 +211,9 @@
 
 
             //that.intervalID = setInterval(function() {that.timeLinks(prd[0]); prd[0].setDate(prd[0].getDate() + 10); }, 100);
+
+            that.map.getPanes().overlayPane.appendChild(that.el);
+            that.svg.style("display", "none");
 
         },
 
@@ -415,15 +419,14 @@
 
         onAdd: function (map) {
             var that = this;
-            map.getPanes().overlayPane.appendChild(that.el);
+            that.svg.style("display", null)
             map.on('viewreset', that.reset, that);
             that.reset();
         },
 
         onRemove: function (map) {
             var that = this;
-            // remove layer's DOM elements and listeners
-            map.getPanes().overlayPane.removeChild(that.el);
+            that.svg.style("display", "none");
             map.off('viewreset', that.reset, that);
         },
 

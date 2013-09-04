@@ -50,6 +50,7 @@
 
             // create a DOM element and put it into one of the map panes
             that.el = L.DomUtil.create('div', 'bubbleChartLayer leaflet-zoom-hide');
+            d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
             that.svg = d3.select(that.el).append("svg");
             that.svg.on("mousedown", function() {event.preventDefault(); });
@@ -80,6 +81,8 @@
                   .attr("cy", function(d) {return d.y; });
             });
 
+            that.map.getPanes().overlayPane.appendChild(that.el);
+            that.svg.style("display", "none");
         },
 
         timeSlideUpdate: function(filteredLinks) {
@@ -155,15 +158,14 @@
 
         onAdd: function (map) {
             var that = this;
-            map.getPanes().overlayPane.appendChild(that.el);
+            that.svg.style("display", null);
             map.on('viewreset', that.reset, that);
             that.reset();
         },
 
         onRemove: function (map) {
             var that = this;
-            // remove layer's DOM elements and listeners
-            map.getPanes().overlayPane.removeChild(that.el);
+            that.svg.style("display", "none");
             map.off('viewreset', that.reset, that);
         },
 

@@ -24,9 +24,9 @@
                 that.project = args.project;
                 that.bounds = args.bounds;
 
-                that.anchor = that.map.getPanes().overlayPane.appendChild(L.DomUtil.create("div", "layerAnchor"));
-
                 that.el = L.DomUtil.create('div', 'provinceLayer leaflet-zoom-hide');
+                d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
+                
                 that.svg = d3.select(that.el).append("svg");
 
                 that.svg.on("mousedown", function() {event.preventDefault(); });
@@ -75,20 +75,20 @@
 				
                 that.reset();*/
 
-
+                that.map.getPanes().overlayPane.appendChild(that.el);
+                that.svg.style("display", "none");
             },
 
             onAdd: function() {
                 var that = this;
-                that.anchor.appendChild(that.el);
+                that.svg.style("display", null);
                 that.map.on('viewreset', that.reset, that);
                 that.reset();
             },
 
             onRemove: function() {
-                // remove layer's DOM elements and listeners
                 var that = this;
-                that.anchor.removeChild(that.el);
+                that.svg.style("display", "none");
                 that.map.off('viewreset', that.reset, that);
             },
 

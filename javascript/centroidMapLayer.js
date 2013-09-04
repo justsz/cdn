@@ -25,10 +25,9 @@
                 that.bounds = args.bounds;
                 that.centroids = args.centroids;
 
-                that.anchor = that.map.getPanes().overlayPane.appendChild(L.DomUtil.create("div", "layerAnchor"));
-
                 // create a DOM element and put it into one of the map panes
                 that.el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
+                d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
                 that.svg = d3.select(that.el).append("svg");
                 that.svg.on("mousedown", function() {event.preventDefault(); });
@@ -46,12 +45,14 @@
                                    .data(circleCoords)
                                    .enter()
                                    .append("circle");
+
+                that.map.getPanes().overlayPane.appendChild(that.el);
+                that.svg.style("display", "none");
             },
 
             onAdd: function (map) {
                 var that = this;
-                that.anchor.appendChild(that.el);
-                // add a viewreset event listener for updating layer's position, do the latter
+                that.svg.style("display", null);
                 map.on('viewreset', that.reset, that);
                 that.reset();
             },
@@ -59,7 +60,7 @@
             onRemove: function (map) {
                 // remove layer's DOM elements and listeners
                 var that = this;
-                that.anchor.removeChild(that.el);
+                that.svg.style("display", "none");
                 map.off('viewreset', that.reset, that);
             },
 

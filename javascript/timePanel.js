@@ -67,6 +67,12 @@
                 brushHighlight.remove();
                 brushHighlight = null;
                 pandemix.brushHighlight = null;
+
+                pandemix.selectedPeriod = [];
+                pandemix.selectedLeaves = [];
+                pandemix.callUpdate("timeSelectionUpdate");
+	        	pandemix.callUpdate("leafSelectionUpdate");
+
             }
             var postn = d3.mouse(sliderBackground.node())[0];
             if (postn > timeLineWidth - 1) { //subtracting one pixel to have some display at the very edge

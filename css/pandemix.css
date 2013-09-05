@@ -141,11 +141,15 @@ div.treePanel {
     cursor: crosshair;
 }
 
-.timeLine path,
 .timeLine line {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;
+}
+
+.timeLine path {
+    fill: none;
+    stroke: black;
 }
 
 .timeSlider {
@@ -154,13 +158,17 @@ div.treePanel {
     position: relative;
     cursor: col-resize;
     width: 20px;
-    height: 20px;  
+    height: 20px;      
 }
 
 .sliderBackground {
     cursor: col-resize;
     width: 700px;
     height: 25px;
+}
+
+g.tick text {
+    pointer-events: none;
 }
 
 
@@ -217,6 +225,7 @@ div.treePanel {
   fill-opacity: .2;
   stroke: #fff;
   stroke-width: 1.5px;
+  shape-rendering: optimizeSpeed;
 }
 
 .mapHighlighted {

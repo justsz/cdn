@@ -91,6 +91,7 @@
 	    };
 		
 	    function mMove() {
+	    	event.preventDefault();
 	    	if (sliderClicked) {
 	    		var postn = d3.mouse(sliderBackground.node())[0];
 	    		if (postn > timeLineWidth - 1) {

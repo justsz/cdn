@@ -206,7 +206,56 @@ div.treePanel {
     fill-opacity: 0.125;
 }
 
+/*Map styling*/
+#map {
+  width: 960px;
+  height: 500px;
+}
 
+.mapPath {
+  fill: #000;
+  fill-opacity: .2;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.mapHighlighted {
+  fill: orange;
+  fill-opacity: .2;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.mapPath:hover {
+  fill: brown;
+  fill-opacity: .7;
+}
+
+.treeLayer {
+    pointer-events: none;
+}
+
+.centroidLayer {
+  pointer-events: none;
+}
+
+.virusParticleLayer {
+  pointer-events: none;
+}
+
+.bubbleChartLayer {
+  pointer-events: none;
+}
+
+circle.bubble {
+  fill: gray;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+.bubbleTransLayer {
+  pointer-events: none;
+}
 
 
 

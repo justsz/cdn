@@ -10,6 +10,8 @@ pandemix = (function() {
     pandemix.extraUpdates = {}; //stores extra events that might not fit with a certain panel
     pandemix.selectedLeaves = [];
     pandemix.selectedNodes = [];
+    pandemix.selectedDate = new Date(0); //might be a little dangerous...
+    pandemix.selectedPeriod = [0,0];
     pandemix.globalData = {}; //keeps track of data added to crossfilter
     pandemix.map = {}; //store map related things, like layers
     

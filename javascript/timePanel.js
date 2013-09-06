@@ -63,7 +63,7 @@
 	    var slider = undefined;
 
 	    function mDown() {
-	    	event.preventDefault();
+	    	d3.event.preventDefault();
 	    	sliderClicked = true;
 
             if (brushHighlight) {
@@ -91,7 +91,7 @@
 	    };
 		
 	    function mMove() {
-	    	event.preventDefault();
+	    	d3.event.preventDefault();
 	    	if (sliderClicked) {
 	    		var postn = d3.mouse(sliderBackground.node())[0];
 	    		if (postn > timeLineWidth) {
@@ -167,7 +167,8 @@
 
 		        		        timeScale = d3.time.scale()
 		                            .domain([0, 1])
-		                            .range([0, timeLineWidth]);
+		                            .range([0, timeLineWidth])
+		                            .clamp(true);
 		        timeAxis = d3.svg.axis()
 		                            .scale(timeScale)
 		                            .orient("bottom");
@@ -191,7 +192,17 @@
 		    timeSlideUpdate: function() {
 		    	aimLine.attr("x1", timeScale(pandemix.selectedDate)).attr("x2", timeScale(pandemix.selectedDate));
 		    	if (!sliderClicked) {
-		    		slider.style("left", (timeScale(pandemix.selectedDate) - sliderWidth / 2) + "px");
+		    		var postn = timeScale(pandemix.selectedDate);
+
+		    		if (postn > timeLineWidth) {
+		    			postn = timeLineWidth;
+		    		} else if (postn < 0) {
+		    			postn = 0;
+		    		}
+
+		    		var displ = (postn - sliderWidth / 2);
+
+		    		slider.style("left", displ  + "px");
 		    	}
 		    }
 		}

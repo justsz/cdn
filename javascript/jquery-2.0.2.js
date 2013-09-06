@@ -4613,7 +4613,7 @@ jQuery.event = {
 			// Native handler
 			handle = ontype && cur[ ontype ];
 			if ( handle && jQuery.acceptData( cur ) && handle.apply && handle.apply( cur, data ) === false ) {
-				event.preventDefault();
+				d3.event.preventDefault();
 			}
 		}
 		event.type = type;
@@ -4693,7 +4693,7 @@ jQuery.event = {
 
 					if ( ret !== undefined ) {
 						if ( (event.result = ret) === false ) {
-							event.preventDefault();
+							d3.event.preventDefault();
 							event.stopPropagation();
 						}
 					}
@@ -4911,7 +4911,7 @@ jQuery.event = {
 			jQuery.event.dispatch.call( elem, e );
 		}
 		if ( e.isDefaultPrevented() ) {
-			event.preventDefault();
+			d3.event.preventDefault();
 		}
 	}
 };

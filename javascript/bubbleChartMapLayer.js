@@ -53,7 +53,7 @@
             d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
             that.svg = d3.select(that.el).append("svg");
-            that.svg.on("mousedown", function() {event.preventDefault(); });
+            that.svg.on("mousedown", function() {d3.event.preventDefault(); });
             that.g = that.svg.append("g");
 
             that.nodes = [];
@@ -217,6 +217,7 @@
                                 .attr("cy", function(d) {return d.y; })
                                 .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
 
+            //calling this update makes the repositioned bubbles snuggle up to their centroids
             if (pandemix.selectedDate) {
                 pandemix.callUpdate("timeSlideUpdate");
             }

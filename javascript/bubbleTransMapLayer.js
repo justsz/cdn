@@ -52,7 +52,7 @@
             d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
             that.svg = d3.select(that.el).append("svg");
-            that.svg.on("mousedown", function() {event.preventDefault(); });
+            that.svg.on("mousedown", function() {d3.event.preventDefault(); });
             that.g = that.svg.append("g");
 
             that.nodes = [];
@@ -121,7 +121,6 @@
                    .attr("cx", function(d) {return d.initX; })
                    .attr("cy", function(d) {return d.initY; })
                    .style("fill", function(d) {return d.color; }) 
-                   .style("stroke", 1)
                    .attr("r", function(d) {return d.r; })
                    .transition().ease("linear").duration(500)
                    .attr("cx", function(d) {return d.targX; })

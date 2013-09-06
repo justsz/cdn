@@ -27,7 +27,17 @@
             prevCoords, //previous coordinates of aim line, used when zooming
             width, //width of tree topology
             height, //height of tree topology
-            marginForLabels; //additional space for labels
+            marginForLabels, //additional space for labels
+            horizontalPadding = 30,
+            verticalPadding = 20,
+            leafBackGap = 5,
+            leafTextGap = 8,
+            scrollBarWidth = 20,
+            treeWidth, //size of tree from root node to furthest leaf
+            treeHeight; //size of tree from top leaf to bottom leaf
+            // padding-bottom: 20px;
+            // padding-left: 35px;
+            // padding-top: 20px;
 
 
             
@@ -147,7 +157,7 @@
         function drawAimLine(xPos) {
             //prevCoords = coords || prevCoords;
             aimLine.attr("x1", xPos)
-                   .attr("y1", yScale(height))
+                   .attr("y1", yScale(treeHeight))
                    .attr("x2", xPos)
                    .attr("y2", 0);
         };
@@ -268,7 +278,7 @@
             }
 
             //this line needed to make selection not move like a slug!
-            event.preventDefault();
+            d3.event.preventDefault();
         };
         
         function mMove() {
@@ -277,8 +287,8 @@
                 if (extent[1][0] > xScale(minHeight)) {
                     extent[1][0] = xScale(minHeight);
                 }
-                if (extent[1][1] > yScale(height)) {
-                    extent[1][1] = yScale(height);
+                if (extent[1][1] > yScale(height - 2 * verticalPadding)) {
+                    extent[1][1] = yScale(height - 2 * verticalPadding);
                 }
                 
                 d3.select("#extent")
@@ -337,7 +347,7 @@
                 }              
         
                 extent = undefined;
-                event.preventDefault();
+                d3.event.preventDefault();
             }
         };
 		
@@ -467,22 +477,17 @@
                 div = parent.append("div")
                         .attr("class", "treePanel svgBox");
 
-                svg = div.append("svg")
-                         .attr("class", "treeTopology");
-
                 //get size info from styling of panel
-                width = parseInt(svg.style("width").replace( /\D+/, ''), 10);
-                height = parseInt(svg.style("height").replace( /\D+/, ''), 10);
-                marginForLabels = parseInt(div.style("width").replace( /\D+/, ''), 10) - width -
-                                  parseInt(svg.style("padding-right").replace( /\D+/, ''), 10) -
-                                  parseInt(svg.style("padding-left").replace( /\D+/, ''), 10);
+                width = parseInt(div.style("width").replace( /\D+/, ''), 10);
+                height = parseInt(div.style("height").replace( /\D+/, ''), 10);
 
-                svg.style("width", width + marginForLabels);
+                svg = div.append("svg")
+                         .attr("class", "treeTopology")
+                         .attr("width", width + "px")
+                         .attr("height", height + "px");
 
-
-                // svg.style("width", width + marginForLabels).style("height", height);
-
-                aimLine = svg.append("line").attr("class", "aimLine");
+                treeWidth = width - horizontalPadding;
+                treeHeight = height - 2 * verticalPadding;
 
                 //register panel for updates
                 pandemix.panels.push(panel);
@@ -547,7 +552,7 @@
                     timeOrigin = parseFloat(json.origin);
                     //initialize d3 cluster layout
                     cluster = d3.layout.cluster()
-                                .size([height, width])
+                                .size([treeHeight, treeWidth])
                                 .separation(function() {return 1; });
 
                     attachParent(json.root, undefined);
@@ -571,19 +576,23 @@
                     linkArray.push()
                     xScale = d3.scale.linear()
                                .domain([maxHeight, minHeight])
-                               .range([0, width]);
+                               .range([0, treeWidth]);
 
 
                     yScale = d3.scale.linear()
-                               .domain([0, height])
-                               .range([0, height]);
+                               .domain([0, treeHeight])
+                               .range([0, treeHeight]);
 
-                    drawAimLine(0);
+                    
 
-                    //g = svg.append("g");
-                           //.attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");                
+                    var g = svg.append("g")
+                           .attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");  
 
-                    links = svg.selectAll("path.link")
+                    //line that displays date selection
+                    aimLine = g.append("line").attr("class", "aimLine");
+                    drawAimLine(0);           
+
+                    links = g.selectAll("path.link")
                                .data(linkArray, pandemix.getLinkKey)
                                .enter().append("path")
                                .attr("class", "link")
@@ -593,7 +602,7 @@
                     attachLinkReferences(nodeArray, links);
 
                     //assign node classification and position it
-                    svg.selectAll(".node")
+                    g.selectAll(".node")
                      .data(nodeArray, pandemix.getNodeKey)
                      .enter().append("g")
                      .attr("class", function(d) {
@@ -606,24 +615,32 @@
                          return "leaf node";
                      });
                      
-                    innerNodes = svg.selectAll(".inner")
-                                    .attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
+                    
+                    innerNodes = g.selectAll(".inner");
 
                     //draw root node line. It is placed inside the root nodes g so it transforms along with it.           
-                    svg.select(".root")
+                    g.select(".root")
                        .append("path")
                        .attr("class", "rootLink")
                        .attr("d", function() {return "M" + 0 + "," + 0 + "h" + -20; });
                     
-                    leaves = svg.selectAll(".leaf")
-                                .attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
+                    leaves = g.selectAll(".leaf");
 
-                    var leafHeight = height / leaves.size();
+                    var leafHeight = treeHeight / leaves.size();
                     leaves.append("text")
                           .attr("class", "leafText")
-                          .attr("dx", 8)
+                          .attr("dx", leafTextGap)
                           .attr("text-anchor", "start")
                           .text(function(d) { return d.name; });
+
+                    var maxLeafLength = 0;
+                    leaves.each(function() {
+                        var length = d3.select(this).select("text")[0][0].getComputedTextLength();
+                        if (length > maxLeafLength) maxLeafLength = length;
+                    });
+
+                    treeWidth = treeWidth - leafTextGap - maxLeafLength - scrollBarWidth;
+                    xScale.range([0, treeWidth]);
 
                     leaves.append("path")
                           .attr("class", "dashedLink")
@@ -632,8 +649,8 @@
                     leaves.append("rect")
                           .attr("class", "leafBack")
                           .attr("y", -leafHeight / 2)//.attr("y", -7)
-                          .attr("x", 5)
-                          .attr("width", marginForLabels)
+                          .attr("x", leafBackGap)
+                          .attr("width", maxLeafLength + leafBackGap)
                           .attr("height", leafHeight)
                           .on("click", function() {
 							//three modes of click-selection:
@@ -724,9 +741,9 @@
                     }
                     
 
-                    brushBox = svg.append("rect")
-                                .attr("width", width)
-                                .attr("height", height)
+                    brushBox = g.append("rect")
+                                .attr("width", treeWidth)
+                                .attr("height", treeHeight)
                                 .attr("class", "brushBox")
                                 .on("mousedown", mDown);
                                                     
@@ -737,16 +754,15 @@
                     //add time axis and aim line              
                     timeScale = d3.time.scale()
                                        .domain([pandemix.nodeHeightToDate(maxHeight, timeOrigin), pandemix.nodeHeightToDate(minHeight, timeOrigin)])
-                                       .range([0, width])
-                                       .clamp(true);
+                                       .range([0, treeWidth]);
+                    timeScale.clamp(true);
 
                     timeAxis = d3.svg.axis()
                                     .scale(timeScale)
                                     .orient("bottom");
 
-                    axisSelection = svg.append("g")
+                    axisSelection = g.append("g")
                                        .attr("class", "axis")
-                                       .attr("transform", "translate(0," + (height) + ")")
                                        .call(timeAxis);
 
                     pandemix.panels.forEach(function(p) {
@@ -765,6 +781,8 @@
                         return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID, color: treeColor};
                     }));
 
+                    //position all the elements via a zoom call
+                    panel.zoomUpdate();
                     that.finishedLoading = true;
                 }); 
             },
@@ -841,27 +859,27 @@
 
         
             zoomUpdate : function() {
-                yScale.range([0, height * pandemix.scale]);
+                yScale.range([0, treeHeight * pandemix.scale]);
 
-                // if (pandemix.scale === 1) {
-                //     div.style("overflow-y", "hidden");
-                // } else {
-                //     div.style("overflow-y", "auto");
-                // }
+                if (pandemix.scale === 1) {
+                    div.style("overflow-y", "hidden");
+                } else {
+                    div.style("overflow-y", "auto");
+                }
     
-                svg.style("height", yScale(height));
-                axisSelection.attr("transform", "translate(0," + yScale(height) + ")");
+                svg.attr("height", yScale(treeHeight) + 2 * verticalPadding);
+                axisSelection.attr("transform", "translate(0," + yScale(treeHeight) + ")");
 
                 if (pandemix.selectedDate) {
                     drawAimLine(timeScale(pandemix.selectedDate)); 
                 }
 
-                brushBox.attr("height", yScale(height));
+                brushBox.attr("height", yScale(treeHeight));
                 links.attr("d", elbow);
                 innerNodes.attr("transform", function(d) { return "translate(" + xScale(d.height) + "," + yScale(d.x) + ")"; });
                 leaves.attr("transform", function(d) { return "translate(" + xScale(minHeight) + "," + yScale(d.x) + ")"; });
 
-                var leafHeight = yScale(height) / leaves.size();
+                var leafHeight = yScale(treeHeight) / leaves.size();
                 svg.selectAll(".leafBack").attr("y", -leafHeight / 2).attr("height", leafHeight)
             },
         
@@ -881,7 +899,9 @@
 
 
             timeSlideUpdate : function() {
-                drawAimLine(timeScale(pandemix.selectedDate));
+                if (timeScale) {
+                    drawAimLine(timeScale(pandemix.selectedDate));
+                }
             }
 
 

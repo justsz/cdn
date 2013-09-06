@@ -30,7 +30,7 @@
                 d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
                 that.svg = d3.select(that.el).append("svg");
-                that.svg.on("mousedown", function() {event.preventDefault(); });
+                that.svg.on("mousedown", function() {d3.event.preventDefault(); });
                 that.g = that.svg.append("g");                
 
                 var circleCoords = [];

@@ -123,16 +123,7 @@ div.treePanel {
     line-height: 0;
     width: 750px;
     height: 545px;
-    overflow-y: auto;
     overflow-x: hidden;
-}
-
-.treeTopology {
-    width: 400px;
-    height: 500px;
-    padding-bottom: 20px;
-    padding-left: 35px;
-    padding-top: 20px;
 }
 
 
@@ -257,7 +248,7 @@ g.tick text {
 }
 
 .mapPath:hover {
-  fill: brown;
+  fill: red;
   fill-opacity: .7;
 }
 

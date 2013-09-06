@@ -20,6 +20,7 @@
     
 	pandemix.TimePanel = function() {
 	    function brushstart() {
+	    	d3.selectAll("path.link").classed("highlighted", false);
 	        //brush.clear();
 	        //d3.selectAll(".link").classed("highlighted", false);
 	    };
@@ -64,6 +65,7 @@
 	    function mDown() {
 	    	event.preventDefault();
 	    	sliderClicked = true;
+
             if (brushHighlight) {
                 brushHighlight.remove();
                 brushHighlight = null;

@@ -804,8 +804,8 @@
                 // var end = pandemix.dateToNodeHeight(pandemix.selectedPeriod[1], timeOrigin);
                 if (periodHighlight) {
                     //console.log(start + " " + end);
-                    periodHighlight.attr("x", timeScale(pandemix.selectedPeriod[0]))
-                                   .attr("width", timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0]));
+                    periodHighlight.attr("x", timeScale(pandemix.selectedPeriod[0]) || 0)
+                                   .attr("width", (timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0])) || 0);
                 } else {
                     periodHighlight = svg.append("rect")
                                          .attr("class", "timeSelection")

@@ -187,7 +187,6 @@
 		    },
 
 		    timeSlideUpdate: function() {
-		    	d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
 		    	aimLine.attr("x1", timeScale(pandemix.selectedDate)).attr("x2", timeScale(pandemix.selectedDate));
 		    	if (!sliderClicked) {
 		    		slider.style("left", (timeScale(pandemix.selectedDate) - sliderWidth / 2) + "px");

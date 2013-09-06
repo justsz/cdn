@@ -7,6 +7,7 @@ pandemix = (function() {
     pandemix.focusedPanel = 0; //ID of focused panel
     pandemix.scale = 1; //zoom level
     pandemix.panels = []; //array of all added panels
+    pandemix.extraUpdates = {}; //stores extra events that might not fit with a certain panel
     pandemix.selectedLeaves = [];
     pandemix.selectedNodes = [];
     pandemix.globalData = {}; //keeps track of data added to crossfilter
@@ -21,6 +22,10 @@ pandemix = (function() {
         var n = 0;
         this.each(function() {n += 1; });
         return n;
+    };
+
+    pandemix.extraUpdates.timeSlideUpdate = function() {
+        d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4)); 
     };
 
 
@@ -219,6 +224,9 @@ pandemix = (function() {
             if (pandemix.panels[i].hasOwnProperty(updateType)) {
                 pandemix.panels[i][updateType](arguments); //pass arguments given to this function to the update function
             }
+        }
+        if (pandemix.extraUpdates.hasOwnProperty(updateType)) {
+            pandemix.extraUpdates[updateType];
         }
     };
 

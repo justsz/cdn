@@ -67,22 +67,25 @@
 /*Zoom button styling*/
 .zoomControl {
     display: inline-block;
+    border:2px solid;
+    border-radius: 15px;
+    overflow: hidden;
 }
 
 .zoom.increase {
-    background-image: url("../img/glyphicons-halflings.png");
-    background-position: -397px -87px; 
+    background-image: url("../img/sprites.png");
+    background-position: -155px -4px; 
     background-color: green;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
 }
 
 .zoom.decrease {
-    background-image: url("../img/glyphicons-halflings.png");
-    background-position: -422px -87px; 
+    background-image: url("../img/sprites.png");
+    background-position: -204px -3px; 
     background-color: red;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
 }
 
 
@@ -141,7 +144,7 @@ div.treePanel {
     cursor: crosshair;
 }
 
-.timeLine line {
+g.tick line {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;
@@ -152,18 +155,22 @@ div.treePanel {
     stroke: black;
 }
 
+.aimLine {
+    stroke: red;
+}
+
 .timeSlider {
-    background-image: url("../img/glyphicons-halflings.png");
-    background-position: -308px -90px; 
     position: relative;
     cursor: col-resize;
-    width: 20px;
+    background-image: url("../img/sprites.png");
+    background-position: -114px -14px;     
+    width: 18px;
     height: 20px;      
 }
 
 .sliderBackground {
     cursor: col-resize;
-    width: 700px;
+    width: 750px;
     height: 25px;
 }
 
@@ -171,6 +178,20 @@ g.tick text {
     pointer-events: none;
 }
 
+.playPauseButton {
+    /*width: 40px;
+    height: 40px;*/
+    border: 2px solid;
+    border-radius: 5px;
+    background-color: purple;
+    background: url('../img/sprites.png') -6px -5px;
+    width: 40px;
+    height: 40px;
+}
+
+.playPauseButton.playing {
+    background: url('../img/sprites.png') -54px -4px;
+}
 
 /*Trait and legend stylings*/
 

@@ -24,7 +24,6 @@
             aimLine,
             periodHighlight,
             extent,
-            placeAimLine,
             prevCoords, //previous coordinates of aim line, used when zooming
             width, //width of tree topology
             height, //height of tree topology
@@ -145,14 +144,12 @@
         /*
         Used in drawing the vertical line coming from the time axis.
         */
-        function drawAimLine(coords) {
+        function drawAimLine(xPos) {
             //prevCoords = coords || prevCoords;
-            svg.select(".aimLine")
-                         .attr("x1", coords)
-                         .attr("y1", yScale(height))
-                         .attr("x2", coords)
-                         .attr("y2", 0)
-                         .style("stroke", "red");
+            aimLine.attr("x1", xPos)
+                   .attr("y1", yScale(height))
+                   .attr("x2", xPos)
+                   .attr("y2", 0);
         };
 
 
@@ -581,6 +578,8 @@
                                .domain([0, height])
                                .range([0, height]);
 
+                    drawAimLine(0);
+
                     //g = svg.append("g");
                            //.attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");                
 
@@ -745,7 +744,6 @@
                                     .scale(timeScale)
                                     .orient("bottom");
 
-                    placeAimLine = false;
                     axisSelection = svg.append("g")
                                        .attr("class", "axis")
                                        .attr("transform", "translate(0," + (height) + ")")

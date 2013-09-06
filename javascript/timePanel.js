@@ -13,7 +13,8 @@
     	sliderWidth,
     	timeLineWidth,
     	timeLineHeight,
-    	panelID = 0 + pandemix.counter;
+    	panelID = 0 + pandemix.counter,
+    	aimLine;
 
     pandemix.counter += 1;
     
@@ -75,29 +76,26 @@
 
             }
             var postn = d3.mouse(sliderBackground.node())[0];
-            if (postn > timeLineWidth - 1) { //subtracting one pixel to have some display at the very edge
-    			postn = timeLineWidth - 1;
-    		} else if (postn < 1) {
-    			postn = 1;
+            if (postn > timeLineWidth) { //subtracting one pixel to have some display at the very edge
+    			postn = timeLineWidth;
+    		} else if (postn < 0) {
+    			postn = 0;
     		}
 
 
        		slider.style("left", (postn - sliderWidth / 2) + "px");
 	       	pandemix.selectedDate = timeScale.invert(postn);
 	        pandemix.callUpdate("timeSlideUpdate");
-
-	        d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
-
 	    };
 		
 	    function mMove() {
 	    	event.preventDefault();
 	    	if (sliderClicked) {
 	    		var postn = d3.mouse(sliderBackground.node())[0];
-	    		if (postn > timeLineWidth - 1) {
-	    			postn = timeLineWidth - 1;
-	    		} else if (postn < 1) {
-	    			postn = 1;
+	    		if (postn > timeLineWidth) {
+	    			postn = timeLineWidth;
+	    		} else if (postn < 0) {
+	    			postn = 0;
 	    		}
 
        			slider.style("left", (postn - sliderWidth / 2) + "px");
@@ -121,6 +119,9 @@
 		    updateGlobalTimeAxis : function(startDate, endDate) {
 		        startDates.push(startDate);
 		        endDates.push(endDate);
+
+		        pandemix.minDate = d3.min(startDates);
+		        pandemix.maxDate = d3.max(endDates);
 		        
 		        timeScale.domain([d3.min(startDates), d3.max(endDates)]);
 
@@ -145,12 +146,22 @@
 
 				sliderWidth = parseInt(slider.style("width").replace( /\D+/, ''), 10);
 
+				slider.style("left", (-sliderWidth / 2) + "px");
+
 				//add the timeline itself
 		        axisSelection = div.append("svg")
 		        				  .attr("class", "timeLine");
 
                 timeLineWidth = parseInt(axisSelection.style("width").replace( /\D+/, ''), 10);
                 timeLineHeight = parseInt(axisSelection.style("height").replace( /\D+/, ''), 10);
+
+
+		        aimLine = axisSelection.append("line")
+									   .attr("class", "aimLine")
+									   .attr("x1", "0")
+									   .attr("x2", "0")
+									   .attr("y1", "0")
+									   .attr("y2", timeLineHeight);
 
 		        		        timeScale = d3.time.scale()
 		                            .domain([0, 1])
@@ -173,6 +184,14 @@
 
                 //register panel for updates
                 pandemix.panels.push(panel);
+		    },
+
+		    timeSlideUpdate: function() {
+		    	d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
+		    	aimLine.attr("x1", timeScale(pandemix.selectedDate)).attr("x2", timeScale(pandemix.selectedDate));
+		    	if (!sliderClicked) {
+		    		slider.style("left", (timeScale(pandemix.selectedDate) - sliderWidth / 2) + "px");
+		    	}
 		    }
 		}
 

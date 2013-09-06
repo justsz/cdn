@@ -37,6 +37,39 @@ pandemix = (function() {
                        .on("click", function() {incrementZoom(-1); });
     };
 
+    pandemix.addPlayPauseButton = function(targ) {
+        var playing = false,
+            processID,
+            updateInterval = 100, //update frequency in milliseconds
+            intervalLength = 10, //update jump in days
+            button = d3.select(targ)
+                           .attr("class", "playPauseButton")
+                           .on("click", function() {
+                                if (playing) {
+                                    playing = false;
+                                    clearInterval(processID);
+                                } else {
+                                    playing = true;
+                                    processID = setInterval(function() {
+                                        if (pandemix.selectedDate) {
+                                            pandemix.selectedDate.setDate(pandemix.selectedDate.getDate() + intervalLength);
+                                            if (pandemix.selectedDate > pandemix.maxDate) {
+                                                pandemix.selectedDate = new Date(pandemix.maxDate.getTime());
+                                                clearInterval(processID);
+                                                playing = false;
+                                                button.classed("playing", playing);
+                                            }
+                                        } else {
+                                            pandemix.selectedDate = pandemix.minDate;
+                                        }
+                                        pandemix.callUpdate("timeSlideUpdate");
+                                   }, updateInterval);
+                                }
+
+                                button.classed("playing", playing);
+                           });
+    };
+
 
     pandemix.addSearchBox = function(targ) {
         d3.select(targ)
@@ -78,31 +111,6 @@ pandemix = (function() {
         pandemix.selectedLeaves = selectedNodes;
         pandemix.callUpdate("leafSelectionUpdate");
     };
-    
-    
-    function lookupTrait(searchTerm) {
-        var searchTerm = searchTerm || document.getElementById("trait").value;
-        var searchRegex = new RegExp(searchTerm);
-        var selectedNodes = [];
-    
-        if (searchTerm) { //do no selection if search field is empty
-            d3.selectAll("svg.treePanel")
-              .selectAll(".node")
-              .each(function(d) {
-                  for (var prop in d) {
-                      if(d.hasOwnProperty(prop)) {
-                          if (searchRegex.test(d[prop])) {
-                              selectedNodes.push(d);
-                          }
-                      }
-                  }
-              });
-        }
-    
-        pandemix.selectedLeaves = selectedNodes;
-        pandemix.callUpdate("leafSelectionUpdate");
-    };
-
 
     function applyColor() {
         var color = d3.select("input#colorInput").node().value;

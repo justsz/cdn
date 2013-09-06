@@ -180,7 +180,7 @@
                     if ("timeSlideUpdate" in layers[i]) {
                         if (!filteredNodes) {
                             pandemix.linkStartDateDim.filter(function(d) {return d < date; });
-                            var filteredLinks = pandemix.linkEndDateDim.filter(function(d) {return d > date; }).top(Infinity);
+                            var filteredLinks = pandemix.linkEndDateDim.filter(function(d) {return d >= date; }).top(Infinity);
                         }
                         layers[i].timeSlideUpdate(filteredLinks, movingForward);
                     }

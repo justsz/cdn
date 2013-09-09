@@ -89,7 +89,7 @@
 	       	pandemix.selectedDate = timeScale.invert(postn);
 	        pandemix.callUpdate("timeSlideUpdate");
 	    };
-		
+
 	    function mMove() {
 	    	d3.event.preventDefault();
 	    	if (sliderClicked) {
@@ -99,11 +99,10 @@
 	    		} else if (postn < 0) {
 	    			postn = 0;
 	    		}
-
        			slider.style("left", (postn - sliderWidth / 2) + "px");
 	       		pandemix.selectedDate = timeScale.invert(postn);
-	            pandemix.callUpdate("timeSlideUpdate");
-	            d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
+	        	d3.select("body").selectAll("span.date-calendar").text(pandemix.selectedDate.toDateString().substring(4));
+				pandemix.callUpdate("timeSlideUpdate");	        	
 	    	}
 	    };
 
@@ -124,6 +123,7 @@
 
 		        pandemix.minDate = d3.min(startDates);
 		        pandemix.maxDate = d3.max(endDates);
+		        pandemix.selectedDate = new Date(pandemix.minDate.getTime());
 		        
 		        timeScale.domain([d3.min(startDates), d3.max(endDates)]);
 
@@ -138,7 +138,8 @@
 		        //add time slider 
 	    		sliderBackground = div.append("div")
 				        			     .attr("class", "sliderBackground")
-				        			     .on("mousedown", mDown);
+				        			     //.on("mousedown", mDown)
+				        			     .on("tocuhstart", function() {d3.select("#testSpan").text("touches", d3.touches(sliderBackground.getNode())); });
 
 		        d3.select(document).on("mousemove.time", mMove)
 		              			   .on("mouseup.time", mUp);

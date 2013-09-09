@@ -77,6 +77,13 @@
 	        	pandemix.callUpdate("leafSelectionUpdate");
 
             }
+
+            //want the display to respond immediately
+            //all the drawing calls are done in mMove
+            mMove();
+
+
+            /*
             var postn = d3.mouse(sliderBackground.node())[0];
             if (postn > timeLineWidth) { //subtracting one pixel to have some display at the very edge
     			postn = timeLineWidth;
@@ -87,13 +94,19 @@
 
        		slider.style("left", (postn - sliderWidth / 2) + "px");
 	       	pandemix.selectedDate = timeScale.invert(postn);
-	        pandemix.callUpdate("timeSlideUpdate");
+	        pandemix.callUpdate("timeSlideUpdate");*/
 	    };
 
 	    function mMove() {
 	    	d3.event.preventDefault();
 	    	if (sliderClicked) {
-	    		var postn = d3.mouse(sliderBackground.node())[0];
+	    		var postn;
+	    		if (d3.event.type === "touchmove" || d3.event.type === "touchstart") {
+	    			postn = d3.touches(sliderBackground.node())[0][0];
+	    		} else {
+	    			postn = d3.mouse(sliderBackground.node())[0];
+	    		}
+
 	    		if (postn > timeLineWidth) {
 	    			postn = timeLineWidth;
 	    		} else if (postn < 0) {
@@ -137,13 +150,14 @@
 
 		        //add time slider 
 	    		sliderBackground = div.append("div")
-				        			     .attr("class", "sliderBackground")
-				        			     .on("mousedown", mDown)
-				        			     .on("tocuhstart.time", function() {console.log("gello"); 
-				        			     	d3.select("#testSpan").text("touches", d3.touches(sliderBackground.getNode())); });
+				        			  .attr("class", "sliderBackground")
+				        		      .on("mousedown.time", mDown)
+				        		      .on("touchstart.time", mDown);
 
 		        d3.select(document).on("mousemove.time", mMove)
-		              			   .on("mouseup.time", mUp);
+		              			   .on("mouseup.time", mUp)
+		              			   .on("touchmove.time", mMove)
+				   				   .on("touchend.time", mUp);				        			     
 
 				slider = sliderBackground.append("div")
 								     	 .attr("class", "timeSlider");

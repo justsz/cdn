@@ -173,13 +173,13 @@
                 } else {
                     movingForward = previousSelectedDate < date;
                 }
-                previousSelectedDate = date;
+                previousSelectedDate = new Date(date.getTime());
 
                 //override if this was specified by the update call
                 if (arguments[0].length > 1) {
                     movingForward = arguments[0][1];
                 }
-                console.log(movingForward);
+                
 
                 for (i = 0; i < layers.length; i += 1) {
                     //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet

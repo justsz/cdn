@@ -47,7 +47,7 @@ pandemix = (function() {
     pandemix.addPlayPauseButton = function(targ) {
         var playing = false,
             processID,
-            updateInterval = 100, //update frequency in milliseconds
+            updateInterval = 200, //update frequency in milliseconds
             intervalLength = 10, //update jump in days
             button = d3.select(targ)
                            .attr("class", "playPauseButton")

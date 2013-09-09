@@ -63,9 +63,7 @@
 	    var slider = undefined;
 
 	    function mDown() {
-	    	if (d3.event.type !== "touchstart") {
-	    		d3.event.preventDefault();
-	    	}
+	    	d3.event.preventDefault();
 	    	sliderClicked = true;
 
             if (brushHighlight) {
@@ -80,13 +78,15 @@
 
             }
 
-            //want the display to respond immediately
-            //all the drawing calls are done in mMove
-            mMove();
 
+            //want the display to respond immediately            
+            var postn;
+    		if (d3.event.type === "touchstart") {
+    			postn = d3.touches(sliderBackground.node())[0][0];
+    		} else {
+    			postn = d3.mouse(sliderBackground.node())[0];
+    		}
 
-            /*
-            var postn = d3.mouse(sliderBackground.node())[0];
             if (postn > timeLineWidth) { //subtracting one pixel to have some display at the very edge
     			postn = timeLineWidth;
     		} else if (postn < 0) {
@@ -96,16 +96,16 @@
 
        		slider.style("left", (postn - sliderWidth / 2) + "px");
 	       	pandemix.selectedDate = timeScale.invert(postn);
-	        pandemix.callUpdate("timeSlideUpdate");*/
+	        pandemix.callUpdate("timeSlideUpdate");
 	    };
 
 	    function mMove() {
 	    	if (sliderClicked) {
 	    		var postn;
-	    		if (d3.event.type === "touchmove" || d3.event.type === "touchstart") {
+	    		if (d3.event.type === "touchmove") {
 	    			postn = d3.touches(sliderBackground.node())[0][0];
 	    		} else {
-	    			d3.event.preventDefault();
+	    			//d3.event.preventDefault();
 	    			postn = d3.mouse(sliderBackground.node())[0];
 	    		}
 

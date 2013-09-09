@@ -69,7 +69,7 @@ pandemix = (function() {
                                         } else {
                                             pandemix.selectedDate = pandemix.minDate;
                                         }
-                                        pandemix.callUpdate("timeSlideUpdate");
+                                        pandemix.callUpdate("timeSlideUpdate", true); //moving forward in time = true
                                    }, updateInterval);
                                 }
 

@@ -175,6 +175,12 @@
                 }
                 previousSelectedDate = date;
 
+                //override if this was specified by the update call
+                if (arguments[0].length > 1) {
+                    movingForward = arguments[0][1];
+                }
+                console.log(movingForward);
+
                 for (i = 0; i < layers.length; i += 1) {
                     //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet
                     if ("timeSlideUpdate" in layers[i]) {

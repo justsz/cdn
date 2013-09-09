@@ -138,8 +138,9 @@
 		        //add time slider 
 	    		sliderBackground = div.append("div")
 				        			     .attr("class", "sliderBackground")
-				        			     //.on("mousedown", mDown)
-				        			     .on("tocuhstart", function() {d3.select("#testSpan").text("touches", d3.touches(sliderBackground.getNode())); });
+				        			     .on("mousedown", mDown)
+				        			     .on("tocuhstart.time", function() {console.log("gello"); 
+				        			     	d3.select("#testSpan").text("touches", d3.touches(sliderBackground.getNode())); });
 
 		        d3.select(document).on("mousemove.time", mMove)
 		              			   .on("mouseup.time", mUp);

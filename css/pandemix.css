@@ -247,10 +247,10 @@ g.tick text {
   stroke-width: 1.5px;
 }
 
-.mapPath:hover {
+/*.mapPath:hover {
   fill: red;
   fill-opacity: .7;
-}
+}*/
 
 .treeLayer {
     pointer-events: none;
@@ -258,6 +258,10 @@ g.tick text {
 
 .centroidLayer {
   pointer-events: none;
+}
+
+.provinceLayer {
+  pointer-events: all;
 }
 
 .virusParticleLayer {

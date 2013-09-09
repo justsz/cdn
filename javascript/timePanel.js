@@ -63,7 +63,9 @@
 	    var slider = undefined;
 
 	    function mDown() {
-	    	d3.event.preventDefault();
+	    	if (d3.event.type !== "touchstart") {
+	    		d3.event.preventDefault();
+	    	}
 	    	sliderClicked = true;
 
             if (brushHighlight) {

@@ -67,15 +67,22 @@
 /*Zoom button styling*/
 .zoomControl {
     display: inline-block;
-    border:2px solid;
-    border-radius: 15px;
     overflow: hidden;
+
+    background: white;
+    background: rgba(255,255,255,0.8);
+    border-style: solid;
+    border-width: 2px;
+    border-color: #CCCCCC;
+    border-radius: 5px;
 }
 
 .zoom.increase {
     background-image: url("../img/sprites.png");
     background-position: -155px -4px; 
-    background-color: green;
+    /*background-color: green;*/
+    border-bottom: 1px solid #CCCCCC;
+
     width: 40px;
     height: 40px;
 }
@@ -83,7 +90,7 @@
 .zoom.decrease {
     background-image: url("../img/sprites.png");
     background-position: -204px -3px; 
-    background-color: red;
+    /*background-color: red;*/
     width: 40px;
     height: 40px;
 }
@@ -170,9 +177,9 @@ g.tick text {
 }
 
 .playPauseButton {
-    /*width: 40px;
-    height: 40px;*/
-    border: 2px solid;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #CCCCCC;
     border-radius: 5px;
     background-color: purple;
     background: url('../img/sprites.png') -6px -5px;

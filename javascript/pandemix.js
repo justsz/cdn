@@ -271,7 +271,7 @@ pandemix = (function() {
             throw new Error("Called for HSB color without specifying color index or total colors.");
         }
         var off = offset || 0;
-        var sat = saturation || 75;
+        var sat = saturation || 50;
         var br = brightness || 50;
         var ci = colorIndex % totalColors;
         var hue = (off + ci * 360 / totalColors) % 360;

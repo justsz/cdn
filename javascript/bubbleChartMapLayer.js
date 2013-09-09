@@ -1,4 +1,8 @@
 (function() {
+    var defaultColoringFunc = function(d) {
+        return d.color;
+    };
+    var coloringFunc = defaultColoringFunc;
 
     pandemix.map.bubbleChartLayer = L.Class.extend({
         needsCentroids: true,
@@ -138,15 +142,18 @@
             var nodeSel = that.g.selectAll("circle.bubble")
                                 .data(that.nodes, function(d) {return d.key});
 
-            nodeSel.exit().transition().attr("r", 0).remove(); //.transition().attr("r", 0)            
+            nodeSel.exit()
+                   .transition()
+                   .attr("r", 0.1)
+                   .remove();
 
             nodeSel.enter()
                    .append("svg:circle")
                    .attr("class", "bubble")
                    .attr("cx", function(d) {return d.x; })
                    .attr("cy", function(d) {return d.y; })
-                   .style("fill", function(d) {return d.color; })
-                   .attr("r", 0);
+                   .style("fill", coloringFunc)
+                   .attr("r", 0.1);
 
             nodeSel.transition()
                    .delay(function(d) {return d.prevSize > d.size ? 0 : 250; })
@@ -223,6 +230,30 @@
             }
             
             return [w, h];
+        },
+
+        traitSelectionUpdate : function() {
+            var that = this
+                i = 0;
+            pandemix.panels.forEach(function(p) {
+                if (p.panelType === "treePanel") {
+                    i += 1;
+                }
+            });
+
+            if (i === 1 && pandemix.traitType.toLowerCase() === "location" && pandemix.traitValues) {
+                coloringFunc = function(d) {
+                    for (i = 0; i < pandemix.traitValues.length; i += 1) {
+                        if (d.key[0] === pandemix.traitValues[i].name) {
+                            return pandemix.traitValues[i].color; 
+                        }
+                    }
+                    return null;
+                };
+            } else {
+                coloringFunc = defaultColoringFunc;
+            }
+            that.g.selectAll("circle.bubble").style("fill", coloringFunc);
         }
 
     });

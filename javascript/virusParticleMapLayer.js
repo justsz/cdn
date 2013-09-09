@@ -1,4 +1,8 @@
 (function() {
+    var defaultColoringFunc = function(d) {
+        return d.color;
+    };
+    var coloringFunc = defaultColoringFunc;
     /*
     When moving forward in time there are a couple of decisions to make 
     about how to deal with nodes as they are being passed.
@@ -71,7 +75,7 @@
                        .attr("class", "virusParticle")
                        .attr("cx", function(d) {return d.x; })
                        .attr("cy", function(d) {return d.y; })
-                       .style("fill", that.fill(that.color)) 
+                       .style("fill", coloringFunc) 
                        .style("stroke", 1)
                        .attr("r", 0)
                        .transition()
@@ -293,7 +297,7 @@
                    .attr("class", "virusParticle")
                    .attr("cx", function(d) {return d.x; })
                    .attr("cy", function(d) {return d.y; })
-                   .style("fill", that.fill(that.color)) 
+                   .style("fill", coloringFunc) 
                    .style("stroke", 1)
                    // .attr("r", 0)
                    // .transition()
@@ -306,6 +310,9 @@
         },
 
         timeSlideUpdate: function(filteredLinks, movingForward) {
+
+
+
             //console.log(date);
             var that = this;
             var treeColor = undefined;
@@ -407,7 +414,7 @@
                    .attr("class", "virusParticle")
                    .attr("cx", function(d) {return d.x; })
                    .attr("cy", function(d) {return d.y; })
-                   .style("fill", function(d) {return d.color; }) 
+                   .style("fill", coloringFunc) 
                    .style("stroke", 1)
                    // .attr("r", 0)
                    // .transition()
@@ -464,7 +471,32 @@
 
             
             return [w, h];
+        }, 
+
+        traitSelectionUpdate : function() {
+            var that = this
+                i = 0;
+            pandemix.panels.forEach(function(p) {
+                if (p.panelType === "treePanel") {
+                    i += 1;
+                }
+            });
+
+            if (i === 1 && pandemix.traitType.toLowerCase() === "location" && pandemix.traitValues) {
+                coloringFunc = function(d) {
+                    for (i = 0; i < pandemix.traitValues.length; i += 1) {
+                        if (d.node.location === pandemix.traitValues[i].name) {
+                            return pandemix.traitValues[i].color; 
+                        }
+                    }
+                    return null;
+                };
+            } else {
+                coloringFunc = defaultColoringFunc;
+            }
+            that.g.selectAll("circle.virusParticle").style("fill", coloringFunc);
         }
+
 
     });
 

@@ -1,4 +1,8 @@
 (function() {
+    var defaultColoringFunc = function(d) {
+        return d.color;
+    };
+    var coloringFunc = defaultColoringFunc;
 
     pandemix.map.bubbleTransLayer = L.Class.extend({
         needsCentroids: true,
@@ -92,7 +96,7 @@
                                 // } else {
                                 //     initLoc = targLoc;
                                 // }
-                                newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID, color: link.color});
+                                newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], loc: l.target.location, r: that.radius, treeID: link.treeID, color: link.color});
                         }
                     } else {
                         if (l.target.children) {
@@ -100,7 +104,7 @@
                                 if (ch.location !== l.target.location) {
                                     initLoc = that.project(that.centroids[ch.location]);
                                     targLoc = that.project(that.centroids[l.target.location]);
-                                    newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], r: that.radius, treeID: link.treeID, color: link.color});
+                                    newNodes.push({targX: targLoc[0], targY: targLoc[1], initX: initLoc[0], initY: initLoc[1], loc: l.target.location, r: that.radius, treeID: link.treeID, color: link.color});
                                 }
                             });
                         }
@@ -120,7 +124,7 @@
                    .attr("class", "bubbleTrans")
                    .attr("cx", function(d) {return d.initX; })
                    .attr("cy", function(d) {return d.initY; })
-                   .style("fill", function(d) {return d.color; }) 
+                   .style("fill", coloringFunc) 
                    .attr("r", function(d) {return d.r; })
                    .transition().ease("linear").duration(500)
                    .attr("cx", function(d) {return d.targX; })
@@ -175,6 +179,30 @@
 
             
             return [w, h];
+        }, 
+
+        traitSelectionUpdate : function() {
+            var that = this
+                i = 0;
+            pandemix.panels.forEach(function(p) {
+                if (p.panelType === "treePanel") {
+                    i += 1;
+                }
+            });
+
+            if (i === 1 && pandemix.traitType.toLowerCase() === "location" && pandemix.traitValues) {
+                coloringFunc = function(d) {
+                    for (i = 0; i < pandemix.traitValues.length; i += 1) {
+                        if (d.loc === pandemix.traitValues[i].name) {
+                            return pandemix.traitValues[i].color; 
+                        }
+                    }
+                    return null;
+                };
+            } else {
+                coloringFunc = defaultColoringFunc;
+            }
+            that.g.selectAll("circle.bubbleTrans").style("fill", coloringFunc);
         }
 
     });

@@ -586,7 +586,7 @@
                     
 
                     var g = svg.append("g")
-                           .attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");  
+                               .attr("transform", "translate(" + horizontalPadding + "," + verticalPadding + ")");
 
                     //line that displays date selection
                     aimLine = g.append("line").attr("class", "aimLine");
@@ -825,7 +825,7 @@
                     periodHighlight.attr("x", timeScale(pandemix.selectedPeriod[0]) || 0)
                                    .attr("width", (timeScale(pandemix.selectedPeriod[1]) - timeScale(pandemix.selectedPeriod[0])) || 0);
                 } else {
-                    periodHighlight = svg.append("rect")
+                    periodHighlight = svg.select("g").append("rect")
                                          .attr("class", "timeSelection")
                                          .attr("x", timeScale(pandemix.selectedPeriod[0])) 
                                          .attr("y", 0)

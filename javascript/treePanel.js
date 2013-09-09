@@ -257,7 +257,11 @@
             }
             pandemix.focusedPanel = panelID;
 
-            extent = [d3.mouse(this), []];
+            if (d3.event.type === "touchstart") {
+                extent = [d3.touches(this)[0], []];
+            } else {
+                extent = [d3.mouse(this), []];
+            }
             d3.select(this.parentNode)
               .append("rect")
               .attr("id", "extent")
@@ -283,7 +287,11 @@
         
         function mMove() {
             if (extent) {
-                extent[1] = d3.mouse(brushBox[0][0]);
+                if (d3.event.type === "touchmove") {
+                    extent[1] = d3.touches(brushBox.node())[0];
+                } else {
+                    extent[1] = d3.mouse(brushBox[0][0]);
+                }
                 if (extent[1][0] > xScale(minHeight)) {
                     extent[1][0] = xScale(minHeight);
                 }
@@ -745,7 +753,10 @@
                                 .attr("width", treeWidth)
                                 .attr("height", treeHeight)
                                 .attr("class", "brushBox")
-                                .on("mousedown", mDown);
+                                .on("mousedown", mDown)
+                                .on("touchstart", mDown)
+                                .on("touchmove", mMove)
+                                .on("touchend", mUp);
                                                     
                     d3.select(document).on("mousemove.treeSelect" + panelID, mMove)
                                        .on("mouseup.treeSelect" + panelID, mUp);                       

@@ -154,12 +154,13 @@
 	    		sliderBackground = div.append("div")
 				        			  .attr("class", "sliderBackground")
 				        		      .on("mousedown.time", mDown)
-				        		      .on("touchstart.time", mDown);
+				        		      .on("touchstart.time", mDown)
+				        		      .on("touchmove.time", mMove)
+				   				   	  .on("touchend.time", mUp);
 
 		        d3.select(document).on("mousemove.time", mMove)
-		              			   .on("mouseup.time", mUp)
-		              			   .on("touchmove.time", mMove)
-				   				   .on("touchend.time", mUp);				        			     
+		              			   .on("mouseup.time", mUp);
+		              			   				        			     
 
 				slider = sliderBackground.append("div")
 								     	 .attr("class", "timeSlider");

@@ -98,12 +98,12 @@
 	    };
 
 	    function mMove() {
-	    	d3.event.preventDefault();
 	    	if (sliderClicked) {
 	    		var postn;
 	    		if (d3.event.type === "touchmove" || d3.event.type === "touchstart") {
 	    			postn = d3.touches(sliderBackground.node())[0][0];
 	    		} else {
+	    			d3.event.preventDefault();
 	    			postn = d3.mouse(sliderBackground.node())[0];
 	    		}
 

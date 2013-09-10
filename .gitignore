@@ -6,3 +6,5 @@ data/MERS-CoV/locations.csv
 data/MERS-CoV/reducedGeography.json
 
 mers-cov.html
+
+data/MERS-CoV/MERS-CoV_25.json

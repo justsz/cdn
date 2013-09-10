@@ -7,33 +7,7 @@
     pandemix.map.bubbleTransLayer = L.Class.extend({
         needsCentroids: true,
 
-        svg: undefined,
-
-        g: undefined,
-
-        bounds: undefined,
-
-        tree: undefined,
-
-        force: undefined,
-
-        nodes: undefined,
-
-        foci: undefined,
-
-        centroids: undefined,
-
-        currNodes: undefined,
-
-        project: undefined,
-
-        color: undefined,
-
-        radius: undefined,
-
         virNum: 0,
-
-        intervalID: undefined,
 
         initialize: function() {
             //do nothing

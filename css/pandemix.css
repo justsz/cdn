@@ -295,7 +295,7 @@ circle.bubble {
 
 .treeLayer path.chord {
     fill: none;
-    stroke-opacity: 0.2;
+    stroke-opacity: 0.3;
     stroke-width: 3px;
 }
 

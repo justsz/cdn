@@ -2,16 +2,6 @@
 	pandemix.map.treeLayer = L.Class.extend({
             needsCentroids: true,
 
-            svg: "",
-
-            g: "",
-
-            bounds: "",
-
-            path: "",
-
-            tree: "",
-
             initialize: function() {
                 //do nothing
             },
@@ -98,24 +88,3 @@
         });
 
 })();
-
-
-//var st = [-130, 36];//args.centroids["Russia"];
-                        // var nd = args.centroids["Russia"];
-                        
-                        // var steps = 100;
-                        
-                        // var incrX = (nd[0] - st[0]) / steps;
-                        // var incrY = (nd[1] - st[1]) / steps;
-                        
-                        // var chord = [st, nd];
-                        
-                        // for (var ii = 0; ii <= steps; ii += 1) {
-                        // //   chord.push([st[0] + ii * incrX, st[1] + ii * incrY]);
-                        // }
-                        
-                        // var geoJSONChord = {coordinates: chord, type: "LineString"};
-                        // console.log("chord", geoJSONChord);
-                        
-                        // var tst = that.g.append("path").datum(geoJSONChord).attr("d", that.path).attr("class", "mapPath");
-                        // console.log(tst);

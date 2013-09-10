@@ -2,18 +2,6 @@
     pandemix.map.centroidLayer = L.Class.extend({
             needsCentroids: true,
 
-            svg: undefined,
-
-            g: undefined,
-
-            bounds: undefined,
-
-            circles: undefined,
-
-            project: undefined,
-
-            centroids: undefined,
-
             initialize: function() {
                 //do nothing
             },
@@ -102,9 +90,3 @@
         });
 
 })();
-
-
-
-
-
-

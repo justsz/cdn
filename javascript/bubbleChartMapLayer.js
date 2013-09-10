@@ -7,33 +7,7 @@
     pandemix.map.bubbleChartLayer = L.Class.extend({
         needsCentroids: true,
 
-        svg: undefined,
-
-        g: undefined,
-
-        bounds: undefined,
-
-        tree: undefined,
-
-        force: undefined,
-
-        nodes: undefined,
-
-        foci: undefined,
-
-        centroids: undefined,
-
-        project: undefined,
-
-        //fill: d3.scale.category10(),    //category 20
-
-        color: undefined,
-
-        sizeModifier: undefined,
-
         virNum: 0,
-
-        intervalID: undefined,
 
         initialize: function() {
             //do nothing

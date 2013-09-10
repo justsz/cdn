@@ -109,15 +109,15 @@
                 var treePanel = new pandemix.TreePanel;
                 treePanel.placePanel("#tree" + (i + 1));
                 treePanel.initializePanelData(f, pandemix.getHSBColor(i, inputFiles.length));
-                    // pandemix.when(function() {return treePanel.finishedLoading; },
-                    //        function() {
-                    //            mapPanel.addLayer(pandemix.map.virusParticleLayer,
-                    //            {name: treePanel.treeData.name,
-                    //             tree: treePanel.treeData.root,
-                    //             color: treePanel.panelID}
-                    //            )
-                    //        },
-                    //        100);
+                    pandemix.when(function() {return treePanel.finishedLoading; },
+                           function() {
+                               mapPanel.addLayer(pandemix.map.virusParticleLayer,
+                               {name: treePanel.treeData.name,
+                                tree: treePanel.treeData.root,
+                                treeID: treePanel.panelID}
+                               )
+                           },
+                           100);
 
                 pandemix.when(function() {return treePanel.finishedLoading; },
                            function() {

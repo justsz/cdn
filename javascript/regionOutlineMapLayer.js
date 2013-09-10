@@ -2,18 +2,6 @@
 	 pandemix.map.regionOutlineLayer = L.Class.extend({
             needsContours: true,
 
-            svg: undefined,
-
-            g: undefined,
-
-            bounds: undefined,
-
-            path: undefined,
-
-            feature: undefined,
-
-            project: undefined,
-
             initialize: function() {
                 //do nothing
             },
@@ -97,11 +85,3 @@
         });
 
 })();
-
-
-
-
-
-
-
-

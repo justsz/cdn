@@ -443,6 +443,9 @@
             panelType : "treePanel",
 
 
+            getColor : function() {return treeColor;},
+
+
             finishedLoading : false,
 
 

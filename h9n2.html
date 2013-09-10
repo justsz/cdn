@@ -32,6 +32,7 @@
          <script src="javascript/virusParticleMapLayer.js"></script> 
          <script src="javascript/bubbleChartMapLayer.js"></script> 
          <script src="javascript/bubbleTransMapLayer.js"></script>
+         <script src="javascript/treeMapLayer.js"></script>
 
 	</head>
 <body>
@@ -71,10 +72,10 @@
 
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map", [34, 104], 4)
-                .loadContours(contourFile)
+                //.loadContours(contourFile)
                 .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
-                .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
+                //.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
                 .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
@@ -117,6 +118,16 @@
                     //            )
                     //        },
                     //        100);
+
+                pandemix.when(function() {return treePanel.finishedLoading; },
+                           function() {
+                               mapPanel.addLayer(pandemix.map.treeLayer,
+                               {name: treePanel.treeData.name,
+                                treeData: treePanel.treeData.root,
+                                color: treePanel.getColor()}
+                               )
+                           },
+                           100);
             })();            
         }
 

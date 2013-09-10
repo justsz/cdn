@@ -250,14 +250,19 @@ pandemix = (function() {
     Checks "test" every "interval" milliseconds.
     */
     pandemix.when = function(test, callback, interval) {
-        var interval = interval || 100;
-        window.setTimeout(function loopFunc() {
-            if (test()) {
-                callback();
-            } else {
-                window.setTimeout(loopFunc, interval);
-            }
-        }, interval);
+        if (test()) {
+            //try to run callback immediately before starting the interval
+            callback();
+        } else {
+            var interval = interval || 100;
+            setTimeout(function loopFunc() {
+                if (test()) {
+                    callback();
+                } else {
+                    setTimeout(loopFunc, interval);
+                }
+            }, interval);
+        }
     };
 
     /*

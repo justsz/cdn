@@ -289,5 +289,13 @@ circle.bubble {
   pointer-events: none;
 }
 
+.treeLayer {
+  pointer-events: none;
+}
 
+.treeLayer path.chord {
+    fill: none;
+    stroke-opacity: 0.2;
+    stroke-width: 3px;
+}
 

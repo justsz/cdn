@@ -93,11 +93,13 @@
             var that = this;
             var a;
             
+
             var newNodes = [];
             var data = {};
 
 
             //parse filtered links, count up virus particles at each site
+
             filteredLinks.forEach(function(link) {
                 var l = link.link;
                 var key = [l.target.location, link.treeID];
@@ -158,9 +160,6 @@
             nodeSel.transition()
                    .delay(function(d) {return d.prevSize > d.size ? 0 : 250; })
                    .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
-
-            
-
         },
 
         onAdd: function (map) {

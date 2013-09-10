@@ -81,6 +81,7 @@
 
                 if (data.hasOwnProperty(key)) {
                     data[key].size += 1;
+                    data[key].infoData.number += 1;
                 } else {
                     for (a = 0; a < that.foci.length; a += 1) {
                         if (that.foci[a].name === l.target.location) {
@@ -93,7 +94,8 @@
                             } else {
                                 initLoc = that.project(that.centroids[l.target.location]);
                             }
-                            data[key] = {key: key, id: a, x: initLoc[0], y: initLoc[1], size: 1, prevSize: prevSize, color: link.color}; //size is number of virus nodes represented by this bubble
+                            var infoData = {location: l.target.location, number: 1, treeName: link.treeName};
+                            data[key] = {key: key, id: a, x: initLoc[0], y: initLoc[1], size: 1, prevSize: prevSize, color: link.color, infoData: infoData}; //size is number of virus nodes represented by this bubble
                             break;
                         }
                     }
@@ -129,7 +131,9 @@
                    .attr("cx", function(d) {return d.x; })
                    .attr("cy", function(d) {return d.y; })
                    .style("fill", coloringFunc)
-                   .attr("r", 0.1);
+                   .attr("r", 0.1)
+                   .on("mouseover", function(d) {pandemix.callUpdate("mapLegendUpdate", d.infoData); })
+                   .on("mouseout", function() {pandemix.callUpdate("mapLegendUpdate"); });
 
             nodeSel.transition()
                    .delay(function(d) {return d.prevSize > d.size ? 0 : 250; })

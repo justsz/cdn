@@ -11,7 +11,8 @@
             centroidsLoaded = false,
             previousSelectedDate = undefined,
             panelID = 0 + pandemix.counter,
-            zCounter = 1;
+            zCounter = 1,
+            info = undefined;
 
         pandemix.counter += 1;
 
@@ -118,10 +119,23 @@
                 return panel;
             },
 
+            addInfoDisplay: function(updPattern) {
+                info = L.control({position: 'bottomleft'});
+
+                info.onAdd = function(map) {
+                    this.div = L.DomUtil.create('div', 'info');
+                    return this.div;
+                };
+                info.update = updPattern;
+
+                info.addTo(map);
+
+                return panel;
+            },
+
             getMap: function() {
                 return map;
             },
-
 
             leafSelectionUpdate: function() {
                 var selectedRegions = [],
@@ -137,6 +151,16 @@
                     //use this instead of hasOwnProperty because layer functions get stored in the prototype by leaflet
                     if ("leafSelectionUpdate" in layers[i]) {
                         layers[i].leafSelectionUpdate(selectedRegions);
+                    }
+                }
+            },
+
+            mapLegendUpdate: function() {
+                if (info) {
+                    if (arguments[0].length > 1) {
+                        info.div.innerHTML = info.update(arguments[0][1]);
+                    } else {
+                        info.div.innerHTML = "";
                     }
                 }
             },

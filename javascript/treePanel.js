@@ -792,7 +792,8 @@
 
                     //populate link crossfilter
                     pandemix.links.add(linkArray.map(function(l) {
-                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), treeID: panelID, color: treeColor};
+                        return {link: l, startDate: pandemix.nodeHeightToDate(l.source.height, timeOrigin), endDate: pandemix.nodeHeightToDate(l.target.height, timeOrigin), 
+                                treeID: panelID, color: treeColor, treeName: json.name || ""};
                     }));
 
                     //position all the elements via a zoom call

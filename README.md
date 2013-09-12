@@ -1,2 +1,4 @@
-cdn
+Pandemix
 ===
+Pandemix gives the ability to quicklu create interactive web pages based on phylogenetic virus data. The library contains a number of panels that can be told to render in a specified spot on a page with a few lines of code. The panels themselves can be styled through CSS to fit into the design of your website. The pandemix panels are interactive and linked. For example, selecting some nodes in a tree type panel will select the same nodes in all other tree panels and highlight the geographical locations associated with the nodes on the map. Selecting a date on the time line panel will highlight the same date in tree panels and display the geographical distribution of reported viral cases at the selected time. These features allow you to quickly set up a rich sharing and data exploration web page for emerging viruses.
+

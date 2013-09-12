@@ -7,7 +7,8 @@ Pandemix gives the ability to quicklu create interactive web pages based on phyl
 
 Installation
 ---
-*section not complete* Include necessary libraries in the head of the page.
+[*section not complete*]
+Include necessary libraries in the head of the page.
 
 Usage pattern
 ---
@@ -19,7 +20,7 @@ Once all the divs are in place, you can write JavaScript to place the appropriat
 ```javascript
 <script>
 	var timePanel = new pandemix.TimePanel; //create panel
-    timePanel.placePanel("#time"); //place panel in the appropriate place using a CSS selector
+    timePanel.placePanel("#time"); //place panel using a CSS selector
 </script>
 ```
 Then, if the default styling doesn't suit you, some CSS editing:
@@ -35,4 +36,13 @@ Some panels require additional options and considerations based on their complex
 
 Panel listing
 ---
-###Tree panel###
+######Tree panel
+Draws a phlyogenetic tree with branch lengths. The topology of the tree can be drag-selected and leaves can be click-selected, including the usual behaviour when shift or ctrl (cmd on Mac) keys are held down.
+```javascript
+var treePanel = new pandemix.TreePanel;
+treePanel.placePanel("#tree1");
+treePanel.initializePanelData("data/tree1.json", "red");
+```
+The final command takes two arguments. The first one is a tree file in JSON format [*need to specify format*]. The second argument is a CSS color expression that will be associated with this tree. If no color is provided, one of 60 colors will be assigned from a color wheel, however these become increasingly hard to distinguish as more trees are added.
+
+######

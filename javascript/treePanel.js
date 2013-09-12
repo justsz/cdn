@@ -464,7 +464,7 @@
             /*
             Create and place a container for the tree.
             */
-            placePanel : function(targ, color) {
+            placePanel : function(targ) {
                 panelID = 0 + pandemix.counter; //get value, not reference
                 this.panelID = panelID;
                 pandemix.focusedPanel = panelID;

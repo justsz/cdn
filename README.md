@@ -12,18 +12,24 @@ Installation
 Usage pattern
 ---
 You must first create a div somewhere on your page and give it an id. This is where the panel will be put.
-	`<div id="time"></div>`
+```html
+<div id="time"></div>
+```
 Once all the divs are in place, you can write JavaScript to place the appropriate Pandemix panels.
-	`<script>
-		var timePanel = new pandemix.TimePanel; //create panel
-        timePanel.placePanel("#time"); //place panel in the appropriate place using a CSS selector
-    </script>`
+```javascript
+<script>
+	var timePanel = new pandemix.TimePanel; //create panel
+    timePanel.placePanel("#time"); //place panel in the appropriate place using a CSS selector
+</script>
+```
 Then, if the default styling doesn't suit you, some CSS editing:
-    `.timeLine {
-        width: 750px;
-        height: 25px;
-        cursor: crosshair;
-    }`
+```css
+.timeLine {
+    width: 750px;
+    height: 25px;
+    cursor: crosshair;
+}
+```
 And that is it. Your page now has a functioning interactive timeline to explore your data temporally.
 Some panels require additional options and considerations based on their complexity and what data they depend on, but pattern remains the same.
 

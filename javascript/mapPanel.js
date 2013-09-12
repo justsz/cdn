@@ -11,7 +11,7 @@
             centroidsLoaded = false,
             previousSelectedDate = undefined,
             panelID = 0 + pandemix.counter,
-            zCounter = 1,
+            zCounter = 10,
             info = undefined;
 
         pandemix.counter += 1;
@@ -97,8 +97,11 @@
             addLayer: function(layer, args) {
                 var that = this;
                 var args = args || {};
-                args.zIndex = zCounter;
-                zCounter += 1;
+                if (!args.zIndex) {
+                    args.zIndex = zCounter;
+                    zCounter += 1;
+                }
+                
                 var l = new layer();
                 layerControl.addOverlay(l, args.name || "layer");
                 pandemix.when(function() {if (l.needsContours) return contoursLoaded;

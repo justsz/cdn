@@ -27,7 +27,7 @@
         <script src="javascript/legendPanel.js"></script>
 
         <script src="javascript/regionOutlineMapLayer.js"></script>        
-        <script src="javascript/centroidMapLayer.js"></script> 
+        <script src="javascript/locationMapLayer.js"></script> 
         <script src="javascript/virusParticleMapLayer.js"></script> 
         <script src="javascript/bubbleChartMapLayer.js"></script> 
         <script src="javascript/bubbleTransMapLayer.js"></script>
@@ -215,7 +215,7 @@
                 .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
+                .addLayer(pandemix.map.locationLayer, {name: "Locations"})
                 .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
 

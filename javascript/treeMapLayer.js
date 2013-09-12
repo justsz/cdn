@@ -17,7 +17,7 @@
 
                 // create a DOM element and put it into one of the map panes
                 that.el = L.DomUtil.create('div', 'treeLayer leaflet-zoom-hide');
-                d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
+                d3.select(that.el).style("z-index", args.zIndex).style("position", "absolute");
 
                 that.svg = d3.select(that.el).append("svg");
                 that.svg.on("mousedown", function() {d3.event.preventDefault(); });

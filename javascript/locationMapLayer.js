@@ -1,5 +1,5 @@
 (function() {
-    pandemix.map.centroidLayer = L.Class.extend({
+    pandemix.map.locationLayer = L.Class.extend({
             needsCentroids: true,
 
             initialize: function() {
@@ -14,7 +14,7 @@
                 that.centroids = args.centroids;
 
                 // create a DOM element and put it into one of the map panes
-                that.el = L.DomUtil.create('div', 'centroidLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
+                that.el = L.DomUtil.create('div', 'locationLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
                 d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
                 that.svg = d3.select(that.el).append("svg");
@@ -24,18 +24,51 @@
                 var circleCoords = [];
                 for (c in that.centroids) {
                     if (that.centroids.hasOwnProperty(c)) {
-                        circleCoords.push({name: c, center : [that.centroids[c][0], that.centroids[c][1]]});
+                        circleCoords.push({size: 0, name: c, center : [that.centroids[c][0], that.centroids[c][1]]});
                     }
                 }
 
                 that.circles = that.g
-                                   .selectAll("circle")
+                                   .selectAll("circle.location")
                                    .data(circleCoords)
                                    .enter()
-                                   .append("circle");
+                                   .append("circle")
+                                   .attr("class", "location");
 
                 that.map.getPanes().overlayPane.appendChild(that.el);
                 that.svg.style("display", "none");
+
+                //wait until all tree panels have loaded.
+                //when that happens, count the number of leaves per location and update circle sizes
+                pandemix.when(function() {return pandemix.panelsLoaded("treePanel"); }, 
+                            function() {
+                                var locationCounters = {};
+                                function climb(node) {
+                                    if (node.children) {
+                                        for (var i = 0; i < node.children.length; i += 1) {
+                                            climb(node.children[i]);
+                                        }
+                                    } else {
+                                        if (locationCounters[node.location]) {
+                                            locationCounters[node.location] += 1;
+                                        } else {
+                                            locationCounters[node.location] = 1;
+                                        }
+                                    }
+                                };
+
+                                pandemix.panels.forEach(function(p) {
+                                    if (p.panelType === "treePanel") {
+                                        climb(p.treeData.root);
+                                    }
+                                })
+                                circleCoords.forEach(function(cc) {
+                                    cc.size = locationCounters[cc.name];
+                                });
+                                console.log(locationCounters);
+                                that.reset();
+                            },
+                            100);
             },
 
             onAdd: function (map) {
@@ -63,13 +96,13 @@
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
-                var radius = 1 * that.map.getZoom();
+                that.sizeModifier = 0.1 * that.map.getZoom() * that.map.getZoom();
 
                 that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
                 that.circles
                     .attr("cx", function(d) {return that.project(d.center)[0]; })
                     .attr("cy", function(d) {return that.project(d.center)[1]; })
-                    .attr("r", radius);
+                    .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); }); //A = pi * r^2
 
             },
 

@@ -264,8 +264,15 @@ g.tick text {
     pointer-events: none;
 }
 
-.centroidLayer {
+.locationLayer {
     pointer-events: none;
+}
+
+circle.location {
+    fill: gray;
+    fill-opacity: 0.5;
+    stroke: black;
+    stroke-width: 1px;
 }
 
 .provinceLayer {
@@ -292,10 +299,6 @@ circle.bubble {
     pointer-events: none;
 }
 
-.treeLayer {
-    pointer-events: none;
-}
-
 .treeLayer path.chord {
     fill: none;
     stroke-opacity: 0.3;
@@ -316,4 +319,3 @@ circle.bubble {
     margin: 0 0 5px;
     color: #777;
 }
-

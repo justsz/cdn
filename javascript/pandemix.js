@@ -238,7 +238,7 @@ pandemix = (function() {
             i;
         for (i = 0; i < pandemix.panels.length; i += 1) {
             if (pandemix.panels[i].panelType === panelType && pandemix.panels[i].hasOwnProperty("finishedLoading")) {
-                out = out && pandemix.panels[i].finishedLoading();
+                out = out && pandemix.panels[i].finishedLoading;
             }
         }
     return out;

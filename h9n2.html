@@ -27,7 +27,7 @@
         <script src="javascript/legendPanel.js"></script>
 
         <script src="javascript/regionOutlineMapLayer.js"></script>        
-        <script src="javascript/centroidMapLayer.js"></script> 
+        <script src="javascript/locationMapLayer.js"></script> 
         <script src="javascript/virusParticleMapLayer.js"></script> 
         <script src="javascript/bubbleChartMapLayer.js"></script> 
         <script src="javascript/bubbleTransMapLayer.js"></script>
@@ -71,14 +71,13 @@
 
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map", [34, 104], 4)
+                .addTileLayer(tileSource)
                 //.loadContours(contourFile)
                 .loadCentroids(centroidFile)
-                .addTileLayer(tileSource)
                 .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
                 //.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
-                .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
-                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
+                .addLayer(pandemix.map.locationLayer, {name: "Locations"});
+                
 
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");
@@ -120,17 +119,20 @@
                     //        },
                     //        100);
 
-                pandemix.when(function() {return treePanel.finishedLoading; },
-                           function() {
-                               mapPanel.addLayer(pandemix.map.treeLayer,
-                               {name: treePanel.treeData.name,
-                                treeData: treePanel.treeData.root,
-                                color: treePanel.getColor()}
-                               )
-                           },
-                           100);
+                // pandemix.when(function() {return treePanel.finishedLoading; },
+                //            function() {
+                //                mapPanel.addLayer(pandemix.map.treeLayer,
+                //                {name: treePanel.treeData.name,
+                //                 treeData: treePanel.treeData.root,
+                //                 color: treePanel.getColor()}
+                //                )
+                //            },
+                //            100);
             })();            
         }
+
+        mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
+                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", zIndex: 30});
 
 	})();
 </script>

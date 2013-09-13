@@ -222,9 +222,9 @@
                 .loadCentroids(centroidFile)
                 .addTileLayer(tileSource)
                 .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.locationLayer, {name: "Locations"})
-                .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
-                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
+                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 1.5})
+                .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 2})
+                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 3});
 
 		$( "#map-reset" ).click(function() {
 			mapPanel.getMap().setView([34, 104], 4);

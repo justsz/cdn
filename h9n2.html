@@ -107,7 +107,7 @@
                 //would receive the correct reference to the tree panel created
                 var treePanel = new pandemix.TreePanel;
                 treePanel.placePanel("#tree" + (i + 1));
-                treePanel.initializePanelData(f, pandemix.getHSBColor(i, inputFiles.length));
+                treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
                     
                     // pandemix.when(function() {return treePanel.finishedLoading; },
                     //        function() {

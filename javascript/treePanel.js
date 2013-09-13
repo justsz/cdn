@@ -510,9 +510,9 @@
             /*
             Fill container with data.
             */
-            initializePanelData : function(filename, color) {
+            initializePanelData : function(args) {
                 var that = this;
-                treeColor = color || (function() {
+                treeColor = args.color || (function() {
                     var treeCount = 0;
                     pandemix.panels.forEach(function(p) {
                         if (p.panelType === "treePanel") {
@@ -525,7 +525,7 @@
                     return pandemix.getHSBColor(treeCount, 6, Math.floor(treeCount / 6) * 10); 
                 })();
 
-                d3.json(filename, function(json) { //json is the parsed input object
+                d3.json(args.file, function(json) { //json is the parsed input object
                     var nodeArray,
                         linkArray,
                         nameLengths,

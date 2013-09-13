@@ -22,6 +22,9 @@
             that.color = args.color;
             that.foci = [];
             that.bounds = args.bounds; //[[-180, -90], [180, 90]];
+            that.unitRadius = args.unitRadius || 1;
+
+            that.sizeModifier = that.unitRadius * that.unitRadius;
 
             that.prevData = {};
             
@@ -194,7 +197,14 @@
                 });
             }
 
-            that.sizeModifier = that.map.getZoom() * that.map.getZoom();
+            if (that.prevZoom) {
+                if (that.prevZoom > that.map.getZoom()) {
+                    that.sizeModifier *= 0.25;
+                } else if (that.prevZoom < that.map.getZoom()) {
+                    that.sizeModifier *= 4;
+                }
+            } 
+            that.prevZoom = that.map.getZoom();
 
             var bubbles = that.g.selectAll("circle.bubble")
                                 .attr("cx", function(d) {return d.x; })

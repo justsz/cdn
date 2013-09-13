@@ -12,6 +12,10 @@
                 that.project = args.project;
                 that.bounds = args.bounds;
                 that.centroids = args.centroids;
+                that.unitRadius = args.unitRadius || 1;
+                that.displayProperty = args.displayProperty || "location";
+
+                that.sizeModifier = that.unitRadius * that.unitRadius;
 
                 // create a DOM element and put it into one of the map panes
                 that.el = L.DomUtil.create('div', 'locationLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
@@ -39,7 +43,7 @@
                 that.svg.style("display", "none");
 
                 //wait until all tree panels have loaded.
-                //when that happens, count the number of leaves per location and update circle sizes
+                //when that happens, count the number of leaves per display property and update circle sizes
                 pandemix.when(function() {return pandemix.panelsLoaded("treePanel"); }, 
                             function() {
                                 var locationCounters = {};
@@ -49,10 +53,10 @@
                                             climb(node.children[i]);
                                         }
                                     } else {
-                                        if (locationCounters[node.location]) {
-                                            locationCounters[node.location] += 1;
+                                        if (locationCounters[node[that.displayProperty]]) {
+                                            locationCounters[node[that.displayProperty]] += 1;
                                         } else {
-                                            locationCounters[node.location] = 1;
+                                            locationCounters[node[that.displayProperty]] = 1;
                                         }
                                     }
                                 };
@@ -96,7 +100,14 @@
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
-                that.sizeModifier = 0.1 * that.map.getZoom() * that.map.getZoom();
+                if (that.prevZoom) {
+                    if (that.prevZoom > that.map.getZoom()) {
+                        that.sizeModifier *= 0.25;
+                    } else if (that.prevZoom < that.map.getZoom()) {
+                        that.sizeModifier *= 4;
+                    }
+                } 
+                that.prevZoom = that.map.getZoom();
 
                 that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
                 that.circles

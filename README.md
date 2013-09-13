@@ -36,7 +36,7 @@ Some panels require additional options and considerations based on their complex
 
 Panel listing
 ---
-######Tree panel
+#####Tree panel
 Draws a phlyogenetic tree with branch lengths. The topology of the tree can be drag-selected and leaves can be click-selected, including the usual behaviour when shift or ctrl (cmd on Mac) keys are held down.
 ```javascript
 var treePanel = new pandemix.TreePanel;
@@ -45,4 +45,4 @@ treePanel.initializePanelData("data/tree1.json", "red");
 ```
 The final command takes two arguments. The first one is a tree file in JSON format [*need to specify format*]. The second argument is a CSS color expression that will be associated with this tree. If no color is provided, one of 60 colors will be assigned from a color wheel, however these become increasingly hard to distinguish as more trees are added.
 
-######
+#####

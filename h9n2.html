@@ -68,6 +68,7 @@
                             "data/H9N2 Trees/H9N2.NP.json",
                             "data/H9N2 Trees/H9N2.PB1.json"];
 
+        var locationScale = d3.scale.sqrt().range([20, ])
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel("map", [34, 104], 4)
                 .addTileLayer(tileSource)
@@ -75,7 +76,7 @@
                 .loadCentroids(centroidFile)
                 .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
                 //.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.locationLayer, {name: "Locations"});
+                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 1});
                 
 
         pandemix.addSearchBox("#search");
@@ -130,8 +131,8 @@
             })();            
         }
 
-        mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
-                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", zIndex: 30});
+        mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 2})
+                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", zIndex: 30, unitRadius: 3});
 
 	})();
 </script>

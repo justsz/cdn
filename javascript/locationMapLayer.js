@@ -13,7 +13,7 @@
                 that.bounds = args.bounds;
                 that.centroids = args.centroids;
                 that.unitRadius = args.unitRadius || 1;
-                that.displayProperty = args.displayProperty || "location";
+                that.displayedProperty = args.displayedProperty || "location";
 
                 that.sizeModifier = that.unitRadius * that.unitRadius;
 
@@ -53,10 +53,10 @@
                                             climb(node.children[i]);
                                         }
                                     } else {
-                                        if (locationCounters[node[that.displayProperty]]) {
-                                            locationCounters[node[that.displayProperty]] += 1;
+                                        if (locationCounters[node[that.displayedProperty]]) {
+                                            locationCounters[node[that.displayedProperty]] += 1;
                                         } else {
-                                            locationCounters[node[that.displayProperty]] = 1;
+                                            locationCounters[node[that.displayedProperty]] = 1;
                                         }
                                     }
                                 };

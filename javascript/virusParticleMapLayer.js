@@ -7,7 +7,9 @@
     pandemix.map.virusParticleLayer = L.Class.extend({
         needsCentroids: true,
 
-        virNum: 0,
+        needsTrees: true,
+
+        virNum: 0, //used as identification key for virus particles
 
         initialize: function() {
             //do nothing
@@ -16,13 +18,14 @@
         initDraw: function (args) {
             var that = this;
             that.map = args.map;
-            that.tree = args.tree;
+            that.tree = args.treePanel.treeData.root;
             that.project = args.project;
             that.centroids = args.centroids;
             that.currNodes = [that.tree];
-            that.treeID = args.treeID;
+            that.treeID = args.treePanel.panelID;
             that.foci = [];
             that.bounds = args.bounds;
+            that.radius = args.radius || 1;
             
 
             // create a DOM element and put it into one of the map panes
@@ -165,7 +168,14 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
-            that.radius = that.map.getZoom();
+            if (that.prevZoom) {
+                if (that.prevZoom > that.map.getZoom()) {
+                    that.radius *= 0.5;
+                } else if (that.prevZoom < that.map.getZoom()) {
+                    that.radius *= 2;
+                }
+            } 
+            that.prevZoom = that.map.getZoom();
 
             that.g.selectAll("circle.virusParticle").attr("r", that.radius);
 

@@ -2,6 +2,8 @@
 	pandemix.map.treeLayer = L.Class.extend({
             needsCentroids: true,
 
+            needsTrees: true,
+
             initialize: function() {
                 //do nothing
             },
@@ -23,7 +25,7 @@
                 that.svg.on("mousedown", function() {d3.event.preventDefault(); });
                 that.g = that.svg.append("g");
 
-                that.drawTree(args.treeData);
+                that.drawTree(args.treePanel.treeData.root);
 
                 that.map.getPanes().overlayPane.appendChild(that.el);
                 that.svg.style("display", "none");

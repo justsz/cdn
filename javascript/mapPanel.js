@@ -6,12 +6,12 @@
             layers = [],
             layerControl,
             mapData = undefined,
-            centroids = {};//{"Tibet": [87, 31.7], "HongKong": [114, 22]},
+            centroids = {};
             contoursLoaded = false,
             centroidsLoaded = false,
             previousSelectedDate = undefined,
             panelID = 0 + pandemix.counter,
-            zCounter = 10,
+            zCounter = 10, //leaflet adds some of its own layers so counter starts at 10 to make sure the new ones are on top
             info = undefined;
 
         pandemix.counter += 1;
@@ -20,10 +20,10 @@
         var panel = {
             panelType: "mapPanel",
 
-            placePanel: function(targ, initCoords, initZoom) {
-                var initC = initCoords || [0, 0];
-                var initZ = initZoom || 4;
-                map = new L.Map(targ, {
+            placePanel: function(args) {
+                var initC = args.initCoords || [0, 0];
+                var initZ = args.initZoom || 4;
+                map = new L.Map(args.targ, {
                     center: initC,
                     zoom: initZ,
                     maxBounds: [[-90, -180], [90, 180]]
@@ -103,20 +103,28 @@
                 }
                 
                 var l = new layer();
-                layerControl.addOverlay(l, args.name || "layer");
-                pandemix.when(function() {if (l.needsContours) return contoursLoaded;
-                                          else if (l.needsCentroids) return centroidsLoaded;
-                                          else if (l.needsContours && l.needsCentroids) return contoursLoaded && centroidsLoaded;
-                                          else return true; },
+                pandemix.when(function() {var out = true;
+                                          if (l.needsContours) out = out && contoursLoaded;
+                                          if (l.needsCentroids) out = out && centroidsLoaded;
+                                          if (l.needsTrees) out = out && pandemix.panelsLoaded("treePanel");
+                                          return out; },
                                function() {
-                                   args.map = map;
-                                   args.project = that.project;
-                                   args.bounds = bounds;
-                                   args.mapData = mapData;
-                                   args.centroids = centroids;
-                                   l.initDraw(args);
-                                   map.addLayer(l);
-                                   layers.push(l);
+                                    var layerName = "layer";
+                                    if (args.name) {
+                                        layerName = args.name;
+                                    } else if (l.needsTrees) {
+                                        layerName = args.treePanel.treeData.name;
+                                    }
+
+                                    args.map = map;
+                                    args.project = that.project;
+                                    args.bounds = bounds;
+                                    args.mapData = mapData;
+                                    args.centroids = centroids;
+                                    layerControl.addOverlay(l, layerName);
+                                    l.initDraw(args);
+                                    map.addLayer(l);
+                                    layers.push(l);
                                },
                                100);
                 return panel;

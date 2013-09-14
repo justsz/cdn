@@ -22,9 +22,7 @@
             that.color = args.color;
             that.foci = [];
             that.bounds = args.bounds; //[[-180, -90], [180, 90]];
-            that.unitRadius = args.unitRadius || 1;
-
-            that.sizeModifier = that.unitRadius * that.unitRadius;
+            that.unitArea = args.unitArea || 1;
 
             that.prevData = {};
             
@@ -43,7 +41,8 @@
                 .nodes(that.nodes)
                 .links([])
                 .gravity(0)
-                .charge(function(d) {return -1 * Math.floor(Math.sqrt(d.size * that.sizeModifier)); });
+                //.charge(function(d) {return -1 * Math.floor(Math.sqrt(d.size * that.sizeModifier)); });
+                .charge(function(d) {return -1 * Math.sqrt(d.size * that.sizeModifier); });
                 //.friction(0.5); 
 
 
@@ -140,7 +139,7 @@
 
             nodeSel.transition()
                    .delay(function(d) {return d.prevSize > d.size ? 0 : 250; })
-                   .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
+                   .attr("r", function(d) {return that.sizeModifier * Math.sqrt(d.size); });
         },
 
         onAdd: function (map) {
@@ -161,10 +160,12 @@
                 w,
                 h;
 
+            //pause force interactions
             if (that.force) {
                 that.force.stop();
             }
 
+            //frame layer
             var bottomLeft = that.project(that.bounds[0]),
             topRight = that.project(that.bounds[1]);
 
@@ -178,9 +179,9 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
+            //make a copy of previoous foci and calculate new foci positions due to zoom
             var prevFoci = that.foci.slice(0);
             //var prevFoci = [];
-
             that.foci = [];
             for (c in that.centroids) {
                 if (that.centroids.hasOwnProperty(c)) {
@@ -190,30 +191,28 @@
                 }
             }
 
+            //transport existing bubbles to new zoomed locations
             if (that.nodes) {
                 that.nodes.forEach(function(n) {
                     n.x += that.foci[n.id].x - prevFoci[n.id].x;
                     n.y += that.foci[n.id].y - prevFoci[n.id].y;
+                    //also change previous x and y
+                    n.px = n.x;
+                    n.py = n.y;
                 });
             }
 
-            if (that.prevZoom) {
-                if (that.prevZoom > that.map.getZoom()) {
-                    that.sizeModifier *= 0.25;
-                } else if (that.prevZoom < that.map.getZoom()) {
-                    that.sizeModifier *= 4;
-                }
-            } 
-            that.prevZoom = that.map.getZoom();
+            that.sizeModifier = Math.pow(2, that.map.getZoom() - that.map.getMinZoom()) * that.unitArea;
 
-            var bubbles = that.g.selectAll("circle.bubble")
-                                .attr("cx", function(d) {return d.x; })
-                                .attr("cy", function(d) {return d.y; })
-                                .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); });
+            //draw bubbles
+            that.g.selectAll("circle.bubble")
+                .attr("cx", function(d) {return d.x; })
+                .attr("cy", function(d) {return d.y; })
+                .attr("r", function(d) {return that.sizeModifier * Math.sqrt(d.size); });
 
-            //calling this update makes the repositioned bubbles snuggle up to their centroids
-            if (pandemix.selectedDate) {
-                pandemix.callUpdate("timeSlideUpdate");
+            //resume force on repositioned bubbles
+            if (that.force) {
+                that.force.resume();
             }
             
             return [w, h];

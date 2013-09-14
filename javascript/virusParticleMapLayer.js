@@ -25,7 +25,7 @@
             that.treeID = args.treePanel.panelID;
             that.foci = [];
             that.bounds = args.bounds;
-            that.radius = args.radius || 1;
+            that.initRadius = args.radius || 1;
             
 
             // create a DOM element and put it into one of the map panes
@@ -36,14 +36,13 @@
             that.svg.on("mousedown", function() {d3.event.preventDefault(); });
             that.g = that.svg.append("g");
 
-            var sizing = that.reset(); //set svg's size and return the size
             that.nodes = [];
 
             that.force = d3.layout.force()
                 .nodes(that.nodes)
                 .links([])
                 .gravity(0)
-                .size(sizing)
+                //.charge(function(d) {return -1 * d.r * d.r * Math.PI; })
                 .charge(-0.5)
                 .friction(0.85); 
 
@@ -155,6 +154,11 @@
                 w,
                 h;
 
+            if (that.force) {
+                that.force.stop();
+            }
+
+            //frame layer
             var bottomLeft = that.project(that.bounds[0]),
             topRight = that.project(that.bounds[1]);
 
@@ -168,27 +172,41 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
-            if (that.prevZoom) {
-                if (that.prevZoom > that.map.getZoom()) {
-                    that.radius *= 0.5;
-                } else if (that.prevZoom < that.map.getZoom()) {
-                    that.radius *= 2;
-                }
-            } 
-            that.prevZoom = that.map.getZoom();
+            //calculate new value for radius
+            that.radius = that.initRadius * Math.pow(2, that.map.getZoom() - that.map.getMinZoom());
 
-            that.g.selectAll("circle.virusParticle").attr("r", that.radius);
-
+            //make a copy of old foci locations and calculate the new locations due to zoom
+            var prevFoci = that.foci.slice(0);
             that.foci = [];
             for (c in that.centroids) {
                 if (that.centroids.hasOwnProperty(c)) {
                     that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1], occupants: [], size: 0});
                 }
             }
-            if (that.force) {
-               that.force.charge(- that.radius / 8).start();
+
+            //shift existing circles to new locations
+            if (that.nodes) {
+                that.nodes.forEach(function(n) {
+                    n.x += that.foci[n.id].x - prevFoci[n.id].x;
+                    n.y += that.foci[n.id].y - prevFoci[n.id].y;
+                    //also change previous x and y
+                    n.px = n.x;
+                    n.py = n.y;
+                });
             }
 
+
+
+            that.g.selectAll("circle.virusParticle")
+                .attr("cx", function(d) {return d.x; })
+                .attr("cy", function(d) {return d.y; })
+                .attr("r", that.radius);
+
+            //resume force on repositioned bubbles
+            if (that.force) {
+                that.force.resume();
+               //that.force.charge(- that.radius / 8).start();
+            }
             
             return [w, h];
         }, 

@@ -68,7 +68,7 @@
                             "data/H9N2 Trees/H9N2.NP.json",
                             "data/H9N2 Trees/H9N2.PB1.json"];
 
-        var locationScale = d3.scale.sqrt().range([20, ])
+        
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel({targ: "map", initCoords: [34, 104], initZoom: 4})
                 .addTileLayer(tileSource)
@@ -76,7 +76,7 @@
                 .loadCentroids(centroidFile)
                 .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
                 //.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 1});
+                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitArea: 0.5});
                 
 
         pandemix.addSearchBox("#search");
@@ -105,13 +105,13 @@
             treePanel.placePanel("#tree" + (i + 1));
             treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
                 
-            mapPanel.addLayer(pandemix.map.virusParticleLayer, {treePanel: treePanel, radius: 3});
+            //mapPanel.addLayer(pandemix.map.virusParticleLayer, {treePanel: treePanel, radius: 1});
 
             //mapPanel.addLayer(pandemix.map.treeLayer, {treePanel: treePanel, color: treePanel.getColor()});
         }
 
-        // mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 2})
-        //         .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 3});
+         mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 1})
+                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitArea: 1});
 
 	})();
 </script>

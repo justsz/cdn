@@ -23,7 +23,7 @@
             that.color = args.color;
             that.foci = [];
             that.bounds = args.bounds; //[[-180, -90], [180, 90]];
-            that.radius = args.radius || 1;
+            that.initRadius = args.radius || 1;
             
 
             // create a DOM element and put it into one of the map panes
@@ -138,14 +138,7 @@
 
             that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
 
-            if (that.prevZoom) {
-                if (that.prevZoom > that.map.getZoom()) {
-                    that.radius *= 0.5;
-                } else if (that.prevZoom < that.map.getZoom()) {
-                    that.radius *= 2;
-                }
-            } 
-            that.prevZoom = that.map.getZoom();
+            that.radius = Math.pow(2, that.map.getZoom() - that.map.getMinZoom()) * that.initRadius;
 
             that.g.selectAll("circle.bubbleTrans").attr("r", that.radius);
 
@@ -155,10 +148,6 @@
                     that.foci.push({name: c, x: that.project(that.centroids[c])[0], y: that.project(that.centroids[c])[1], occupants: [], size: 0});
                 }
             }
-            if (that.force) {
-               that.force.charge(- that.radius / 8).start();
-            }
-
             
             return [w, h];
         }, 

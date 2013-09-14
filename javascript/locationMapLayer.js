@@ -12,10 +12,9 @@
                 that.project = args.project;
                 that.bounds = args.bounds;
                 that.centroids = args.centroids;
-                that.unitRadius = args.unitRadius || 1;
-                that.displayedProperty = args.displayedProperty || "location";
+                that.unitArea = args.unitArea || 1;
 
-                that.sizeModifier = that.unitRadius * that.unitRadius;
+                that.displayedProperty = args.displayedProperty || "location";
 
                 // create a DOM element and put it into one of the map panes
                 that.el = L.DomUtil.create('div', 'locationLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
@@ -100,20 +99,13 @@
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
-                if (that.prevZoom) {
-                    if (that.prevZoom > that.map.getZoom()) {
-                        that.sizeModifier *= 0.25;
-                    } else if (that.prevZoom < that.map.getZoom()) {
-                        that.sizeModifier *= 4;
-                    }
-                } 
-                that.prevZoom = that.map.getZoom();
+                that.sizeModifier = Math.pow(2, that.map.getZoom() - that.map.getMinZoom()) * that.unitArea;
 
                 that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
                 that.circles
                     .attr("cx", function(d) {return that.project(d.center)[0]; })
                     .attr("cy", function(d) {return that.project(d.center)[1]; })
-                    .attr("r", function(d) {return Math.sqrt(that.sizeModifier * d.size); }); //A = pi * r^2
+                    .attr("r", function(d) {return that.sizeModifier * Math.sqrt(d.size); });
 
             },
 

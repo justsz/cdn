@@ -93,17 +93,24 @@ mapPanel.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"});
 ######Locations layer
 Draws a circle on centroid locations. Circles can be sized according to the count of leaves in that location.
 ```javascript
-mapPanel.addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitArea: 1});
+mapPanel.addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 1});
 ```
 displayedPropert - the string matching to location in tree data files
-unitArea - area corresponding to one count at minimal zoom
+unitRadius - radius in pixels corresponding to one count at minimal zoom
+minRadius - minimum radius in pixels at minimal zoom
+maxRadius - maximum radius in pixels at minimal zoom
+*Note that setting a minimum or maximum radius disrupts interpretation on data visually. For example, one circle twice as big as another might not represent twice as many counts if the smaller one is forced to take a minimum radius.*
 
 ######Bubble chart layer
 Draws circles sized corresponding to the number of virus mutations that exist at a selected time. The circles (or bubbles) repel each other so, when zoomed out, the bubbles won't center exactly around the centroid they belong to. Bubbles are colored according to which tree they represent. 
 ```javascript
-mapPanel.addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitArea: 3});
+mapPanel.addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 3});
 ```
-unitArea - area corresponding to one count at minimal zoom
+unitRadius - radius in pixels corresponding to one count at minimal zoom
+chargeDensity - controls how strongly the particles repel each other
+minRadius - minimum radius in pixels at minimal zoom
+maxRadius - maximum radius in pixels at minimal zoom
+*Note that setting a minimum or maximum radius disrupts interpretation on data visually. For example, one circle twice as big as another might not represent twice as many counts if the smaller one is forced to take a minimum radius.*
 
 ######Bubble transition layer
 Animates geographical transitions if the virus parent has been traced to a different location than where it spawns. Best used together with the bubble chart layer and placed underneath it (called first). These transitions work both when moving forward and backward in time. Bubbles are colored according to which tree they represent. 
@@ -118,14 +125,16 @@ A combination of bubble chart and bubble transition layers. Displays each node i
 mapPanel.addLayer(pandemix.map.virusParticleLayer, {treePanel: treePanel, radius: 3});
 ```
 treePanel - reference to the tree panel this layer should represent
+chargeDensity - controls how strongly the particles repel each other
 radius - radius in pixels of virus particle at minimal zoom
 
 ######Tree layer
-
+Draws great arcs that mirror the links on the represented tree. 
 ```javascript
 mapPanel.addLayer(pandemix.map.treeLayer, {treePanel: treePanel, color: treePanel.getColor()});
 ```
-TreePanel - reference to the tree panel this layer should represent, color - color of the tree links.
+treePanel - reference to the tree panel this layer should represent
+color - color of the tree links
 
 
 

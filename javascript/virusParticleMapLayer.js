@@ -26,6 +26,7 @@
             that.foci = [];
             that.bounds = args.bounds;
             that.initRadius = args.radius || 1;
+			that.chargeDensity = -Math.abs(args.chargeDensity) || -0.1;
             
 
             // create a DOM element and put it into one of the map panes
@@ -43,7 +44,7 @@
                 .links([])
                 .gravity(0)
                 //.charge(function(d) {return -1 * d.r * d.r * Math.PI; })
-                .charge(-0.5)
+                .charge(function(d) {console.log(d.r); return that.chargeDensity * d.r * d.r; })
                 .friction(0.85); 
 
 
@@ -192,6 +193,8 @@
                     //also change previous x and y
                     n.px = n.x;
                     n.py = n.y;
+					//update radius
+					n.r = that.radius;
                 });
             }
 
@@ -200,11 +203,11 @@
             that.g.selectAll("circle.virusParticle")
                 .attr("cx", function(d) {return d.x; })
                 .attr("cy", function(d) {return d.y; })
-                .attr("r", that.radius);
+                .attr("r", function(d) {return d.r; });
 
             //resume force on repositioned bubbles
             if (that.force) {
-                that.force.resume();
+                that.force.start();
                //that.force.charge(- that.radius / 8).start();
             }
             

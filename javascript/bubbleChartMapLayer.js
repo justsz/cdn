@@ -22,7 +22,10 @@
             that.color = args.color;
             that.foci = [];
             that.bounds = args.bounds; //[[-180, -90], [180, 90]];
-            that.unitArea = args.unitArea || 1;
+            that.unitRadius = args.unitRadius || 1;
+			that.minR = args.minRadius;
+			that.maxR = args.maxRadius;
+			that.chargeDensity = -Math.abs(args.chargeDensity) || -0.1;
 
             that.prevData = {};
             
@@ -42,7 +45,7 @@
                 .links([])
                 .gravity(0)
                 //.charge(function(d) {return -1 * Math.floor(Math.sqrt(d.size * that.sizeModifier)); });
-                .charge(function(d) {return -1 * Math.sqrt(d.size * that.sizeModifier); });
+                .charge(function(d) {return that.chargeDensity * d.r * d.r; });
                 //.friction(0.5); 
 
 
@@ -73,7 +76,6 @@
             var newNodes = [];
             var data = {};
 
-
             //parse filtered links, count up virus particles at each site
 
             filteredLinks.forEach(function(link) {
@@ -103,6 +105,8 @@
                     }
                 }
             });
+			
+			
 
             that.prevData = data;
 
@@ -112,6 +116,12 @@
                     newNodes.push(data[k]);
                 }
             }
+			//calculate radii
+			newNodes.forEach(function(n) {
+				n.r = pandemix.clamp(Math.sqrt(that.unitArea * n.size / Math.PI), that.minr, that.maxr);
+			});
+			
+			
 
             //restart force simulation when new nodes are added
             that.nodes = newNodes;
@@ -136,10 +146,12 @@
                    .attr("r", 0.1)
                    .on("mouseover", function(d) {pandemix.callUpdate("mapLegendUpdate", d.infoData); })
                    .on("mouseout", function() {pandemix.callUpdate("mapLegendUpdate"); });
+				   
+			
 
             nodeSel.transition()
                    .delay(function(d) {return d.prevSize > d.size ? 0 : 250; })
-                   .attr("r", function(d) {return that.sizeModifier * Math.sqrt(d.size); });
+                   .attr("r", function(d) {return d.r; });
         },
 
         onAdd: function (map) {
@@ -190,6 +202,11 @@
 
                 }
             }
+			
+			that.unitArea = that.unitRadius * that.unitRadius * Math.PI * Math.pow(4, that.map.getZoom() - that.map.getMinZoom());
+			//scaled versions of min and max radius
+			that.minr = that.minR * Math.pow(2, that.map.getZoom() - that.map.getMinZoom());
+			that.maxr = that.maxR * Math.pow(2, that.map.getZoom() - that.map.getMinZoom());
 
             //transport existing bubbles to new zoomed locations
             if (that.nodes) {
@@ -199,20 +216,23 @@
                     //also change previous x and y
                     n.px = n.x;
                     n.py = n.y;
+					//and set radius
+					n.r = pandemix.clamp(Math.sqrt(that.unitArea * n.size / Math.PI), that.minr, that.maxr);
                 });
             }
 
-            that.sizeModifier = Math.pow(2, that.map.getZoom() - that.map.getMinZoom()) * that.unitArea;
+            
+			
 
             //draw bubbles
             that.g.selectAll("circle.bubble")
                 .attr("cx", function(d) {return d.x; })
                 .attr("cy", function(d) {return d.y; })
-                .attr("r", function(d) {return that.sizeModifier * Math.sqrt(d.size); });
+                .attr("r", function(d) {return d.r; });
 
             //resume force on repositioned bubbles
             if (that.force) {
-                that.force.resume();
+                that.force.start();
             }
             
             return [w, h];

@@ -282,6 +282,16 @@ pandemix = (function() {
         var hue = (off + ci * 360 / totalColors) % 360;
         return "hsl(" + hue + "," + sat + "%," + br + "%)";
     }
+	
+	/*
+	Returns val clamped between the lower and upper boundaries min and max.
+	If either min or max is not specified, those evaluations are effectively ignored.
+	*/
+	pandemix.clamp = function(val, min, max) {
+		if (val < min) return min;
+		if (val > max) return max;
+		return val;
+	}
 
 
 

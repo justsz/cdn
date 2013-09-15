@@ -12,7 +12,10 @@
                 that.project = args.project;
                 that.bounds = args.bounds;
                 that.centroids = args.centroids;
-                that.unitArea = args.unitArea || 1;
+				that.unitRadius = args.unitRadius || 1;
+				that.minR = args.minRadius;
+				that.maxR = args.maxRadius;
+                
 
                 that.displayedProperty = args.displayedProperty || "location";
 
@@ -99,13 +102,16 @@
                     .style("margin-left", bottomLeft[0] + "px")
                     .style("margin-top", topRight[1] + "px");
 
-                that.sizeModifier = Math.pow(2, that.map.getZoom() - that.map.getMinZoom()) * that.unitArea;
+				that.unitArea = that.unitRadius * that.unitRadius * Math.PI * Math.pow(4, that.map.getZoom() - that.map.getMinZoom());
+				//scaled versions of min and max radius
+				that.minr = that.minR * Math.pow(2, that.map.getZoom() - that.map.getMinZoom());
+				that.maxr = that.maxR * Math.pow(2, that.map.getZoom() - that.map.getMinZoom());
 
                 that.g   .attr("transform", "translate(" + -bottomLeft[0] + "," + -topRight[1] + ")");
                 that.circles
                     .attr("cx", function(d) {return that.project(d.center)[0]; })
                     .attr("cy", function(d) {return that.project(d.center)[1]; })
-                    .attr("r", function(d) {return that.sizeModifier * Math.sqrt(d.size); });
+                    .attr("r", function(d) {return pandemix.clamp(Math.sqrt(that.unitArea * d.size / Math.PI), that.minr, that.maxr); });
 
             },
 

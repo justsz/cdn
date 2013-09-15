@@ -76,7 +76,7 @@
                 .loadCentroids(centroidFile)
                 .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
                 //.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitArea: 0.5});
+                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 0.5, minRadius: 1, maxRadius: 50});
                 
 
         pandemix.addSearchBox("#search");
@@ -107,30 +107,16 @@
                 
             //mapPanel.addLayer(pandemix.map.virusParticleLayer, {treePanel: treePanel, radius: 1});
 
-            //mapPanel.addLayer(pandemix.map.treeLayer, {treePanel: treePanel, color: treePanel.getColor()});
+            mapPanel.addLayer(pandemix.map.treeLayer, {treePanel: treePanel, color: treePanel.getColor()});
         }
 
-         mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 1})
-                 .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitArea: 1});
+         //mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 1})
+        //         .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 1});
 
 	})();
 </script>
 
 </body></html>
-
-
-
-
-<!-- pandemix.when(function() {return treePanel.finishedLoading; },
-                           function() {
-                               mapPanel.addLayer(pandemix.map.virusParticleLayer,
-                               {name: treePanel.treeData.name,
-                                tree: treePanel.treeData.root,
-                                treeID: treePanel.panelID}
-                               )
-                           },
-                           100); -->
-
 
 
 

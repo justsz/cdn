@@ -70,7 +70,7 @@
 
         
         var mapPanel = new pandemix.MapPanel;
-        mapPanel.placePanel({targ: "map", initCoords: [34, 104], initZoom: 4})
+        mapPanel.placePanel({target: "map", initCoords: [34, 104], initZoom: 4})
                 .addTileLayer(tileSource)
                 //.loadContours(contourFile)
                 .loadCentroids(centroidFile)
@@ -81,8 +81,8 @@
 
         pandemix.addSearchBox("#search");
         pandemix.addColorPicker("#color");
-        pandemix.addGlobalZoomButton("#zoom");
-        pandemix.addPlayPauseButton("#playPause");
+        pandemix.addGlobalZoomButton({target: "#zoom", zoomAmount: 1});
+		  pandemix.addPlayPauseButton({target: "#playPause", updateInterval: 200, updateStep: 10});
 
         // var traitPanel = new pandemix.TraitPanel;
         // traitPanel.placePanel("#traits");

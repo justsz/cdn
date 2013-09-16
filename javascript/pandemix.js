@@ -31,25 +31,26 @@ pandemix = (function() {
     };
 
 
-    pandemix.addGlobalZoomButton = function(targ) {
-        var zoomButton = d3.select(targ)
+    pandemix.addGlobalZoomButton = function(args) {
+		  var amt = args.zoomAmount || 0.5;
+        var zoomButton = d3.select(args.target)
                            .attr("class", "zoomControl");
 
             zoomButton.append("div")
                        .attr("class", "zoom increase")
-                       .on("click", function() {incrementZoom(1); });
+                       .on("click", function() {incrementZoom(1, amt); });
                    
             zoomButton.append("div")
                        .attr("class", "zoom decrease")
-                       .on("click", function() {incrementZoom(-1); });
+                       .on("click", function() {incrementZoom(-1, amt); });
     };
 
-    pandemix.addPlayPauseButton = function(targ) {
+    pandemix.addPlayPauseButton = function(args) {
         var playing = false,
             processID,
-            updateInterval = 200, //update frequency in milliseconds
-            intervalLength = 10, //update jump in days
-            button = d3.select(targ)
+            updateInterval = args.updateInterval || 200, //update frequency in milliseconds
+            updateStep = args.updateStep || 10, //update jump in days
+            button = d3.select(args.target)
                            .attr("class", "playPauseButton")
                            .on("click", function() {
                                 if (playing) {
@@ -59,7 +60,7 @@ pandemix = (function() {
                                     playing = true;
                                     processID = setInterval(function() {
                                         if (pandemix.selectedDate) {
-                                            pandemix.selectedDate.setDate(pandemix.selectedDate.getDate() + intervalLength);
+                                            pandemix.selectedDate.setDate(pandemix.selectedDate.getDate() + updateStep);
                                             if (pandemix.selectedDate > pandemix.maxDate) {
                                                 pandemix.selectedDate = new Date(pandemix.maxDate.getTime());
                                                 clearInterval(processID);
@@ -128,8 +129,8 @@ pandemix = (function() {
     };
 
 
-    function incrementZoom(dir) {
-        var newScale = pandemix.scale + 0.5 * dir;
+    function incrementZoom(dir, amt) {
+        var newScale = pandemix.scale + amt * dir;
         if (newScale < 1) {
             newScale = 1;
         }

@@ -23,7 +23,7 @@
             placePanel: function(args) {
                 var initC = args.initCoords || [0, 0];
                 var initZ = args.initZoom || 4;
-                map = new L.Map(args.targ, {
+                map = new L.Map(args.target, {
                     center: initC,
                     zoom: initZ,
                     maxBounds: [[-90, -180], [90, 180]]

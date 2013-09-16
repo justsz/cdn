@@ -75,12 +75,12 @@
                 //.loadContours(contourFile)
                 .loadCentroids(centroidFile)
                 .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
-                //.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 0.5, minRadius: 1, maxRadius: 50});
+                //.addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"})
+                .addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 0.5, minRadius: 1, maxRadius: 50});
                 
 
-        pandemix.addSearchBox("#search");
-        pandemix.addColorPicker("#color");
+        pandemix.addSearchBox({target: "#search"});
+        pandemix.addColorPicker({target: "#color"});
         pandemix.addGlobalZoomButton({target: "#zoom", zoomAmount: 1});
 		  pandemix.addPlayPauseButton({target: "#playPause", updateInterval: 200, updateStep: 10});
 
@@ -105,13 +105,13 @@
             treePanel.placePanel("#tree" + (i + 1));
             treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
                 
-            //mapPanel.addLayer(pandemix.map.virusParticleLayer, {treePanel: treePanel, radius: 1});
+            //mapPanel.addLayer({layerType: pandemix.map.virusParticleLayer, treePanel: treePanel, radius: 1});
 
-            mapPanel.addLayer(pandemix.map.treeLayer, {treePanel: treePanel, color: treePanel.getColor()});
+            mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
         }
 
-         //mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 1})
-        //         .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 1});
+         //mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 1})
+        //         .addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 1});
 
 	})();
 </script>

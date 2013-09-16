@@ -103,13 +103,13 @@ d.numer - number of viruses represented by the bubble
 ######Region outline layer
 Contours of geographical bodies. Can be clicked to highlight tree leaves from the location. Requires loaded contours.
 ```javascript
-mapPanel.addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"});
+mapPanel.addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"});
 ```
 
 ######Locations layer
 Draws a circle on centroid locations. Circles can be sized according to the count of leaves in that location.
 ```javascript
-mapPanel.addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 1});
+mapPanel.addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 1});
 ```
 displayedPropert - the string matching to location in tree data files
 
@@ -124,7 +124,7 @@ maxRadius - maximum radius in pixels at minimal zoom
 ######Bubble chart layer
 Draws circles sized corresponding to the number of virus mutations that exist at a selected time. The circles (or bubbles) repel each other so, when zoomed out, the bubbles won't center exactly around the centroid they belong to. Bubbles are colored according to which tree they represent. 
 ```javascript
-mapPanel.addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 3});
+mapPanel.addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 3});
 ```
 unitRadius - radius in pixels corresponding to one count at minimal zoom
 
@@ -139,14 +139,14 @@ maxRadius - maximum radius in pixels at minimal zoom
 ######Bubble transition layer
 Animates geographical transitions if the virus parent has been traced to a different location than where it spawns. Best used together with the bubble chart layer and placed underneath it (called first). These transitions work both when moving forward and backward in time. Bubbles are colored according to which tree they represent. 
 ```javascript
-mapPanel.addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 2});
+mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 2});
 ```
 radius - radius in pixels of transition particle at minimal zoom
 
 ######Virus particle layer
 A combination of bubble chart and bubble transition layers. Displays each node in the current selection as an individual circle at the nodes location. When time moves forward, the particles move from location to location and split according to the phylogenetic tree they represent. When moving back in time, transitions are not animated and particles simply dissapear and appear as appropriate. Particles are colored according to the tree they represent. Particles from a single tree repel each other but not particles from other trees so they may overlap in which case the bubble chart might be a better choice. Each tree appears on a separate layer.
 ```javascript
-mapPanel.addLayer(pandemix.map.virusParticleLayer, {treePanel: treePanel, radius: 3});
+mapPanel.addLayer({layerType: pandemix.map.virusParticleLayer, treePanel: treePanel, radius: 3});
 ```
 treePanel - reference to the tree panel this layer should represent
 
@@ -157,7 +157,7 @@ radius - radius in pixels of virus particle at minimal zoom
 ######Tree layer
 Draws great arcs that mirror the links on the represented tree. 
 ```javascript
-mapPanel.addLayer(pandemix.map.treeLayer, {treePanel: treePanel, color: treePanel.getColor()});
+mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
 ```
 treePanel - reference to the tree panel this layer should represent
 
@@ -188,11 +188,24 @@ updateInterval - time between each step forward in time in milliseconds. Default
 updateStep - amount of time the slider moves each update in days. Default is 10
 
 ######Search box
+Searches for the entered text substring in leaf names.
+```javascript
+pandemix.addSearchBox({target: "#search"});
+```
+target - target div
 
 ######Color box
+Colors selected leaves. The entered text is interpreted as a CSS color, invalid expressions return the selection to their default colors.
+```javascript
+pandemix.addColorPicker(target: "#color"});
+```
+target - target div
 
 ######Date span
-
+Any spany with the class `date-calendar` will be replaced by the selected date.
+```html
+<span class="date-calendar"></span>
+```
 
 
 

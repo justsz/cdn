@@ -94,15 +94,15 @@
                 return panel;
             },
 
-            addLayer: function(layer, args) {
+            addLayer: function(args) {
                 var that = this;
-                var args = args || {};
+                var args = args;
                 if (!args.zIndex) {
                     args.zIndex = zCounter;
                     zCounter += 1;
                 }
                 
-                var l = new layer();
+                var l = new args.layerType();
                 pandemix.when(function() {var out = true;
                                           if (l.needsContours) out = out && contoursLoaded;
                                           if (l.needsCentroids) out = out && centroidsLoaded;

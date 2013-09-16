@@ -79,8 +79,8 @@ pandemix = (function() {
     };
 
 
-    pandemix.addSearchBox = function(targ) {
-        d3.select(targ)
+    pandemix.addSearchBox = function(args) {
+        d3.select(args.target)
           .attr("class", "searchBox")
           .append("input")
           .attr("type", "text")
@@ -90,8 +90,8 @@ pandemix = (function() {
     };
 
 
-    pandemix.addColorPicker = function(targ) {
-        d3.select(targ)
+    pandemix.addColorPicker = function(args) {
+        d3.select(args.target)
           .attr("class", "colorBox")
           .append("input")
           .attr("type", "text")

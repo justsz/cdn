@@ -20,7 +20,7 @@
                 that.displayedProperty = args.displayedProperty || "location";
 
                 // create a DOM element and put it into one of the map panes
-                that.el = L.DomUtil.create('div', 'locationLayer leaflet-zoom-hide');  //<<could replace that (And similar) with a D3 method for consistency
+                that.el = L.DomUtil.create('div', 'locationLayer leaflet-zoom-hide');
                 d3.select(that.el).style("position", "absolute").style("z-index", args.zIndex);
 
                 that.svg = d3.select(that.el).append("svg");
@@ -71,7 +71,6 @@
                                 circleCoords.forEach(function(cc) {
                                     cc.size = locationCounters[cc.name];
                                 });
-                                console.log(locationCounters);
                                 that.reset();
                             },
                             100);

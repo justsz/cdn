@@ -107,11 +107,11 @@
                 
             //mapPanel.addLayer({layerType: pandemix.map.virusParticleLayer, treePanel: treePanel, radius: 1});
 
-            mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
+            //mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
         }
 
-         //mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 1})
-        //         .addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 1});
+        mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 1})
+                .addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 1});
 
 	})();
 </script>

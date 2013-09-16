@@ -5,36 +5,11 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
 		<title>pandemix</title>
-        <!-- <link rel="stylesheet" href="css/bootstrap-responsive.css"> -->
         <link rel="stylesheet" type="text/css" href="css/h9n2.css">
-		    <link rel="stylesheet" type="text/css" href="css/pandemix.css">
+	    <link rel="stylesheet" type="text/css" href="css/pandemix.css">
         <link rel="stylesheet" type="text/css" href="css/leaflet.css" />
-        <!-- <link rel="stylesheet" media="screen" href="css/bootstrap.css"> -->
-        <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-		<!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
-        <script src="javascript/jquery-2.0.2.js"></script>
-		// <script src="javascript/d3.v3.min.js"></script>
-  //       <script src="javascript/crossfilter.min.js"></script>
-  //       <script src="javascript/leaflet.js"></script> -->
 
-		 <!-- <script src="javascript/pandemix.js"></script>
-
-         <script src="javascript/timePanel.js"></script>
-         <script src="javascript/mapPanel.js"></script>
-     	<script src="javascript/treePanel.js"></script>
-     	<script src="javascript/tablePanel.js"></script>
-         <script src="javascript/traitPanel.js"></script>
-         <script src="javascript/traitSelectionPanel.js"></script>
-         <script src="javascript/legendPanel.js"></script>
-
-         <script src="javascript/regionOutlineMapLayer.js"></script>        
-         <script src="javascript/centroidMapLayer.js"></script> 
-         <script src="javascript/virusParticleMapLayer.js"></script> 
-         <script src="javascript/bubbleChartMapLayer.js"></script> 
-         <script src="javascript/bubbleTransMapLayer.js"></script> -->
-
-         <script src="javascript/allMin.js"></script>
-
+        <script src="javascript/allMin.js"></script>
 	</head>
 <body>
 
@@ -43,6 +18,7 @@
 <div id="search"></div>
 <div id="color"></div>
 <div id="zoom"></div>
+<div id="playPause"></div>
 <!-- <div id="traits"></div> -->
 <div id="traitSelection"></div>
 <div id="legend"></div>
@@ -58,9 +34,6 @@
 <script>
     //script wrapped in a function to avoid polluting namespace
     (function() {
-
-
-
         var i,
             contourFile = "data/reducedGeography.json",
             centroidFile = "data/H9N2_locations.csv"
@@ -72,66 +45,55 @@
                             "data/H9N2 Trees/H9N2.NP.json",
                             "data/H9N2 Trees/H9N2.PB1.json"];
 
+        
         var mapPanel = new pandemix.MapPanel;
-        mapPanel.placePanel("map", [34, 104], 4)
-                .loadContours(contourFile)
-                .loadCentroids(centroidFile)
+        mapPanel.placePanel({target: "map", initCoords: [34, 104], initZoom: 4})
                 .addTileLayer(tileSource)
-                .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.centroidLayer, {name: "Centroids"})
-                .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions"})
-                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart"});
+                //.loadContours(contourFile)
+                .loadCentroids(centroidFile)
+                .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
+                //.addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"})
+                .addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 0.5, minRadius: 1, maxRadius: 50});
+                
 
-        pandemix.addSearchBox("#search");
-        pandemix.addColorPicker("#color");
-        pandemix.addGlobalZoomButton("#zoom");
+        pandemix.addSearchBox({target: "#search"});
+        pandemix.addColorPicker({target: "#color"});
+        pandemix.addGlobalZoomButton({target: "#zoom", zoomAmount: 1});
+		  pandemix.addPlayPauseButton({target: "#playPause", updateInterval: 200, updateStep: 10});
 
         // var traitPanel = new pandemix.TraitPanel;
         // traitPanel.placePanel("#traits");
 
         var traitSelectionPanel = new pandemix.TraitSelectionPanel;
-        traitSelectionPanel.placePanel("#traitSelection");
+        traitSelectionPanel.placePanel({target: "#traitSelection"});
 
         var legendPanel = new pandemix.LegendPanel;
-        legendPanel.placePanel("#legend");
+        legendPanel.placePanel({target: "#legend"});
 
         var timePanel = new pandemix.TimePanel;
-        timePanel.placePanel("#globalTime");
+        timePanel.placePanel({target: "#globalTime"});
         
         pandemix.initializeCrossfilter();
 
         //read each input file and draw the tree in its own div
         for (i = 0; i < inputFiles.length; i += 1) {
             var f = inputFiles[i];                
+            var treePanel = new pandemix.TreePanel;
+            treePanel.placePanel("#tree" + (i + 1));
+            treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
+                
+            //mapPanel.addLayer({layerType: pandemix.map.virusParticleLayer, treePanel: treePanel, radius: 1});
 
-            (function() {
-                //this call is wrappend in a closure so that each call to "when"
-                //would receive the correct reference to the tree panel created
-                var treePanel = new pandemix.TreePanel;
-                treePanel.placePanel("#tree" + (i + 1));
-                treePanel.initializePanelData(f, pandemix.getHSBColor(i, inputFiles.length));
-                    // pandemix.when(function() {return treePanel.finishedLoading; },
-                    //        function() {
-                    //            mapPanel.addLayer(pandemix.map.virusParticleLayer,
-                    //            {name: treePanel.treeData.name,
-                    //             tree: treePanel.treeData.root,
-                    //             color: treePanel.panelID}
-                    //            )
-                    //        },
-                    //        100);
-            })();            
+            //mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
         }
+
+        mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 1})
+                .addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 1});
 
 	})();
 </script>
 
 </body></html>
-
-
-
-
-
-
 
 
 

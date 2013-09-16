@@ -43,8 +43,8 @@ var treePanel = new pandemix.TreePanel;
 treePanel.placePanel("#tree1");
 treePanel.initializePanelData({file: "data/tree1.json", color: "red"});
 ```
-`file` - tree file in JSON format [*need to specify format*]
-`color` - CSS color expression that will be associated with this tree. If no color is provided, one of 60 colors will be assigned from a color wheel, however these become increasingly hard to distinguish as more trees are added.
+`file` - tree file in JSON format [*need to specify format*]  
+`color` - CSS color expression that will be associated with this tree. If no color is provided, one of 60 colors will be assigned from a color wheel, however these become increasingly hard to distinguish as more trees are added.  
 
 
 #####Time panel
@@ -74,9 +74,9 @@ Leaflet based map panel with various overlays. The map can be panned and zoomed 
 var mapPanel = new pandemix.MapPanel;
 mapPanel.placePanel({target: "map", initCoords: [34, 104], initZoom: 4});
 ```
-`target` - target div
-`initCoords` - initial center coordinates of map
-`initZoom` - initial zoom level of map
+`target` - target div  
+`initCoords` - initial center coordinates of map  
+`initZoom` - initial zoom level of map  
 
 Most overlays will require some additional data. Currently Pandemix supports adding a GeoJSON file with country and region outlines or a CSV file with location names and the coordinates of that location's centroid.
 ```javascript
@@ -93,9 +93,9 @@ mapPanel.addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.tr
 ```
 Currently only the bubble chart layer responds to this. As such the available data items are:
 
-`d.location` - location name associated with the bubble
-`d.treeName` - name of the tree the bubble belongs to
-`d.number` - number of viruses represented by the bubble
+`d.location` - location name associated with the bubble  
+`d.treeName` - name of the tree the bubble belongs to  
+`d.number` - number of viruses represented by the bubble  
 
 ######Region outline layer
 Contours of geographical bodies. Can be clicked to highlight tree leaves from the location. Requires loaded contours.
@@ -108,10 +108,10 @@ Draws a circle on centroid locations. Circles can be sized according to the coun
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 1});
 ```
-`displayedPropert` - the string matching to location in tree data files
-`unitRadius` - radius in pixels corresponding to one count at minimal zoom
-`minRadius` - minimum radius in pixels at minimal zoom
-`maxRadius` - maximum radius in pixels at minimal zoom
+`displayedPropert` - the string matching to location in tree data files  
+`unitRadius` - radius in pixels corresponding to one count at minimal zoom  
+`minRadius` - minimum radius in pixels at minimal zoom  
+`maxRadius` - maximum radius in pixels at minimal zoom  
 
 *Note that setting a minimum or maximum radius disrupts interpretation on data visually. For example, one circle twice as big as another might not represent twice as many counts if the smaller one is forced to take a minimum radius.*
 
@@ -121,10 +121,10 @@ Draws circles sized corresponding to the number of virus mutations that exist at
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 3});
 ```
-`unitRadius` - radius in pixels corresponding to one count at minimal zoom
-`chargeDensity` - controls how strongly the particles repel each other
-`minRadius` - minimum radius in pixels at minimal zoom
-`maxRadius` - maximum radius in pixels at minimal zoom
+`unitRadius` - radius in pixels corresponding to one count at minimal zoom  
+`chargeDensity` - controls how strongly the particles repel each other  
+`minRadius` - minimum radius in pixels at minimal zoom  
+`maxRadius` - maximum radius in pixels at minimal zoom  
 
 *Note that setting a minimum or maximum radius disrupts interpretation on data visually. For example, one circle twice as big as another might not represent twice as many counts if the smaller one is forced to take a minimum radius.*
 
@@ -134,7 +134,7 @@ Animates geographical transitions if the virus parent has been traced to a diffe
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 2});
 ```
-`radius` - radius in pixels of transition particle at minimal zoom
+`radius` - radius in pixels of transition particle at minimal zoom  
 
 
 ######Virus particle layer
@@ -142,9 +142,9 @@ A combination of bubble chart and bubble transition layers. Displays each node i
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.virusParticleLayer, treePanel: treePanel, radius: 3});
 ```
-`treePanel` - reference to the tree panel this layer should represent
-`chargeDensity` - controls how strongly the particles repel each other
-`radius` - radius in pixels of virus particle at minimal zoom
+`treePanel` - reference to the tree panel this layer should represent  
+`chargeDensity` - controls how strongly the particles repel each other  
+`radius` - radius in pixels of virus particle at minimal zoom  
 
 
 ######Tree layer
@@ -152,8 +152,8 @@ Draws great arcs that mirror the links on the represented tree.
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
 ```
-`treePanel` - reference to the tree panel this layer should represent
-`color` - color of the tree links
+`treePanel` - reference to the tree panel this layer should represent  
+`color` - color of the tree links  
 
 
 #####Additional components
@@ -164,8 +164,8 @@ Vertically expands all tree panels.
 ```javascript
 pandemix.addGlobalZoomButton({target: "#zoom", zoomAmount: 1});
 ```
-`target` - target div
-`zoomAmount` - by how much the scale of the trees changes each click. Default is 0.5
+`target` - target div  
+`zoomAmount` - by how much the scale of the trees changes each click. Default is 0.5  
 
 
 ######Play/Pause button
@@ -173,9 +173,9 @@ Advances the time slider automatically. Useful for things like bubble chart and 
 ```javascript
 pandemix.addPlayPauseButton({target: "#playPause", updateInterval: 200, updateStep: 10});
 ```
-`target` - target div
-`updateInterval` - time between each step forward in time in milliseconds. Default is 200
-`updateStep` - amount of time the slider moves each update in days. Default is 10
+`target` - target div  
+`updateInterval` - time between each step forward in time in milliseconds. Default is 200  
+`updateStep` - amount of time the slider moves each update in days. Default is 10  
 
 
 ######Search box
@@ -183,7 +183,7 @@ Searches for the entered text substring in leaf names.
 ```javascript
 pandemix.addSearchBox({target: "#search"});
 ```
-`target` - target div
+`target` - target div  
 
 
 ######Color box
@@ -191,7 +191,7 @@ Colors selected leaves. The entered text is interpreted as a CSS color, invalid 
 ```javascript
 pandemix.addColorPicker(target: "#color"});
 ```
-`target` - target div
+`target` - target div  
 
 
 ######Date span

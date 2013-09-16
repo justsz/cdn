@@ -88,13 +88,13 @@
         // traitPanel.placePanel("#traits");
 
         var traitSelectionPanel = new pandemix.TraitSelectionPanel;
-        traitSelectionPanel.placePanel("#traitSelection");
+        traitSelectionPanel.placePanel({target: "#traitSelection"});
 
         var legendPanel = new pandemix.LegendPanel;
-        legendPanel.placePanel("#legend");
+        legendPanel.placePanel({target: "#legend"});
 
         var timePanel = new pandemix.TimePanel;
-        timePanel.placePanel("#globalTime");
+        timePanel.placePanel({target: "#globalTime"});
         
         pandemix.initializeCrossfilter();
 

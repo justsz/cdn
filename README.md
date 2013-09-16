@@ -20,7 +20,7 @@ Once all the divs are in place, you can write JavaScript to place the appropriat
 ```javascript
 <script>
 	var timePanel = new pandemix.TimePanel; //create panel
-    timePanel.placePanel("#time"); //place panel using a CSS selector
+    timePanel.placePanel({target: "#time"}); //place panel using a CSS selector
 </script>
 ```
 Then, if the default styling doesn't suit you, some CSS editing:
@@ -51,22 +51,27 @@ treePanel.initializePanelData({file: "data/tree1.json", color: "red"});
 Timeline that spans from the earliest date to the latest date as found among loaded tree panels. A time period can be selected in the timeline, this same period will highlight in tree panels and leaves that fall into this period will be highlighted. The time slider can be dragged. This will draw a vertical line in all tree panels corresponding to the same date. Map panel layers like the bubble chart layer and virus particle layers will display the geographical distribution of viruses for the selected date. Also, any “date-calendar” class spans will display the selected date.
 ```javascript
 var timePanel = new pandemix.TimePanel;
-timePanel.placePanel("#globalTime");
+timePanel.placePanel({target: "#globalTime"});
 ```
+`target` - target div
 
 #####Trait selection panel
 Selection panel for properties by which trees or map features can be colored by. Available options are loaded from metadata in tree files; the panel looks for naming patterns that look like `someTrait.fullSet`. The tree colors are loaded as well. Coloring legend is displayed in the legends panel. 
 ```javascript
 var traitSelectionPanel = new pandemix.TraitSelectionPanel;
-traitSelectionPanel.placePanel("#traitSelection");
+traitSelectionPanel.placePanel({target: "#traitSelection"});
 ```
+`target` - target div  
+
 
 #####Legend panel
 Color legend panel. The trait selection panel controls which property is colored for. Most properties will be assigned colors automatically from a HSB color wheel but colors can also be provided when adding data, like tree colors. Rows can be clicked to turn a color on or off, unless it is a manually set color.
 ```javascript
 var legendPanel = new pandemix.LegendPanel;
-legendPanel.placePanel("#legend");
+legendPanel.placePanel({target: "#legend"});
 ```
+`target` - target div  
+
 
 #####Map panel
 Leaflet based map panel with various overlays. The map can be panned and zoomed and overlay visibilty can be toggled on or off. When adding multiple layers the `.addLayer(...)` calls return the panel itself so these calls can be chained one after the other. Map layers will appear in the order that they were added unless a zIndex argument is provided.

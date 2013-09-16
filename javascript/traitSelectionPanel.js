@@ -54,8 +54,8 @@
             panelType : "traitSelectionPanel",
 
 
-            placePanel : function(targ) {
-            div = d3.select(targ)
+            placePanel : function(args) {
+            div = d3.select(args.target)
                     .classed("traitSelectionPanel", true);
 
             width = parseInt(div.style("width").replace( /\D+/, ''), 10);

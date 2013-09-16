@@ -145,9 +145,9 @@
 		        axisSelection.call(timeAxis);
 		    },
 
-			placePanel : function(targ) {
+			placePanel : function(args) {
 				//grab panel's div
-				div = d3.select(targ)
+				div = d3.select(args.target)
 		        		.classed("timePanel", true);
 
 		        //add time slider 

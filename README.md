@@ -107,12 +107,16 @@ Contours of geographical bodies. Can be clicked to highlight tree leaves from th
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"});
 ```
+`layerType` - type of layer to add  
+`name` - name that appears in layer toggle control  
 
 ######Locations layer
 Draws a circle on centroid locations. Circles can be sized according to the count of leaves in that location.
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 1});
 ```
+`layerType` - type of layer to add  
+`name` - name that appears in layer toggle control  
 `displayedPropert` - the string matching to location in tree data files  
 `unitRadius` - radius in pixels corresponding to one count at minimal zoom  
 `minRadius` - minimum radius in pixels at minimal zoom  
@@ -126,6 +130,8 @@ Draws circles sized corresponding to the number of virus mutations that exist at
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 3});
 ```
+`layerType` - type of layer to add  
+`name` - name that appears in layer toggle control  
 `unitRadius` - radius in pixels corresponding to one count at minimal zoom  
 `chargeDensity` - controls how strongly the particles repel each other  
 `minRadius` - minimum radius in pixels at minimal zoom  
@@ -139,6 +145,8 @@ Animates geographical transitions if the virus parent has been traced to a diffe
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 2});
 ```
+`layerType` - type of layer to add  
+`name` - name that appears in layer toggle control  
 `radius` - radius in pixels of transition particle at minimal zoom  
 
 
@@ -147,6 +155,8 @@ A combination of bubble chart and bubble transition layers. Displays each node i
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.virusParticleLayer, treePanel: treePanel, radius: 3});
 ```
+`layerType` - type of layer to add  
+`name` - name that appears in layer toggle control  
 `treePanel` - reference to the tree panel this layer should represent  
 `chargeDensity` - controls how strongly the particles repel each other  
 `radius` - radius in pixels of virus particle at minimal zoom  
@@ -157,6 +167,8 @@ Draws great arcs that mirror the links on the represented tree.
 ```javascript
 mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, color: treePanel.getColor()});
 ```
+`layerType` - type of layer to add  
+`name` - name that appears in layer toggle control  
 `treePanel` - reference to the tree panel this layer should represent  
 `color` - color of the tree links  
 

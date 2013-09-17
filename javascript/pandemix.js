@@ -139,6 +139,12 @@ pandemix = (function() {
     }; 
 
 
+    pandemix.selectTrait = function(trait) {
+    	pandemix.traitType = trait;
+        pandemix.callUpdate("traitTypeUpdate", trait);
+    };
+
+
     /*
     Create the crossfilter. Data can be added to it as it becomes available
     when trees are being loaded.

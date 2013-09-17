@@ -27,8 +27,7 @@
                                         d3.select(this).select(".traitRowBackground")
                                           .classed("selected", true)
 
-                                        pandemix.traitType = d;
-                                        pandemix.callUpdate("traitTypeUpdate");
+                                        pandemix.selectTrait(d);
                                     });
 
             rowEnter.append("rect")

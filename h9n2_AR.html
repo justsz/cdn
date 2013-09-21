@@ -31,6 +31,7 @@
         <script src="javascript/virusParticleMapLayer.js"></script> 
         <script src="javascript/bubbleChartMapLayer.js"></script> 
         <script src="javascript/bubbleTransMapLayer.js"></script>
+        <script src="javascript/treeMapLayer.js"></script>
 
         <script src="javascript/collabsible.js"></script>
     
@@ -45,6 +46,23 @@
 
 		#playPause {
 			margin-right: 10px;
+		}
+
+		.legendPanel {
+			width: 200px;
+		 	height: 500px;
+			border: none;
+		}
+
+		#map {
+		  width: 720px;
+		  height: 500px;
+		}
+
+		.treePanel.svgBox {
+			width: 450px;
+			height: 500px;
+			font-size: 6px;
 		}
 	</style>
 
@@ -131,72 +149,80 @@
 <div class="panel">
   <h2>Map: <span class="date-calendar"></span></h2>
   <div class="panelcontent">  		
-		<div id="map"></div>
+		<div>
+			<div id="map" style="display: inline-block"></div>
+			<div id="legend" style="display: inline-block; vertical-align:top" ></div>
+		</div>	
 		<button id="map-reset">Reset Map</button>
+		<button id="show-location">Locations</button>
+		<button id="show-HA">HA subtype</button>
+		<button id="show-NA">NA subtype</button>
+		<button id="show-segment">Segment</button>
   </div>
 </div>
 <div class="panel" style="margin-top: 5px">
   <h2>Controls</h2>
   <div class="panelcontent">
-	<div id="traitSelection"></div>
 	<div id="legend"></div>
   	<div>
 		<div id="search" style="display: inline"></div>
 		<div id="color" style="display: inline"></div>
-		<div id="zoom" style="display: inline-block"></div>
 `	</div>
   </div>
 </div>
-<div style="margin-top: 5px; display: block">
-	<div class="panel" style="display: inline-block">
-	  <h2>PB2 Tree</h2>
-	  <div class="panelcontent">
-		<div>
-			<div id="tree1"></div>
+<div>
+	<div id="zoom" style="margin-top: 15px; ddisplay: inline-block; vertical-align:top"></div>
+	<div style="margin-top: 15px; display: inline-block">
+		<div class="panel" style="display: inline-block">
+		  <h2>PB2 Tree</h2>
+		  <div class="panelcontent">
+			<div>
+				<div id="tree1"></div>
+			</div>
+		  </div>
 		</div>
-	  </div>
+		<div class="panel" style="margin-top: 5px; display: inline-block">
+		  <h2>PB1 Tree</h2>
+		  <div class="panelcontent">
+			<div>
+				<div id="tree2"></div>
+			</div>
+		  </div>
+		</div>
+		<div class="panel" style="margin-top: 5px; display: inline-block">
+		  <h2>PA Tree</h2>
+		  <div class="panelcontent">
+			<div>
+				<div id="tree3"></div>
+			</div>
+		  </div>
+		</div>
 	</div>
-	<div class="panel" style="margin-top: 5px; display: inline-block">
-	  <h2>PB1 Tree</h2>
-	  <div class="panelcontent">
-		<div>
-			<div id="tree2"></div>
+	<div style="margin-top: 5px; display: block">
+		<div class="panel" style="display: inline-block">
+		  <h2>NP Tree</h2>
+		  <div class="panelcontent">
+			<div>
+				<div id="tree4"></div>
+			</div>
+		  </div>
 		</div>
-	  </div>
-	</div>
-	<div class="panel" style="margin-top: 5px; display: inline-block">
-	  <h2>PA Tree</h2>
-	  <div class="panelcontent">
-		<div>
-			<div id="tree3"></div>
+		<div class="panel" style="margin-top: 5px; display: inline-block">
+		  <h2>MP Tree</h2>
+		  <div class="panelcontent">
+			<div>
+				<div id="tree5"></div>
+			</div>
+		  </div>
 		</div>
-	  </div>
-	</div>
-</div>
-<div style="margin-top: 5px; display: block">
-	<div class="panel" style="display: inline-block">
-	  <h2>NP Tree</h2>
-	  <div class="panelcontent">
-		<div>
-			<div id="tree4"></div>
+		<div class="panel" style="margin-top: 5px; display: inline-block">
+		  <h2>NS Tree</h2>
+		  <div class="panelcontent">
+			<div>
+				<div id="tree6"></div>
+			</div>
+		  </div>
 		</div>
-	  </div>
-	</div>
-	<div class="panel" style="margin-top: 5px; display: inline-block">
-	  <h2>MP Tree</h2>
-	  <div class="panelcontent">
-		<div>
-			<div id="tree5"></div>
-		</div>
-	  </div>
-	</div>
-	<div class="panel" style="margin-top: 5px; display: inline-block">
-	  <h2>NS Tree</h2>
-	  <div class="panelcontent">
-		<div>
-			<div id="tree6"></div>
-		</div>
-	  </div>
 	</div>
 </div>
 
@@ -217,35 +243,45 @@
                             ];
 
         var mapPanel = new pandemix.MapPanel;
-        mapPanel.placePanel("map", [34, 104], 4)
-                .loadContours(contourFile)
-                .loadCentroids(centroidFile)
+        mapPanel.placePanel({target: "map", initCoords: [34, 104], initZoom: 4})
                 .addTileLayer(tileSource)
-                .addLayer(pandemix.map.regionOutlineLayer, {name: "Regions"})
-                .addLayer(pandemix.map.locationLayer, {name: "Locations", displayedProperty: "location", unitRadius: 1.5})
-                .addLayer(pandemix.map.bubbleTransLayer, {name: "Bubble transitions", radius: 2})
-                .addLayer(pandemix.map.bubbleChartLayer, {name: "Bubble chart", unitRadius: 3});
+                //.loadContours(contourFile)
+                .loadCentroids(centroidFile)
+                .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
+                //.addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"})
+                .addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 0.5, minRadius: 1, maxRadius: 50});
 
 		$( "#map-reset" ).click(function() {
 			mapPanel.getMap().setView([34, 104], 4);
 		});
-
+		$( "#show-location" ).click(function() {
+			pandemix.selectTrait("location");
+		});
+		$( "#show-HA" ).click(function() {
+			pandemix.selectTrait("Hx");
+		});
+		$( "#show-NA" ).click(function() {
+			pandemix.selectTrait("Nx");
+		});
+		$( "#show-segment" ).click(function() {
+			pandemix.selectTrait("Tree");
+		});
 
         pandemix.panels.push(mapPanel);
 
-        pandemix.addSearchBox("#search");
-        pandemix.addColorPicker("#color");
-        pandemix.addGlobalZoomButton("#zoom");
+        pandemix.addSearchBox({target: "#search"});
+        pandemix.addColorPicker({target: "#color"});
+        pandemix.addGlobalZoomButton({target: "#zoom", zoomAmount: 1});
 
-        var traitSelectionPanel = new pandemix.TraitSelectionPanel;
-        traitSelectionPanel.placePanel("#traitSelection");
+        //var traitSelectionPanel = new pandemix.TraitSelectionPanel;
+        //traitSelectionPanel.placePanel({target: "#traitSelection"});
 
         var legendPanel = new pandemix.LegendPanel;
-        legendPanel.placePanel("#legend");
+        legendPanel.placePanel({target: "#legend"});
 
         var timePanel = new pandemix.TimePanel;
-        timePanel.placePanel("#globalTime");
-        pandemix.addPlayPauseButton("#playPause");
+        timePanel.placePanel({target: "#globalTime"});
+		pandemix.addPlayPauseButton({target: "#playPause", updateInterval: 200, updateStep: 10});
 
         pandemix.initializeCrossfilter();
 
@@ -253,24 +289,19 @@
         for (i = 0; i < inputFiles.length; i += 1) {
             var f = inputFiles[i];                
 
-            (function() {
-                //this call is wrappend in a closure so that each call to "when"
-                //would receive the correct reference to the tree panel created
-                var treePanel = new pandemix.TreePanel;
-                treePanel.placePanel("#tree" + (i + 1));
-                treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
-                    // pandemix.when(function() {return treePanel.finishedLoading; },
-                    //        function() {
-                    //            mapPanel.addLayer(pandemix.map.virusParticleLayer,
-                    //            {name: treePanel.treeData.name,
-                    //             tree: treePanel.treeData.root,
-                    //             color: treePanel.panelID}
-                    //            )
-                    //        },
-                    //        100);
-            })();            
+			var treePanel = new pandemix.TreePanel;
+			treePanel.placePanel("#tree" + (i + 1));
+			treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
         }
 
+        mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 1})
+                .addLayer({layerType: pandemix.map.bubbleChartLayer, name: "Bubble chart", unitRadius: 1});
+
+		pandemix.when(function() {
+				return pandemix.panelsLoaded("treePanel");
+			}, function() {
+				pandemix.selectTrait("location");
+			}, 100);
 	})();
 </script>
 

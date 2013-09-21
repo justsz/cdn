@@ -27,7 +27,7 @@
                                 var out = [];
                                 for (var i = 0; i < elements.length; i += 1) {
                                     out.push({name : elements[i].name,
-                                              color : elements[i].color || pandemix.getHSBColor(i, elements.length),
+                                              color : elements[i].color || pandemix.getHSBColor(i, elements.length, 0, 30, 50),
                                               colorIsStatic : !!elements[i].color, //!! converts the color value into a boolean
                                               selected : true});
                                     }

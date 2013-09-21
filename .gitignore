@@ -1,10 +1,10 @@
 
 data/MERS-CoV/MERS-CoV_20.json
 
-data/MERS-CoV/locations.csv
-
-data/MERS-CoV/reducedGeography.json
-
-mers-cov.html
-
 data/MERS-CoV/MERS-CoV_25.json
+
+data/MERS-CoV/MERS-CoV_20_muts.json
+
+data/MERS-CoV/MERS-CoV_27_muts.json
+
+mers-cov-muts.html

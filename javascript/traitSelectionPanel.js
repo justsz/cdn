@@ -54,20 +54,20 @@
 
 
             placePanel : function(args) {
-            div = d3.select(args.target)
-                    .classed("traitSelectionPanel", true);
+				div = d3.select(args.target)
+						.classed("traitSelectionPanel", true);
 
-            width = parseInt(div.style("width").replace( /\D+/, ''), 10);
-            height = parseInt(div.style("height").replace( /\D+/, ''), 10);
-            legendSize = parseInt(div.style("font-size").replace( /\D+/, ''), 10);
+				width = parseInt(div.style("width").replace( /\D+/, ''), 10);
+				height = parseInt(div.style("height").replace( /\D+/, ''), 10);
+				legendSize = parseInt(div.style("font-size").replace( /\D+/, ''), 10);
 
-            svg = div.append("svg")
-                     .attr("class", "traitSvg")
-                     .attr("width", width)
-                     .attr("height", height);
+				svg = div.append("svg")
+						 .attr("class", "traitSvg")
+						 .attr("width", width)
+						 .attr("height", height);
 
-            //register panel for updates
-            pandemix.panels.push(panel);
+				//register panel for updates
+				pandemix.panels.push(panel);
             },
 
 

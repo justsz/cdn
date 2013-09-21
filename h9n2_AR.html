@@ -55,7 +55,7 @@
 		}
 
 		#map {
-		  width: 720px;
+		  width: 960px;
 		  height: 500px;
 		}
 
@@ -292,6 +292,8 @@
 			var treePanel = new pandemix.TreePanel;
 			treePanel.placePanel("#tree" + (i + 1));
 			treePanel.initializePanelData({file: f, color: pandemix.getHSBColor(i, inputFiles.length)});
+			
+			mapPanel.addLayer({layerType: pandemix.map.treeLayer, treePanel: treePanel, name: "Tree", color: treePanel.getColor()})
         }
 
         mapPanel.addLayer({layerType: pandemix.map.bubbleTransLayer, name: "Bubble transitions", radius: 1})
@@ -300,7 +302,7 @@
 		pandemix.when(function() {
 				return pandemix.panelsLoaded("treePanel");
 			}, function() {
-				pandemix.selectTrait("location");
+				pandemix.selectTrait("Tree");
 			}, 100);
 	})();
 </script>

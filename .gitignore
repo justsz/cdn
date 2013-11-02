@@ -8,3 +8,9 @@ data/MERS-CoV/MERS-CoV_20_muts.json
 data/MERS-CoV/MERS-CoV_27_muts.json
 
 mers-cov-muts.html
+
+*.pptx
+
+*.zip
+
+data/H7N9/H7N9_locations.csv

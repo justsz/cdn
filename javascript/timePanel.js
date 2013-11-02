@@ -136,11 +136,11 @@
 		        startDates.push(startDate);
 		        endDates.push(endDate);
 
-		        pandemix.minDate = d3.min(startDates);
-		        pandemix.maxDate = d3.max(endDates);
+		        pandemix.minDate = d3.max([d3.min(startDates), pandemix.timeRange[0]]);
+		        pandemix.maxDate = d3.min([d3.max(endDates), pandemix.timeRange[1]]);
 		        pandemix.selectedDate = new Date(pandemix.minDate.getTime());
 		        
-		        timeScale.domain([d3.min(startDates), d3.max(endDates)]);
+		        timeScale.domain([pandemix.minDate, pandemix.maxDate]);
 
 		        axisSelection.call(timeAxis);
 		    },

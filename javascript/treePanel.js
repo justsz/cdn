@@ -642,7 +642,11 @@
                           .attr("class", "leafText")
                           .attr("dx", leafTextGap)
                           .attr("text-anchor", "start")
-                          .text(function(d) { return d.name; });
+//                          .text(function(d) { "H7N9" });
+//                          .text(function(d) { return d.name; });
+                          .text(function(d) { 
+                          return d.Hx + d.Nx; 
+                          });
 
                     var maxLeafLength = 0;
                     leaves.each(function() {
@@ -653,9 +657,9 @@
                     treeWidth = treeWidth - leafTextGap - maxLeafLength - scrollBarWidth;
                     xScale.range([0, treeWidth]);
 
-                    leaves.append("path")
-                          .attr("class", "dashedLink")
-                          .attr("d", dashedElbow);
+//                    leaves.append("path")
+//                          .attr("class", "dashedLink")
+//                          .attr("d", dashedElbow);
         
                     leaves.append("rect")
                           .attr("class", "leafBack")
@@ -713,7 +717,9 @@
                             pandemix.globalData[d.name] = {"height" : d.height};
                             pandemix.taxa.add([{"name": d.name,
                                                  "date": pandemix.nodeHeightToDate(d.height, timeOrigin),
-                                                 "location": d.location || ""}]);
+                                                 "location": d.location || "",
+                                                 "subtype": (d.Hx || "") + (d.Nx || "")
+                                                 }]);
                         }
                     });
 

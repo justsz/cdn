@@ -12,6 +12,7 @@ pandemix = (function() {
     pandemix.selectedNodes = [];
     pandemix.selectedDate = new Date(0); //might be a little dangerous...
     pandemix.selectedPeriod = [0,0];
+    pandemix.timeRange = [new Date("0"), new Date("9999")];
     pandemix.globalData = {}; //keeps track of data added to crossfilter
     pandemix.map = {}; //store map related things, like layers
     

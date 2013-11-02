@@ -42,7 +42,13 @@
                                     .attr("class", "traitRow")
                                     .on("click", function(d) {
                                         if (!d.colorIsStatic) {
-                                            d.selected = !d.selected;
+                                  			d.selected = !d.selected;
+											if (d3.event.altKey) {
+												svg.selectAll(".traitRow")
+												   .each(function(d2) {
+                                  						d2.selected = d.selected;
+												   });
+                                            }
                                             pandemix.traitType = displayTrait;
                                             pandemix.traitValues = [];
                                             svg.selectAll(".traitRow")

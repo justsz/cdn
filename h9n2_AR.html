@@ -158,6 +158,7 @@
 		<button id="show-HA">HA subtype</button>
 		<button id="show-NA">NA subtype</button>
 		<button id="show-segment">Segment</button>
+		<button id="save-svg">Save SVG</button>
   </div>
 </div>
 <div class="panel" style="margin-top: 5px">
@@ -227,7 +228,6 @@
 		</div>
 	</div>
 </div>
-
 <script>
     //script wrapped in a function to avoid polluting namespace
     (function() {
@@ -246,11 +246,11 @@
 
         var mapPanel = new pandemix.MapPanel;
         mapPanel.placePanel({target: "map", initCoords: [34, 104], initZoom: 4})
-                .addTileLayer(tileSource)
-                //.loadContours(contourFile)
+                .addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"})
+				//.addTileLayer(tileSource)
+                .loadContours(contourFile)
                 .loadCentroids(centroidFile)
                 .addInfoDisplay(function(d) {return "<h4>" + d.location + "</h4>" + d.treeName + " - " + d.number})
-                //.addLayer({layerType: pandemix.map.regionOutlineLayer, name: "Regions"})
                 .addLayer({layerType: pandemix.map.locationLayer, name: "Locations", displayedProperty: "location", unitRadius: 0.5, minRadius: 1, maxRadius: 50});
 
 		$( "#map-reset" ).click(function() {
@@ -267,6 +267,9 @@
 		});
 		$( "#show-segment" ).click(function() {
 			pandemix.selectTrait("Tree");
+		});
+		$( "#save-svg" ).click(function() {
+			writeDownloadLink();
 		});
 
         pandemix.panels.push(mapPanel);
@@ -307,6 +310,57 @@
 				pandemix.selectTrait("Tree");
 			}, 100);
 	})();
+	
+	function show_svg_code()
+	{
+		// Get the d3js SVG element
+		var tmp  = document.getElementById("tree1");
+		var svg = tmp.getElementsByTagName("svg")[0];
+
+		// Extract the data as SVG text string
+		var svg_xml = (new XMLSerializer).serializeToString(svg);
+
+		window.open().document.write(svg_xml);
+ $("svg").attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg"});
+
+
+	}
+function writeDownloadLink(){
+   		var tmp  = document.getElementById("tree1");
+		var svg = tmp.getElementsByTagName("svg")[0];
+
+		// Extract the data as SVG text string
+		var svg_xml = (new XMLSerializer).serializeToString(svg);
+	
+	 window.open().document.write(svg_xml);
+    
+	var html = d3.select("svg")
+        .attr("title", "test2")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+
+    d3.select("body").append("div")
+        .attr("id", "download")
+        .style("top", event.clientY+20+"px")
+        .style("left", event.clientX+"px")
+        .html("Right-click on this preview and choose Save as<br />Left-Click to dismiss<br />")
+        .append("img")
+        .attr("src", "data:image/svg+xml;base64,"+ btoa(html));
+
+    d3.select("#download")
+        .on("click", function(){
+            if(event.button == 0){
+                d3.select(this).transition()
+                    .style("opacity", 0)
+                    .remove();
+            }
+        })
+        .transition()
+        .duration(500)
+        .style("opacity", 1);
+};
+
 </script>
 
 </body></html>
